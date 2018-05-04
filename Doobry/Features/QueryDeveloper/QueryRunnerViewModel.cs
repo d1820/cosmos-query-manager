@@ -23,7 +23,7 @@ using Microsoft.Azure.Documents.Linq;
 namespace Doobry.Features.QueryDeveloper
 {
     public class QueryRunnerViewModel : INotifyPropertyChanged
-    {        
+    {
         private readonly Func<ExplicitConnection> _connectionProvider;
         private readonly Func<GeneralSettings> _generalSettingsProvider;
         private readonly Action<Result> _editHandler;
@@ -66,7 +66,7 @@ namespace Doobry.Features.QueryDeveloper
         }
 
         public static readonly DependencyProperty SelfProperty = DependencyProperty.RegisterAttached(
-            "Self", typeof(QueryRunnerViewModel), typeof(QueryRunnerViewModel), new PropertyMetadata(default(QueryRunnerViewModel), SelfPropertyChangedCallback));        
+            "Self", typeof(QueryRunnerViewModel), typeof(QueryRunnerViewModel), new PropertyMetadata(default(QueryRunnerViewModel), SelfPropertyChangedCallback));
 
         private static void SelfPropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
@@ -85,7 +85,7 @@ namespace Doobry.Features.QueryDeveloper
 
         internal void Receive(TextEditor textBox)
         {
-            _textEditor = textBox;            
+            _textEditor = textBox;
         }
 
         public TextDocument Document { get; }
@@ -140,11 +140,11 @@ namespace Doobry.Features.QueryDeveloper
 
             await DialogHost.Show(cancellableDialog, _dialogTargetFinder.SuggestDialogHostIdentifier(), delegate (object sender, DialogOpenedEventArgs args)
             {
-                RunQuery(connection, _generalSettingsProvider().MaxItemCount, query, waitHandle, source, args);
+                RunQuery(connection, _generalSettingsProvider().MaxItemCount,_generalSettingsProvider().CrossPartition, query, waitHandle, source, args);
             });
         }
 
-        private async void RunQuery(ExplicitConnection explicitConnection, int? maxItemCount, string query, EventWaitHandle waitHandle, CancellationTokenSource source,
+        private async void RunQuery(ExplicitConnection explicitConnection, int? maxItemCount, bool crossPartition, string query, EventWaitHandle waitHandle, CancellationTokenSource source,
             DialogOpenedEventArgs args)
         {
             ResultSetExplorer.SelectedRow = -1;
@@ -157,7 +157,7 @@ namespace Doobry.Features.QueryDeveloper
 
                     Task.Factory.StartNew(async () =>
                     {
-                        resultSet = await RunQuery(explicitConnection, maxItemCount, query);
+                        resultSet = await RunQuery(explicitConnection, maxItemCount, crossPartition, query);
                         waitHandle.Set();
                     }, source.Token);
 
@@ -174,14 +174,14 @@ namespace Doobry.Features.QueryDeveloper
         }
 
 
-        private async Task<ResultSet> RunQuery(ExplicitConnection explicitConnection, int? maxItemCount, string query)
+        private async Task<ResultSet> RunQuery(ExplicitConnection explicitConnection, int? maxItemCount, bool crossPartition, string query)
         {
             try
             {
                 _activeDocumentQuery?.Item1.Dispose();
 
                 var documentClient = CreateDocumentClient(explicitConnection);
-                var feedOptions = new FeedOptions { MaxItemCount = maxItemCount };
+                var feedOptions = new FeedOptions { MaxItemCount = maxItemCount, EnableCrossPartitionQuery  = crossPartition};
                 var documentQuery = documentClient.CreateDocumentQuery(
                     UriFactory.CreateDocumentCollectionUri(explicitConnection.DatabaseId, explicitConnection.CollectionId), query,
                     feedOptions).AsDocumentQuery();

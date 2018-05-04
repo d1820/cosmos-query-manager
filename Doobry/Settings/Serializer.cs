@@ -40,6 +40,7 @@ namespace Doobry.Settings
         {
             dynamic gs = new JObject();
             gs.maxItemCount = generalSettings.MaxItemCount;
+            gs.crossPartition = generalSettings.CrossPartition;
             return gs;
         }
 
@@ -82,7 +83,7 @@ namespace Doobry.Settings
             dynamic ts = new JObject();
             ts.id = tabSet.Id;
             ts.selectedTabItemId = tabSet.SelectedTabItemId;
-            ts.tabItems = new JArray(tabSet.TabItems.Select(ToJson));            
+            ts.tabItems = new JArray(tabSet.TabItems.Select(ToJson));
             return ts;
         }
 
@@ -93,13 +94,13 @@ namespace Doobry.Settings
             dynamic ti = new JObject();
             ti.id = tabItem.Id;
             ti.featureId = tabItem.FeatureId;
-            tabItem.BackingStoreWriter.WriteToBackingStore(tabItem.TabContentViewModel, ti);            
+            tabItem.BackingStoreWriter.WriteToBackingStore(tabItem.TabContentViewModel, ti);
             return ti;
         }
 
         public static SettingsContainer Objectify(string data)
         {
-            dynamic jObj = JObject.Parse(data);            
+            dynamic jObj = JObject.Parse(data);
             JArray connectionsJArray = jObj.connections;
             var connections = connectionsJArray.Select(jt =>
                 new ExplicitConnection(
@@ -109,9 +110,9 @@ namespace Doobry.Settings
                     jt["authorisationKey"].ToString(),
                     jt["databaseId"].ToString(),
                     jt["collectionId"].ToString()));
-            var connectionCache = new ExplicitConnectionCache(connections);            
+            var connectionCache = new ExplicitConnectionCache(connections);
 
-            var generalSettings = new GeneralSettings((int?)jObj.general.maxItemCount.Value);
+            var generalSettings = new GeneralSettings((int?)jObj.general.maxItemCount.Value, (bool)jObj.general.crossPartition.Value);
 
             var layoutStructure = ObjectifyLayout(jObj.layout);
 
@@ -130,13 +131,13 @@ namespace Doobry.Settings
         {
             return new LayoutStructureWindow(
                 ((JArray)windowJToken.SelectToken("branches")).Select(ObjectifyBranch),
-                ((JArray)windowJToken.SelectToken("tabSets")).Select(ObjectifyTabSet));            
+                ((JArray)windowJToken.SelectToken("tabSets")).Select(ObjectifyTabSet));
         }
 
         private static LayoutStructureBranch ObjectifyBranch(JToken branchJToken)
         {
             return new LayoutStructureBranch(
-                Guid.Parse(branchJToken["id"].ToString()),                
+                Guid.Parse(branchJToken["id"].ToString()),
                 GetNullableGuid(branchJToken, "childFirstBranchId"),
                 GetNullableGuid(branchJToken, "childSecondBranchId"),
                 GetNullableGuid(branchJToken, "childFirstTabSetId"),

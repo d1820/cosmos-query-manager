@@ -16,7 +16,7 @@ namespace Doobry.Tests
         {
             var connection1 = new ExplicitConnection(Guid.NewGuid(), "AAA", "BBB", "CCC", "DDD", "EEE");
             var connection2 = new ExplicitConnection(Guid.NewGuid(), "111", "222", "333", "444", "555");
-            var generalSettings = new GeneralSettings(5);
+            var generalSettings = new GeneralSettings(5, false);
             var connectionCache = new ExplicitConnectionCache(new[] {connection1, connection2});
 
             var stringify = Serializer.Stringify(connectionCache, generalSettings, new LayoutStructure(Enumerable.Empty<LayoutStructureWindow>()));
@@ -31,7 +31,7 @@ namespace Doobry.Tests
             var connection2Id = Guid.NewGuid();
             var connection1 = new ExplicitConnection(connection1Id, "AAA", "BBB", "CCC", "DDD", "EEE");
             var connection2 = new ExplicitConnection(connection2Id, "111", "222", "333", "444", "555");
-            var generalSettings = new GeneralSettings(5);
+            var generalSettings = new GeneralSettings(5, false);
             var connectionCache = new ExplicitConnectionCache(new[] { connection1, connection2 });
 
             var data = Serializer.Stringify(connectionCache, generalSettings, new LayoutStructure(Enumerable.Empty<LayoutStructureWindow>()));
@@ -57,7 +57,7 @@ namespace Doobry.Tests
         [Fact]
         public void WillRoundTripNull()
         {
-            var generalSettings = new GeneralSettings(null);
+            var generalSettings = new GeneralSettings(null, false);
             var data = Serializer.Stringify(new ExplicitConnectionCache(), generalSettings, new LayoutStructure(Enumerable.Empty<LayoutStructureWindow>()));
 
             var settingsContainer = Serializer.Objectify(data);

@@ -1,22 +1,29 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace Doobry.Settings
 {
     public class GeneralSettings : IGeneralSettings
     {
         private int? _maxItemCount;
+        private bool _crossPartition;
 
-        public GeneralSettings(int? maxItemCount)
+        public GeneralSettings(int? maxItemCount, bool crossPartition)
         {
             MaxItemCount = maxItemCount;
+            CrossPartition = crossPartition;
         }
 
         public int? MaxItemCount
         {
-            get { return _maxItemCount; }
-            set { this.MutateVerbose(ref _maxItemCount, value, RaisePropertyChanged()); }
+            get => _maxItemCount;
+            set => this.MutateVerbose(ref _maxItemCount, value, RaisePropertyChanged());
+        }
+
+        public bool CrossPartition
+        {
+            get => _crossPartition;
+            set => this.MutateVerbose(ref _crossPartition, value, RaisePropertyChanged());
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

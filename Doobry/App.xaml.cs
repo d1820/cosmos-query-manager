@@ -30,8 +30,8 @@ namespace Doobry
 
             IGeneralSettings generalSettings = null;
             IExplicitConnectionCache explicitConnectionCache = null;
-            IInitialLayoutStructureProvider initialLayoutStructureProvider = null;            
-            
+            IInitialLayoutStructureProvider initialLayoutStructureProvider = null;
+
             string rawData;
             if (new Persistance().TryLoadRaw(out rawData))
             {
@@ -50,7 +50,7 @@ namespace Doobry
                 }
             }
 
-            generalSettings = generalSettings ?? new GeneralSettings(10);
+            generalSettings = generalSettings ?? new GeneralSettings(10, false);
             explicitConnectionCache = explicitConnectionCache ?? new ExplicitConnectionCache();
             initialLayoutStructureProvider = initialLayoutStructureProvider ?? new InitialLayoutStructureProvider();
 
@@ -70,17 +70,17 @@ namespace Doobry
                             FeatureRegistry
                                 .WithDefault(ctx.GetInstance<QueryDeveloperFeatureFactory>())
                                 .Add(ctx.GetInstance<ManagementFeatureFactory>()));
-                _.AddRegistry<DoobryRegistry>();                
+                _.AddRegistry<DoobryRegistry>();
                 _.Scan(scanner =>
                 {
                     scanner.TheCallingAssembly();
                     scanner.WithDefaultConventions();
-                });                
-            });            
+                });
+            });
 
             var windowInstanceManager = new WindowInstanceManager(container.GetInstance<MainWindowViewModel>);
 
-            //grease the Dragablz wheels    
+            //grease the Dragablz wheels
             var featureRegistry = container.GetInstance<FeatureRegistry>();
             NewItemFactory = () =>
             {
@@ -97,11 +97,11 @@ namespace Doobry
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var mainWindow = windowInstanceManager.Create();
             mainWindow.Show();
-                
+
             Task.Factory.StartNew(() => CheckForUpdates(container.GetInstance<ISnackbarMessageQueue>()));
         }
 
-        //easy access to stuff which dragablz needs 
+        //easy access to stuff which dragablz needs
         public static Func<object> NewItemFactory { get; private set; }
         public static IInterTabClient InterTabClient { get; private set; }
         public static ItemActionCallback ClosingItemCallback { get; private set; }
