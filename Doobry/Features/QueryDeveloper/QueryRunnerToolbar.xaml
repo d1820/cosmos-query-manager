@@ -8,14 +8,14 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance local:MainWindowViewModel, d:IsDesignTimeCreatable=False}">
     <materialDesign:ColorZone Mode="PrimaryLight" materialDesign:ShadowAssist.ShadowDepth="Depth2" Padding="14 6 14 6"
-                              CornerRadius="0">
+                              CornerRadius="0" Background="#FF05306E">
         <StackPanel Orientation="Horizontal">
             <Button ToolTip="Database Settings..." 
                     Command="{Binding EditConnectionCommand, Mode=OneTime}"
                     CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
                     Style="{DynamicResource MaterialDesignToolForegroundButton}"
                     materialDesign:RippleAssist.IsCentered="True">
-                <materialDesign:PackIcon Kind="Database" />
+                <materialDesign:PackIcon Kind="Database" Foreground="#DDF9F7F7" />
             </Button>
             <Button ToolTip="General Settings..." 
                     Command="{Binding EditSettingsCommand, Mode=OneTime}"
@@ -23,7 +23,7 @@
                     Margin="16 0 0 0"
                     Style="{DynamicResource MaterialDesignToolForegroundButton}"
                     materialDesign:RippleAssist.IsCentered="True">
-                <materialDesign:PackIcon Kind="Settings" />
+                <materialDesign:PackIcon Kind="Settings" Foreground="#DDF5F4F4" />
             </Button>
             <materialDesign:ColorZone Mode="Light" CornerRadius="2" Padding="16 2 16 2" Margin="16 0 0 0">
                 <StackPanel Orientation="Horizontal">
@@ -47,7 +47,7 @@
             <Button ToolTip="Run Query - F9" Command="{Binding QueryRunnerViewModel.RunQueryCommand, Mode=OneTime}"
                     Style="{DynamicResource MaterialDesignFloatingActionMiniAccentButton}"
                     Margin="24 -4 0 -4"
-                    materialDesign:RippleAssist.IsCentered="True">
+                    materialDesign:RippleAssist.IsCentered="True" Background="#FF3F7FDA" BorderBrush="#FFF9F9F9">
                 <materialDesign:PackIcon Kind="Play" />
             </Button>
             <Button ToolTip="Document Editor... - F2"
@@ -55,7 +55,7 @@
                     Style="{DynamicResource MaterialDesignToolForegroundButton}"
                     materialDesign:RippleAssist.IsCentered="True"
                     Margin="16 0 0 0">
-                <materialDesign:PackIcon Kind="FileDocument" />
+                <materialDesign:PackIcon Kind="FileDocument" Foreground="#DDF5F5F5" />
             </Button>
         </StackPanel>
     </materialDesign:ColorZone>

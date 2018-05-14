@@ -35,12 +35,18 @@ namespace Doobry.Features.QueryDeveloper
 
         public QueryRunnerViewModel(Guid fileId, IHighlightingDefinition highlightingDefinition, Func<ExplicitConnection> connectionProvider, Func<GeneralSettings> generalSettingsProvider, Action<Result> editHandler, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder)
         {
-            if (highlightingDefinition == null) throw new ArgumentNullException(nameof(highlightingDefinition));
-            if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
-            if (generalSettingsProvider == null) throw new ArgumentNullException(nameof(generalSettingsProvider));
-            if (editHandler == null) throw new ArgumentNullException(nameof(editHandler));
-            if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
-            if (dialogTargetFinder == null) throw new ArgumentNullException(nameof(dialogTargetFinder));
+            if (highlightingDefinition == null)
+                throw new ArgumentNullException(nameof(highlightingDefinition));
+            if (connectionProvider == null)
+                throw new ArgumentNullException(nameof(connectionProvider));
+            if (generalSettingsProvider == null)
+                throw new ArgumentNullException(nameof(generalSettingsProvider));
+            if (editHandler == null)
+                throw new ArgumentNullException(nameof(editHandler));
+            if (snackbarMessageQueue == null)
+                throw new ArgumentNullException(nameof(snackbarMessageQueue));
+            if (dialogTargetFinder == null)
+                throw new ArgumentNullException(nameof(dialogTargetFinder));
 
             HighlightingDefinition = highlightingDefinition;
             _connectionProvider = connectionProvider;
@@ -48,25 +54,31 @@ namespace Doobry.Features.QueryDeveloper
             _editHandler = editHandler;
             _dialogTargetFinder = dialogTargetFinder;
             RunQueryCommand = new Command(_ => RunQuery());
-            _fetchMoreCommand = new Command(_ => FetchMore(), _ => _activeDocumentQuery != null && _activeDocumentQuery.Item2.HasMoreResults);
+            _fetchMoreCommand = new Command(async _ =>
+                                            {
+                                                var fetchResult = await FetchMore(_activeDocumentQuery.Item2);
+                                                ResultSetExplorer.ResultSet.Cost = fetchResult.totalCost;
+                                                ResultSetExplorer.ResultSet.Append(fetchResult.items);
+                                                _fetchMoreCommand.Refresh();
+                                            }, _ => _activeDocumentQuery != null && _activeDocumentQuery.Item2.HasMoreResults);
 
-            var editDocumentCommand = new Command(o => _editHandler((Result)o), o => o is Result);
-            var deleteDocumentCommand = new Command(o => DeleteDocument((Result)o, snackbarMessageQueue), o => o is Result);
+            var editDocumentCommand = new Command(o => _editHandler((Result) o), o => o is Result);
+            var deleteDocumentCommand = new Command(o => DeleteDocument((Result) o, snackbarMessageQueue), o => o is Result);
 
             Document = new TextDocument();
 
             DocumentChangedObservable = Observable.Create<DocumentChangedUnit>(observer =>
-            {
-                return
-                    Document.OnPropertyChanged(td => td.Text)
-                        .Subscribe(text => observer.OnNext(new DocumentChangedUnit(fileId, Document.Text)));
-            });
+                                                                               {
+                                                                                   return
+                                                                                           Document.OnPropertyChanged(td => td.Text)
+                                                                                                   .Subscribe(text => observer.OnNext(new DocumentChangedUnit(fileId, Document.Text)));
+                                                                               });
 
             ResultSetExplorer = new ResultSetExplorerViewModel(_fetchMoreCommand, editDocumentCommand, deleteDocumentCommand);
         }
 
         public static readonly DependencyProperty SelfProperty = DependencyProperty.RegisterAttached(
-            "Self", typeof(QueryRunnerViewModel), typeof(QueryRunnerViewModel), new PropertyMetadata(default(QueryRunnerViewModel), SelfPropertyChangedCallback));
+                                                                                                     "Self", typeof(QueryRunnerViewModel), typeof(QueryRunnerViewModel), new PropertyMetadata(default(QueryRunnerViewModel), SelfPropertyChangedCallback));
 
         private static void SelfPropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
@@ -80,7 +92,7 @@ namespace Doobry.Features.QueryDeveloper
 
         public static QueryRunnerViewModel GetSelf(DependencyObject element)
         {
-            return (QueryRunnerViewModel)element.GetValue(SelfProperty);
+            return (QueryRunnerViewModel) element.GetValue(SelfProperty);
         }
 
         internal void Receive(TextEditor textBox)
@@ -112,9 +124,9 @@ namespace Doobry.Features.QueryDeveloper
         private void RunQuery()
         {
             var query =
-                _textEditor != null && _textEditor.SelectionLength > 0
-                    ? _textEditor.SelectedText
-                    : Document.Text;
+                    _textEditor != null && _textEditor.SelectionLength > 0
+                            ? _textEditor.SelectedText
+                            : Document.Text;
 
             RunQueryAsync(query);
         }
@@ -124,7 +136,8 @@ namespace Doobry.Features.QueryDeveloper
             var connection = _connectionProvider();
 
             //TODO disable commands
-            if (query == null || connection == null) return;
+            if (query == null || connection == null)
+                return;
 
             var source = new CancellationTokenSource();
             var waitHandle = new ManualResetEvent(false);
@@ -132,45 +145,42 @@ namespace Doobry.Features.QueryDeveloper
             source.Token.Register(() => waitHandle.Set());
 
             var cancellableDialogViewModel = new CancellableDialogViewModel(() => source.Cancel(), TimeSpan.FromMilliseconds(2500),
-                Dispatcher.CurrentDispatcher);
+                                                                            Dispatcher.CurrentDispatcher);
             var cancellableDialog = new CancellableDialog
-            {
-                DataContext = cancellableDialogViewModel
-            };
+                                    {
+                                            DataContext = cancellableDialogViewModel
+                                    };
 
-            await DialogHost.Show(cancellableDialog, _dialogTargetFinder.SuggestDialogHostIdentifier(), delegate (object sender, DialogOpenedEventArgs args)
-            {
-                RunQuery(connection, _generalSettingsProvider().MaxItemCount,_generalSettingsProvider().CrossPartition, query, waitHandle, source, args);
-            });
+            await DialogHost.Show(cancellableDialog, _dialogTargetFinder.SuggestDialogHostIdentifier(), delegate(object sender, DialogOpenedEventArgs args) { RunQuery(connection, _generalSettingsProvider().MaxItemCount, _generalSettingsProvider().CrossPartition, query, waitHandle, source, args); });
         }
 
         private async void RunQuery(ExplicitConnection explicitConnection, int? maxItemCount, bool crossPartition, string query, EventWaitHandle waitHandle, CancellationTokenSource source,
-            DialogOpenedEventArgs args)
+                                    DialogOpenedEventArgs args)
         {
             ResultSetExplorer.SelectedRow = -1;
             ResultSetExplorer.ResultSet = null;
 
             await Task<ResultSet>.Factory
-                .StartNew(() =>
-                {
-                    ResultSet resultSet = null;
+                                 .StartNew(() =>
+                                           {
+                                               ResultSet resultSet = null;
 
-                    Task.Factory.StartNew(async () =>
-                    {
-                        resultSet = await RunQuery(explicitConnection, maxItemCount, crossPartition, query);
-                        waitHandle.Set();
-                    }, source.Token);
+                                               Task.Factory.StartNew(async () =>
+                                                                     {
+                                                                         resultSet = await RunQuery(explicitConnection, maxItemCount, crossPartition, query);
+                                                                         waitHandle.Set();
+                                                                     }, source.Token);
 
-                    waitHandle.WaitOne();
-                    source.Token.ThrowIfCancellationRequested();
+                                               waitHandle.WaitOne();
+                                               source.Token.ThrowIfCancellationRequested();
 
-                    return resultSet;
-                }, source.Token)
-                .ContinueWith(task =>
-                {
-                    ResultSetExplorer.ResultSet = task.IsCanceled ? new ResultSet("Cancelled") : task.Result;
-                    args.Session.Close();
-                }, TaskScheduler.FromCurrentSynchronizationContext());
+                                               return resultSet;
+                                           }, source.Token)
+                                 .ContinueWith(task =>
+                                               {
+                                                   ResultSetExplorer.ResultSet = task.IsCanceled ? new ResultSet("Cancelled") : task.Result;
+                                                   args.Session.Close();
+                                               }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
 
@@ -181,20 +191,25 @@ namespace Doobry.Features.QueryDeveloper
                 _activeDocumentQuery?.Item1.Dispose();
 
                 var documentClient = CreateDocumentClient(explicitConnection);
-                var feedOptions = new FeedOptions { MaxItemCount = maxItemCount, EnableCrossPartitionQuery  = crossPartition};
+                var feedOptions = new FeedOptions
+                                  {
+                                          MaxItemCount = maxItemCount,
+                                          EnableCrossPartitionQuery = crossPartition
+                                  };
                 var documentQuery = documentClient.CreateDocumentQuery(
-                    UriFactory.CreateDocumentCollectionUri(explicitConnection.DatabaseId, explicitConnection.CollectionId), query,
-                    feedOptions).AsDocumentQuery();
+                                                                       UriFactory.CreateDocumentCollectionUri(explicitConnection.DatabaseId, explicitConnection.CollectionId), query,
+                                                                       feedOptions).AsDocumentQuery();
 
                 _activeDocumentQuery = new Tuple<DocumentClient, IDocumentQuery<dynamic>>(documentClient, documentQuery);
 
-                var results =
-                    (await documentQuery.ExecuteNextAsync()).Select((dy, row) => new Result(row, dy.ToString()));
+                var fetchResult = await FetchMore(documentQuery);
+                var results = fetchResult.items.Select((dy, row) => new Result(row, dy.ToString()));
 
                 _fetchMoreCommand.Refresh();
 
-                return new ResultSet(results);
-
+                var rs = new ResultSet(results);
+                rs.Cost = fetchResult.totalCost;
+                return rs;
             }
             catch (DocumentClientException de)
             {
@@ -204,8 +219,8 @@ namespace Doobry.Features.QueryDeveloper
             {
                 var documentClientException = ae.Flatten().InnerExceptions.First() as DocumentClientException;
                 return documentClientException != null
-                    ? new ResultSet(documentClientException)
-                    : new ResultSet(ae.Message);
+                               ? new ResultSet(documentClientException)
+                               : new ResultSet(ae.Message);
             }
             catch (Exception e)
             {
@@ -219,58 +234,61 @@ namespace Doobry.Features.QueryDeveloper
             return new DocumentClient(new Uri(explicitConnection.Host), explicitConnection.AuthorisationKey);
         }
 
-        private async void FetchMore()
+        private async Task<(double totalCost, List<dynamic>items)> FetchMore(IDocumentQuery<dynamic> query)
         {
-            await FetchNextUnloadedResults(ResultSetExplorer.ResultSet);
+            List<dynamic> items = new List<dynamic>();
+            double totalRuCost = 0;
+            while (query.HasMoreResults)
+            {
+                var result = await query.ExecuteNextAsync();
+                items.AddRange(result);
+                //log RU
+                totalRuCost += result.RequestCharge;
+            }
+
+
+            return (totalRuCost, items);
         }
 
-        private async Task FetchNextUnloadedResults(ResultSet intoResultSet)
-        {
-            if (!_activeDocumentQuery.Item2.HasMoreResults) return;
-
-            var results = (await _activeDocumentQuery.Item2.ExecuteNextAsync()).Select(dy => (string)dy.ToString()).ToList();
-
-            intoResultSet.Append(results);
-            _fetchMoreCommand.Refresh();
-        }
 
         private async void DeleteDocument(Result result, ISnackbarMessageQueue snackbarMessageQueue)
         {
             var dialogContentControl = new DialogContentControl
-            {
-                Padding = new Thickness(16),
-                Title = "Confirm Delete",
-                Content = $"Are you sure you wish to delete this document?{Environment.NewLine + Environment.NewLine}id: {result.Id.Raw + Environment.NewLine}_self: {result.Id.Self}"
-            };
+                                       {
+                                               Padding = new Thickness(16),
+                                               Title = "Confirm Delete",
+                                               Content = $"Are you sure you wish to delete this document?{Environment.NewLine + Environment.NewLine}id: {result.Id.Raw + Environment.NewLine}_self: {result.Id.Self}"
+                                       };
             var confirmation = await DialogHost.Show(dialogContentControl, _dialogTargetFinder.SuggestDialogHostIdentifier());
-            if (!bool.TrueString.Equals(confirmation)) return;
+            if (!bool.TrueString.Equals(confirmation))
+                return;
 
             var progressRing = new ProgressRing();
-            await DialogHost.Show(progressRing, _dialogTargetFinder.SuggestDialogHostIdentifier(), delegate (object sender, DialogOpenedEventArgs args)
-            {
-                Task.Factory.StartNew(async () =>
-                {
-                    using (var client = CreateDocumentClient(_connectionProvider()))
-                    {
-                        await client.DeleteDocumentAsync(result.Id.Self);
-                    }
-                }).ContinueWith(task =>
-                {
-                    if (task.Exception != null)
-                    {
-                        args.Session.UpdateContent(new MessageDialog
-                        {
-                            Title = "Delete Error",
-                            Content = task.Exception.Flatten().Message
-                        });
-                    }
-                    else
-                    {
-                        snackbarMessageQueue.Enqueue($"Deleted document '{result.Id.ToString()}'.");
-                        args.Session.Close();
-                    }
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-            });
+            await DialogHost.Show(progressRing, _dialogTargetFinder.SuggestDialogHostIdentifier(), delegate(object sender, DialogOpenedEventArgs args)
+                                                                                                   {
+                                                                                                       Task.Factory.StartNew(async () =>
+                                                                                                                             {
+                                                                                                                                 using (var client = CreateDocumentClient(_connectionProvider()))
+                                                                                                                                 {
+                                                                                                                                     await client.DeleteDocumentAsync(result.Id.Self);
+                                                                                                                                 }
+                                                                                                                             }).ContinueWith(task =>
+                                                                                                                                             {
+                                                                                                                                                 if (task.Exception != null)
+                                                                                                                                                 {
+                                                                                                                                                     args.Session.UpdateContent(new MessageDialog
+                                                                                                                                                                                {
+                                                                                                                                                                                        Title = "Delete Error",
+                                                                                                                                                                                        Content = task.Exception.Flatten().Message
+                                                                                                                                                                                });
+                                                                                                                                                 }
+                                                                                                                                                 else
+                                                                                                                                                 {
+                                                                                                                                                     snackbarMessageQueue.Enqueue($"Deleted document '{result.Id.ToString()}'.");
+                                                                                                                                                     args.Session.Close();
+                                                                                                                                                 }
+                                                                                                                                             }, TaskScheduler.FromCurrentSynchronizationContext());
+                                                                                                   });
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

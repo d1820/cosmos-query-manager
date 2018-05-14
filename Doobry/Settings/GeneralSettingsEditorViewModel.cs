@@ -6,7 +6,7 @@ namespace Doobry.Settings
     public class GeneralSettingsEditorViewModel : INotifyPropertyChanged
     {
         private int? _maxItemCount;
-        private bool _crossPartition;
+        private bool _crossPartition = true;
 
         public int? MaxItemCount
         {

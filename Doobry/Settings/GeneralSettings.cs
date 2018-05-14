@@ -6,7 +6,7 @@ namespace Doobry.Settings
     public class GeneralSettings : IGeneralSettings
     {
         private int? _maxItemCount;
-        private bool _crossPartition;
+        private bool _crossPartition = true;
 
         public GeneralSettings(int? maxItemCount, bool crossPartition)
         {

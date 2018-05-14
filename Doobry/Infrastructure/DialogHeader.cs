@@ -16,8 +16,8 @@ namespace Doobry.Infrastructure
 
         public PackIconKind Icon
         {
-            get { return (PackIconKind) GetValue(IconProperty); }
-            set { SetValue(IconProperty, value); }
+            get => (PackIconKind) GetValue(IconProperty);
+            set => SetValue(IconProperty, value);
         }
 
         public static readonly DependencyProperty TitleProperty = DependencyProperty.Register(
@@ -25,8 +25,8 @@ namespace Doobry.Infrastructure
 
         public string Title
         {
-            get { return (string) GetValue(TitleProperty); }
-            set { SetValue(TitleProperty, value); }
+            get => (string) GetValue(TitleProperty);
+            set => SetValue(TitleProperty, value);
         }
     }
 }

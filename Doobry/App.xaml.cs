@@ -50,7 +50,7 @@ namespace Doobry
                 }
             }
 
-            generalSettings = generalSettings ?? new GeneralSettings(10, false);
+            generalSettings = generalSettings ?? new GeneralSettings(100, true);
             explicitConnectionCache = explicitConnectionCache ?? new ExplicitConnectionCache();
             initialLayoutStructureProvider = initialLayoutStructureProvider ?? new InitialLayoutStructureProvider();
 

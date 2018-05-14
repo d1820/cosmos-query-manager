@@ -44,5 +44,7 @@ namespace Doobry
                  .OfType<MainWindow>()
                  .FirstOrDefault()).DialogHost.Identifier;
         }
+
+
     }
 }

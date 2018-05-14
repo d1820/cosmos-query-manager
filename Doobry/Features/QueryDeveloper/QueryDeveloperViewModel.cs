@@ -27,13 +27,10 @@ namespace Doobry.Features.QueryDeveloper
 
         public QueryDeveloperViewModel(Guid fileId, ExplicitConnection explicitConnection, IExplicitConnectionCache explicitConnectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder)
         {
-            if (explicitConnectionCache == null)
-                throw new ArgumentNullException(nameof(explicitConnectionCache));
-
             FileId = fileId;
-            _generalSettings = new GeneralSettings(10, false);
+            _generalSettings = new GeneralSettings(100, true);
             _explicitConnection = explicitConnection;
-            _explicitConnectionCache = explicitConnectionCache;
+            _explicitConnectionCache = explicitConnectionCache ?? throw new ArgumentNullException(nameof(explicitConnectionCache));
 
             FetchDocumentCommand = new Command(o => QueryRunnerViewModel.Run($"SELECT * FROM root r WHERE r.id = '{DocumentId}'"));
             EditConnectionCommand = new Command(sender => EditConnectionAsync((DependencyObject) sender));

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using Doobry.Infrastructure;
 
@@ -16,27 +13,34 @@ namespace Doobry.Features.QueryDeveloper
         private ResultSet _resultSet;
         private bool _isError;
         private string _error;
+        private string _totalCost;
 
         public ResultSetExplorerViewModel(ICommand fetchMoreCommand, ICommand editDocumentCommand,
             ICommand deleteDocumentCommand)
         {
-            if (fetchMoreCommand == null) throw new ArgumentNullException(nameof(fetchMoreCommand));
-
-            FetchMoreCommand = fetchMoreCommand;
+            FetchMoreCommand = fetchMoreCommand ?? throw new ArgumentNullException(nameof(fetchMoreCommand));
             EditDocumentCommand = editDocumentCommand;
             DeleteDocumentCommand = deleteDocumentCommand;
             SaveDocumentCommand = new Command(o => SaveDocument((Result) o), o => o is Result);
         }
 
+        /// <summary>
+        /// Gets or sets the result set.
+        /// </summary>
+        /// <value>
+        /// The result set.
+        /// </value>
         public ResultSet ResultSet
         {
-            get { return _resultSet; }
+            get => _resultSet;
             set
             {
                 this.MutateVerbose(ref _resultSet, value, RaisePropertyChanged());
 
+
                 if (_resultSet != null)
                 {
+                    TotalCost = $"{_resultSet.Cost} RU's";
                     if (!string.IsNullOrEmpty(_resultSet.Error))
                     {
                         IsError = true;
@@ -54,7 +58,11 @@ namespace Doobry.Features.QueryDeveloper
                     }
                 }
                 else
+                {
+                    TotalCost = "";
                     SelectedRow = -1;
+                }
+
             }
         }
 
@@ -68,20 +76,26 @@ namespace Doobry.Features.QueryDeveloper
 
         public bool IsError
         {
-            get { return _isError; }
-            private set { this.MutateVerbose(ref _isError, value, RaisePropertyChanged()); }
+            get => _isError;
+            private set => this.MutateVerbose(ref _isError, value, RaisePropertyChanged());
         }
 
         public string Error
         {
-            get { return _error; }
+            get => _error;
             private set { this.MutateVerbose(ref _error, value, RaisePropertyChanged()); }
         }
 
         public int SelectedRow
         {
-            get { return _selectedRow; }
-            set { this.MutateVerbose(ref _selectedRow, value, RaisePropertyChanged()); }
+            get => _selectedRow;
+            set => this.MutateVerbose(ref _selectedRow, value, RaisePropertyChanged());
+        }
+
+        public string TotalCost
+        {
+            get => _totalCost;
+            private set => this.MutateVerbose(ref _totalCost, value, RaisePropertyChanged());
         }
 
         private void SaveDocument(Result result)
@@ -99,10 +113,9 @@ namespace Doobry.Features.QueryDeveloper
             {
                 File.WriteAllText(saveFileDialog.FileName, result.Data);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //TODO show a dialog!
-                throw;
+                MessageBox.Show(ex.Message, "An Error Occurred");
             }
         }
 
@@ -114,4 +127,3 @@ namespace Doobry.Features.QueryDeveloper
         }
     }
 }
- 

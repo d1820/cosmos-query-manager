@@ -9,7 +9,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type infrastructure:DialogHeader}">
-                    <materialDesign:ColorZone Mode="PrimaryMid" VerticalContentAlignment="Center" Padding="8 4 8 4">
+                    <materialDesign:ColorZone Mode="Dark" VerticalContentAlignment="Center" Padding="8 4 8 4">
                         <Grid VerticalAlignment="Center">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
@@ -179,7 +179,7 @@
                         </ContentPresenter>
                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Grid.Row="2">
                             <Button IsDefault="True"
-                                    Style="{DynamicResource MaterialDesignFlatButton}"                                
+                                    Style="{DynamicResource MaterialDesignFlatButton}"
                                     Width="88"
                                     HorizontalAlignment="Right" Margin="8"
                                     Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
@@ -187,7 +187,7 @@
                                     <system:Boolean>False</system:Boolean>
                                 </Button.CommandParameter>_CANCEL</Button>
                             <Button IsDefault="True"
-                                    Style="{DynamicResource MaterialDesignFlatButton}"                                
+                                    Style="{DynamicResource MaterialDesignFlatButton}"
                                     Width="88"
                                     HorizontalAlignment="Right" Margin="8"
                                     Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">

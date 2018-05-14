@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        mc:Ignorable="d"        
+        mc:Ignorable="d"
         xmlns:doobry="clr-namespace:Doobry"
         xmlns:queryDeveloper="clr-namespace:Doobry.Features.QueryDeveloper"
         xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
@@ -13,12 +13,12 @@
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal" 
-        TextOptions.TextRenderingMode="Auto"       
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
         Icon="doobry.ico"
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}"        
-        Title="Doobry for DocumentDb" Height="550" Width="525"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        Title="CosmosDb Query Manager - (Doobry)" Height="600" Width="800"
         d:DataContext="{d:DesignInstance doobry:MainWindowViewModel, d:IsDesignTimeCreatable=False}"
         doobry:LifeTimeAssist.RunOnWindowUnloading="{Binding ShutDownCommand}">
     <Window.Resources>
@@ -61,7 +61,7 @@
                 <ContentControl Content="{Binding ViewModel}" />
             </DataTemplate>
             <dragablz:InterTabController x:Key="InterTabController" x:Shared="False" InterTabClient="{x:Static doobry:App.InterTabClient}" />
-            <ToggleButton x:Key="MenuToggleButton" x:Shared="False" 
+            <ToggleButton x:Key="MenuToggleButton" x:Shared="False"
                           Style="{StaticResource MaterialDesignHamburgerToggleButton}" IsChecked="{Binding ElementName=DrawerHost, Path=IsLeftDrawerOpen, Mode=TwoWay}"
                           Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"
                           RenderTransformOrigin=".5,.5">
@@ -93,12 +93,12 @@
                                Identifier="{Binding DialogHostIdentifier}">
         <materialDesign:DrawerHost x:Name="DrawerHost" IsLeftDrawerOpen="{Binding IsLeftDrawerOpen}">
             <materialDesign:DrawerHost.LeftDrawerContent>
-                <Button Command="{Binding OpenManagementCommand}">Database Manager</Button>
+                <Button Command="{Binding OpenManagementCommand}" VerticalAlignment="Top">Database Manager</Button>
             </materialDesign:DrawerHost.LeftDrawerContent>
             <Grid>
                 <dockablz:Layout IsTabStop="False" Focusable="False">
-                    <dragablz:TabablzControl x:Name="InitialTabablzControl"                                      
-                                             doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}">
+                    <dragablz:TabablzControl x:Name="InitialTabablzControl"
+                                             doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}" BorderBrush="#FF3F7FDA">
                     </dragablz:TabablzControl>
                 </dockablz:Layout>
                 <materialDesign:Snackbar MessageQueue="{Binding SnackbarMessageQueue}" />

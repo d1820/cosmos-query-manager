@@ -1,25 +1,24 @@
 ﻿<UserControl x:Class="Doobry.Features.QueryDeveloper.ResultSetExplorer"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Doobry"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:system="clr-namespace:System;assembly=mscorlib"
-             mc:Ignorable="d" 
+             xmlns:queryDeveloper="clr-namespace:Doobry.Features.QueryDeveloper"
+             mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance local:ResultSetExplorerViewModel, d:IsDesignTimeCreatable=False}">
+             d:DataContext="{d:DesignInstance queryDeveloper:ResultSetExplorerViewModel, d:IsDesignTimeCreatable=False}">
     <UserControl.Resources>
         <infrastructure:BooleanToVisibilityConverter2 x:Key="InvertedBooleanToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
-        <DataTemplate x:Key="ResultDataTenplate" DataType="local:Result">
+        <DataTemplate x:Key="ResultDataTenplate" DataType="queryDeveloper:Result">
             <TextBlock>
                 <TextBlock.InputBindings>
-                    <MouseBinding MouseAction="LeftDoubleClick" 
+                    <MouseBinding MouseAction="LeftDoubleClick"
                                       Command="{Binding ElementName=ResultsItems, Path=DataContext.EditDocumentCommand}"
                                       CommandParameter="{Binding }"/>
                 </TextBlock.InputBindings>
-                    <Run Text="{Binding Row, Mode=OneWay}" />                
+                    <Run Text="{Binding Row, Mode=OneWay}" />
                     <Run Text=" " />
                     <Run FontSize="10" Text="{Binding Id, Mode=OneWay}" FontStyle="Italic"  />
             </TextBlock>
@@ -32,15 +31,15 @@
                 </materialDesign:TransitioningContent.OpeningEffects>
                 <TextBlock>
                     <TextBlock.InputBindings>
-                        <MouseBinding MouseAction="LeftDoubleClick" 
+                        <MouseBinding MouseAction="LeftDoubleClick"
                                   Command="{Binding ElementName=ResultsItems, Path=DataContext.EditDocumentCommand}"
                                   CommandParameter="{Binding }"/>
                     </TextBlock.InputBindings>
-                <Run Text="{Binding Row, Mode=OneWay}" />                
+                <Run Text="{Binding Row, Mode=OneWay}" />
                 <Run Text=" " />
                 <Run FontSize="10" Text="{Binding Id, Mode=OneWay}" FontStyle="Italic"  />
                 </TextBlock>
-            </materialDesign:TransitioningContent>            
+            </materialDesign:TransitioningContent>
         </DataTemplate>
         -->
     </UserControl.Resources>
@@ -52,10 +51,10 @@
                 <ColumnDefinition Width="10*" />
             </Grid.ColumnDefinitions>
             <DockPanel>
-                <Button DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" 
+                <Button DockPanel.Dock="Bottom" HorizontalAlignment="Stretch"
                         Command="{Binding FetchMoreCommand}"
                         Style="{DynamicResource MaterialDesignFlatButton}"
-                        ToolTip="Load More Results"                        
+                        ToolTip="Load More Results"
                         Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <materialDesign:PackIcon Kind="DotsHorizontal" />
                 </Button>
@@ -91,9 +90,9 @@
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                       />
             <DockPanel Grid.Column="2" Background="{DynamicResource MaterialDesignSelection}">
-                <materialDesign:ColorZone DockPanel.Dock="Top" materialDesign:ShadowAssist.ShadowDepth="Depth1" Mode="Light" Padding="4 2 2 2" Margin="2 2 3 2" CornerRadius="2">
+                <materialDesign:ColorZone DockPanel.Dock="Top"  materialDesign:ShadowAssist.ShadowDepth="Depth1" Mode="Light" Padding="4 2 2 2" Margin="2 2 3 2" CornerRadius="2">
                     <StackPanel Orientation="Horizontal">
-                        <Button ToolTip="Edit Document..." 
+                        <Button ToolTip="Edit Document..."
                                 Margin="8 0 0 0"
                                 Command="{Binding EditDocumentCommand, Mode=OneTime}"
                                 CommandParameter="{Binding ElementName=ResultsItems, Path=SelectedItem}"
@@ -101,7 +100,7 @@
                                 materialDesign:RippleAssist.IsCentered="True">
                             <materialDesign:PackIcon Kind="FileDocument" />
                         </Button>
-                        <Button ToolTip="Save Document..." 
+                        <Button ToolTip="Save Document..."
                                 Margin="8 0 0 0"
                                 Command="{Binding SaveDocumentCommand, Mode=OneTime}"
                                 CommandParameter="{Binding ElementName=ResultsItems, Path=SelectedItem}"
@@ -109,7 +108,7 @@
                                 materialDesign:RippleAssist.IsCentered="True">
                             <materialDesign:PackIcon Kind="ContentSave" />
                         </Button>
-                        <Button ToolTip="Delete Document..." 
+                        <Button ToolTip="Delete Document..."
                                 Margin="8 0 0 0"
                                 Command="{Binding DeleteDocumentCommand, Mode=OneTime}"
                                 CommandParameter="{Binding ElementName=ResultsItems, Path=SelectedItem}"
@@ -118,9 +117,13 @@
                             <materialDesign:PackIcon Kind="Delete" />
                         </Button>
                     </StackPanel>
+
                 </materialDesign:ColorZone>
-                <TextBox IsReadOnly="True" 
-                         TextWrapping="NoWrap" Text="{Binding ElementName=ResultsItems, Path=SelectedItem.Data, Mode=OneWay}" 
+                <Label Content="{Binding TotalCost}" DockPanel.Dock="Top"  HorizontalContentAlignment="Right" Margin="0 -30 10 0"/>
+
+
+                <TextBox IsReadOnly="True"
+                         TextWrapping="NoWrap" Text="{Binding ElementName=ResultsItems, Path=SelectedItem.Data, Mode=OneWay}"
                          VerticalAlignment="Stretch"
                          VerticalContentAlignment="Top"
                          HorizontalScrollBarVisibility="Auto"
@@ -139,9 +142,9 @@
             <Border Background="{StaticResource ErrorBackgroundBrush}" Padding="8">
                 <TextBlock Text="Error running query" Foreground="{StaticResource ErrorForegroundBrush}" FontWeight="Bold" />
             </Border>
-            <TextBox IsReadOnly="True"                      
+            <TextBox IsReadOnly="True"
                      Grid.Row="1"
-                     TextWrapping="NoWrap" Text="{Binding Error, Mode=OneWay}" 
+                     TextWrapping="NoWrap" Text="{Binding Error, Mode=OneWay}"
                      VerticalAlignment="Stretch"
                      VerticalContentAlignment="Top"
                      HorizontalScrollBarVisibility="Auto"
@@ -150,5 +153,5 @@
                      Background="{DynamicResource MaterialDesignSelection}" />
         </Grid>
     </Grid>
-    
+
 </UserControl>
