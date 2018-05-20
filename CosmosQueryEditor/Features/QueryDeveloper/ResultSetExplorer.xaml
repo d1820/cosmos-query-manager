@@ -1,0 +1,156 @@
+﻿<UserControl x:Class="CosmosQueryEditor.Features.QueryDeveloper.ResultSetExplorer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:infrastructure="clr-namespace:CosmosQueryEditor.Infrastructure"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300"
+             d:DataContext="{d:DesignInstance queryDeveloper:ResultSetExplorerViewModel, d:IsDesignTimeCreatable=False}">
+    <UserControl.Resources>
+        <infrastructure:BooleanToVisibilityConverter2 x:Key="InvertedBooleanToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        <DataTemplate x:Key="ResultDataTenplate" DataType="queryDeveloper:Result">
+            <TextBlock>
+                <TextBlock.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick"
+                                      Command="{Binding ElementName=ResultsItems, Path=DataContext.EditDocumentCommand}"
+                                      CommandParameter="{Binding }"/>
+                </TextBlock.InputBindings>
+                    <Run Text="{Binding Row, Mode=OneWay}" />
+                    <Run Text=" " />
+                    <Run FontSize="10" Text="{Binding Id, Mode=OneWay}" FontStyle="Italic"  />
+            </TextBlock>
+        </DataTemplate>
+        <!--
+        <DataTemplate x:Key="ResultDataTenplate" DataType="local:Result">
+            <materialDesign:TransitioningContent OpeningEffectsOffset="{materialDesign:IndexedItemOffsetMultiplier 0:0:0.05}">
+                <materialDesign:TransitioningContent.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromRight" />
+                </materialDesign:TransitioningContent.OpeningEffects>
+                <TextBlock>
+                    <TextBlock.InputBindings>
+                        <MouseBinding MouseAction="LeftDoubleClick"
+                                  Command="{Binding ElementName=ResultsItems, Path=DataContext.EditDocumentCommand}"
+                                  CommandParameter="{Binding }"/>
+                    </TextBlock.InputBindings>
+                <Run Text="{Binding Row, Mode=OneWay}" />
+                <Run Text=" " />
+                <Run FontSize="10" Text="{Binding Id, Mode=OneWay}" FontStyle="Italic"  />
+                </TextBlock>
+            </materialDesign:TransitioningContent>
+        </DataTemplate>
+        -->
+    </UserControl.Resources>
+    <Grid>
+        <Grid Visibility="{Binding IsError, Converter={StaticResource InvertedBooleanToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="3" />
+                <ColumnDefinition Width="10*" />
+            </Grid.ColumnDefinitions>
+            <DockPanel>
+                <Button DockPanel.Dock="Bottom" HorizontalAlignment="Stretch"
+                        Command="{Binding FetchMoreCommand}"
+                        Style="{DynamicResource MaterialDesignFlatButton}"
+                        ToolTip="Load More Results"
+                        Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <materialDesign:PackIcon Kind="DotsHorizontal" />
+                </Button>
+                <ListBox ItemsSource="{Binding ResultSet.Results}"
+                         SelectedIndex="{Binding SelectedRow}"
+                         ItemTemplate="{StaticResource ResultDataTenplate}"
+                         x:Name="ResultsItems">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                            <Setter Property="ToolTip">
+                                <Setter.Value>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock>Row:</TextBlock>
+                                        <TextBlock Grid.Row="1">ID:</TextBlock>
+                                        <TextBlock Grid.Column="1" Margin="8 0 0 0" Text="{Binding Row, Mode=OneWay}" />
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="8 0 0 0" Text="{Binding Id, Mode=OneWay}" />
+                                    </Grid>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+            </DockPanel>
+            <GridSplitter Grid.Column="1" ResizeBehavior="PreviousAndNext"
+                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                      />
+            <DockPanel Grid.Column="2" Background="{DynamicResource MaterialDesignSelection}">
+                <materialDesign:ColorZone DockPanel.Dock="Top"  materialDesign:ShadowAssist.ShadowDepth="Depth1" Mode="Light" Padding="4 2 2 2" Margin="2 2 3 2" CornerRadius="2">
+                    <StackPanel Orientation="Horizontal">
+                        <Button ToolTip="Edit Document..."
+                                Margin="8 0 0 0"
+                                Command="{Binding EditDocumentCommand, Mode=OneTime}"
+                                CommandParameter="{Binding ElementName=ResultsItems, Path=SelectedItem}"
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                materialDesign:RippleAssist.IsCentered="True">
+                            <materialDesign:PackIcon Kind="FileDocument" />
+                        </Button>
+                        <Button ToolTip="Save Document..."
+                                Margin="8 0 0 0"
+                                Command="{Binding SaveDocumentCommand, Mode=OneTime}"
+                                CommandParameter="{Binding ElementName=ResultsItems, Path=SelectedItem}"
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                materialDesign:RippleAssist.IsCentered="True">
+                            <materialDesign:PackIcon Kind="ContentSave" />
+                        </Button>
+                        <Button ToolTip="Delete Document..."
+                                Margin="8 0 0 0"
+                                Command="{Binding DeleteDocumentCommand, Mode=OneTime}"
+                                CommandParameter="{Binding ElementName=ResultsItems, Path=SelectedItem}"
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                materialDesign:RippleAssist.IsCentered="True">
+                            <materialDesign:PackIcon Kind="Delete" />
+                        </Button>
+                    </StackPanel>
+
+                </materialDesign:ColorZone>
+                <Label Content="{Binding TotalCost}" DockPanel.Dock="Top"  HorizontalContentAlignment="Right" Margin="0 -30 10 0"/>
+
+
+                <TextBox IsReadOnly="True"
+                         TextWrapping="NoWrap" Text="{Binding ElementName=ResultsItems, Path=SelectedItem.Data, Mode=OneWay}"
+                         VerticalAlignment="Stretch"
+                         VerticalContentAlignment="Top"
+                         HorizontalScrollBarVisibility="Auto"
+                         VerticalScrollBarVisibility="Auto"
+                         FontFamily="Courier New"
+                         Background="{DynamicResource MaterialDesignSelection}" />
+            </DockPanel>
+        </Grid>
+        <Grid Visibility="{Binding IsError, Converter={StaticResource BooleanToVisibilityConverter}}"
+              VerticalAlignment="Stretch"
+              >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Border Background="{StaticResource ErrorBackgroundBrush}" Padding="8">
+                <TextBlock Text="Error running query" Foreground="{StaticResource ErrorForegroundBrush}" FontWeight="Bold" />
+            </Border>
+            <TextBox IsReadOnly="True"
+                     Grid.Row="1"
+                     TextWrapping="NoWrap" Text="{Binding Error, Mode=OneWay}"
+                     VerticalAlignment="Stretch"
+                     VerticalContentAlignment="Top"
+                     HorizontalScrollBarVisibility="Auto"
+                     VerticalScrollBarVisibility="Auto"
+                     FontFamily="Courier New"
+                     Background="{DynamicResource MaterialDesignSelection}" />
+        </Grid>
+    </Grid>
+
+</UserControl>
