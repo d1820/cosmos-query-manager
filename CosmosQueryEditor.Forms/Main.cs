@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using CosmosQueryEditor.Forms.EventArgs;
 using CosmosQueryEditor.Forms.Interfaces;
@@ -53,14 +47,14 @@ namespace CosmosQueryEditor.Forms
                            };
         }
 
-        private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        private void openFolderToolStripMenuItem_Click(object sender, System.EventArgs e)
         {
             //raise presenter event
             //load treeview with directories and files
             _menuPresenter.ShowDirectoryDialog();
         }
 
-        private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
+        private void openFileToolStripMenuItem_Click(object sender, System.EventArgs e)
         {
            //raise presenter event
            //load tree view with fileInfo
