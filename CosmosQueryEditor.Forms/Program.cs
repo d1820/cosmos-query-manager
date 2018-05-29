@@ -4,12 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CosmosQueryEditor.Forms.Interfaces;
+using CosmosQueryEditor.Forms.Presenters;
+using SimpleInjector.Diagnostics;
 
 namespace CosmosQueryEditor.Forms
 {
     static class Program
     {
-        private static Container container;
+        private static Container _container;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -19,20 +23,22 @@ namespace CosmosQueryEditor.Forms
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Bootstrap();
-            Application.Run(new Main());
+            Application.Run(_container.GetInstance<Main>());
         }
 
-        private static void Bootstrap() {
-        // Create the container as usual.
-        container = new Container();
+        private static void Bootstrap()
+        {
+            // Create the container as usual.
+            _container = new Container();
 
-        // Register your types, for instance:
-        //container.Register<IUserRepository, SqlUserRepository>(Lifestyle.Singleton);
-        //container.Register<IUserContext, WinFormsUserContext>();
-        container.Register<Main>();
+            // Register your types, for instance:
+            _container.Register<IMenuPresenter, MenuPresenter>(Lifestyle.Transient);
 
-        // Optionally verify the container.
-        container.Verify();
-    }
+            Registration registration = _container.GetRegistration(typeof(Main)).Registration;
+            registration.SuppressDiagnosticWarning(DiagnosticType.DisposableTransientComponent, "Main Windows Form (MainView) will be automatically disposed by runtime as it is registered using Application.Run()");
+
+            // Optionally verify the container.
+            _container.Verify();
+        }
     }
 }
