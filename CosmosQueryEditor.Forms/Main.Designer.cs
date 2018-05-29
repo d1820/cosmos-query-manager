@@ -170,6 +170,8 @@
             this.fileView.Name = "fileView";
             this.fileView.Size = new System.Drawing.Size(201, 404);
             this.fileView.TabIndex = 0;
+            this.fileView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.fileView_NodeMouseClick);
+            this.fileView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.fileView_NodeMouseDoubleClick);
             // 
             // MainQueryContainer
             // 
