@@ -63,14 +63,14 @@ namespace CosmosManager.Presenters
                     _documentStore = new CosmosDocumentStore(_client);
                 }
                 //TODO  RUN PARSER
+                var query = CleanQuery(_view.Query);
+                var collectionName = ParseCollectionName(query);
+                var queryType = ParseQueryType(query);
 
-                var collectionName = "Marketplace";
-                var queryType = ParseQueryType(_view.Query);
-
-                var runner = _queryRunners.FirstOrDefault(f=>f.CanRun(queryType));
-                if(runner != null)
+                var runner = _queryRunners.FirstOrDefault(f => f.CanRun(queryType));
+                if (runner != null)
                 {
-                    var didRun  = await runner.RunAsync(_documentStore, SelectedConnection.Database, collectionName, _view.Query, _logger);
+                    var didRun = await runner.RunAsync(_documentStore, SelectedConnection.Database, collectionName, query, _logger);
                     if (!didRun)
                     {
                         _view.ShowMessage("Unable to execute query. Verify query and try again.", "Query Execution Error");
@@ -93,9 +93,28 @@ namespace CosmosManager.Presenters
 
         }
 
+        private string CleanQuery(string query)
+        {
+            return query
+                .Replace("from", "FROM")
+                .Replace("From", "FROM")
+                .Replace("select", "SELECT")
+                .Replace("Select", "SELECT")
+                .Replace("update", "UPDATE")
+                .Replace("Update", "UPDATE");
+        }
+
+        private string ParseCollectionName(string query)
+        {
+            query = query.Replace("from", "FROM").Replace("select", "SELECT").Replace("update", "UPDATE");
+            var parts = query.Trim().Split(new string[] { "FROM" }, StringSplitOptions.None);
+            var collectionName = parts[1].Trim().Split(new[] { ' ' }).FirstOrDefault();
+            return collectionName;
+        }
+
         private string ParseQueryType(string query)
         {
-            var parts = query.Trim().Split(new [] { ' '});
+            var parts = query.Trim().Split(new[] { ' ' });
             return parts[0];
         }
     }
