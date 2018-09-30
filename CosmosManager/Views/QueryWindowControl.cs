@@ -171,17 +171,31 @@ namespace CosmosManager
 
         private void selectedToUpdateButton_Click(object sender, EventArgs e)
         {
-
+            var items = GetCheckedListItems();
+            var ids = items.Select(s=> s["id"]);
+            MainPresenter.CreateTempQueryTab($"UPDATE @{{['{string.Join("','", ids)}']}}@{Environment.NewLine}FROM {Presenter.GetCurrentQueryCollectionName()}{Environment.NewLine}SET @SET{{ }}SET@");
         }
 
         private void selectedToDeleteButton_Click(object sender, EventArgs e)
         {
-
+            var items = GetCheckedListItems();
+            var ids = items.Select(s=> s["id"]);
+             MainPresenter.CreateTempQueryTab($"DELETE @{{['{string.Join(",", ids)}']}}@{Environment.NewLine}FROM {Presenter.GetCurrentQueryCollectionName()}");
         }
 
-        private void saveQueryButton_Click(object sender, EventArgs e)
+        private async void saveQueryButton_Click(object sender, EventArgs e)
         {
-            Presenter.SaveQuery();
+            if(Presenter.CurrentFileInfo == null)
+            {
+                if(saveTempQueryDialog.ShowDialog() == DialogResult.OK)
+                {
+                    await Presenter.SaveTempQueryAsync(saveTempQueryDialog.FileName);
+                    var fileName = new FileInfo(saveTempQueryDialog.FileName);
+                    MainPresenter.UpdateNewQueryTabName(fileName.Name);
+                }
+                return;
+            }
+            await Presenter.SaveQueryAsync();
         }
 
         private void resultListView_SelectedIndexChanged(object sender, EventArgs e)
@@ -196,6 +210,19 @@ namespace CosmosManager
 
         }
 
+
+        private List<JObject> GetCheckedListItems()
+        {
+            var objects = new List<JObject>();
+            foreach (ListViewItem item in resultListView.Items)
+            {
+               if(item.Tag is JObject && item.Checked)
+                {
+                    objects.Add(item.Tag as JObject);
+                }
+            }
+            return objects;
+        }
         //private Task SetSyntaxHighlightAsync(JObject document)
         //{
         //    //https://www.codeproject.com/Articles/10675/Enabling-syntax-highlighting-in-a-RichTextBox

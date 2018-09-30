@@ -1,9 +1,6 @@
-﻿using CosmosManager.Domain;
-using CosmosManager.Interfaces;
+﻿using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -13,6 +10,8 @@ namespace CosmosManager
 
     public partial class MainForm : Form, IMainForm
     {
+        private TreeNode _contextSelectedNode;
+
         public MainFormPresenter Presenter { private get; set; }
 
         public MainForm()
@@ -46,6 +45,24 @@ namespace CosmosManager
             MessageBox.Show(message, title);
         }
 
+        public void SetStatusBarMessage(string message)
+        {
+            appStatusLabel.Text = message;
+        }
+
+        public void UpdateNewQueryTabName(string newTabName)
+        {
+            queryTabControl.SelectedTab.Text = newTabName + "    ";
+            Presenter.RefreshTreeView();
+        }
+
+        public void CreateTempQueryTab(string query)
+        {
+             var tabName = "New Query *";
+            CreateTab(tabName, null, query);
+
+        }
+
         private void fileTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             var newSelected = e.Node;
@@ -66,6 +83,7 @@ namespace CosmosManager
 
         private void fileTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
+
             if (e.Node.Tag is FileInfo)
             {
                 var fi = (FileInfo)e.Node.Tag;
@@ -79,26 +97,7 @@ namespace CosmosManager
                         return;
                     }
                 }
-
-                //create the tab
-                var tab = new TabPage(fi.Name + "   ");
-                tab.Name = $"tab{queryTabControl.TabPages.Count + 1}";
-
-
-                var queryWindow = new QueryWindowControl();
-                queryWindow.Dock = DockStyle.Fill;
-                queryWindow.MainPresenter = Presenter;
-
-                var presenter = new QueryWindowPresenter(queryWindow);
-                presenter.SetFile(fi);
-                if (Presenter.Connections != null)
-                {
-                    presenter.SetConnections(Presenter.Connections);
-                }
-                tab.Tag = presenter;
-                tab.Controls.Add(queryWindow);
-                queryTabControl.TabPages.Add(tab);
-
+                CreateTab(fi.Name, fi);
             }
         }
 
@@ -140,11 +139,6 @@ namespace CosmosManager
             helpForm.Show();
         }
 
-        public void SetStatusBarMessage(string message)
-        {
-            appStatusLabel.Text = message;
-        }
-
         private void createNewQueryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var newFileForm = new NewFileForm();
@@ -155,7 +149,6 @@ namespace CosmosManager
             }
         }
 
-        private TreeNode _contextSelectedNode;
         private void fileTreeView_MouseUp(object sender, MouseEventArgs e)
         {
             // Show menu only if the right mouse button is clicked.
@@ -175,5 +168,34 @@ namespace CosmosManager
                 }
             }
         }
+
+        private void CreateTab(string tabName, FileInfo fileInfo, string tempQuery = null)
+        {
+            var tab = new TabPage(tabName + "   ");
+            tab.Name = $"tab{queryTabControl.TabPages.Count + 1}";
+
+            var queryWindow = new QueryWindowControl();
+            queryWindow.Dock = DockStyle.Fill;
+            queryWindow.MainPresenter = Presenter;
+
+            var presenter = new QueryWindowPresenter(queryWindow);
+            if (fileInfo != null)
+            {
+                presenter.SetFile(fileInfo);
+            }
+            else if (!string.IsNullOrEmpty(tempQuery))
+            {
+                presenter.SetTempQuery(tempQuery);
+            }
+            if (Presenter.Connections != null)
+            {
+                presenter.SetConnections(Presenter.Connections);
+            }
+            tab.Tag = presenter;
+            tab.Controls.Add(queryWindow);
+            queryTabControl.TabPages.Add(tab);
+            queryTabControl.SelectedTab = tab;
+        }
+
     }
 }

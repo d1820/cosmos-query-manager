@@ -55,6 +55,7 @@
             this.saveJsonDialog = new System.Windows.Forms.SaveFileDialog();
             this.textDocument = new CosmosManager.Controls.SyntaxRichTextBox();
             this.connectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.saveTempQueryDialog = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryResult)).BeginInit();
             this.splitQueryResult.Panel1.SuspendLayout();
             this.splitQueryResult.Panel2.SuspendLayout();
@@ -320,6 +321,13 @@
             // 
             this.connectionBindingSource.DataSource = typeof(CosmosManager.Domain.Connection);
             // 
+            // saveTempQueryDialog
+            // 
+            this.saveTempQueryDialog.DefaultExt = "csql";
+            this.saveTempQueryDialog.Filter = "Cosmos Script|*.csql";
+            this.saveTempQueryDialog.SupportMultiDottedExtensions = true;
+            this.saveTempQueryDialog.Title = "Save New Query";
+            // 
             // QueryWindowControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -377,5 +385,6 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private Controls.SyntaxRichTextBox textDocument;
         private System.Windows.Forms.SaveFileDialog saveJsonDialog;
+        private System.Windows.Forms.SaveFileDialog saveTempQueryDialog;
     }
 }

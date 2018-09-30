@@ -11,6 +11,7 @@ namespace CosmosManager.Presenters
     public class MainFormPresenter
     {
         private readonly IMainForm _view;
+        private string _rootDir;
 
         public List<Connection> Connections { get; private set; }
 
@@ -27,12 +28,18 @@ namespace CosmosManager.Presenters
             var info = new DirectoryInfo(rootDir);
             if (info.Exists)
             {
+                _rootDir = rootDir;
                 rootNode = new TreeNode(info.Name);
                 rootNode.Tag = info;
                 GetDirectories(info.GetDirectories(), rootNode);
                 GetFiles(rootNode);
                 _view.AddFileNode(rootNode);
             }
+        }
+
+         public void RefreshTreeView()
+        {
+            PopulateTreeView(_rootDir);
         }
 
         public void LoadSubDirsAndFiles(DirectoryInfo folder, TreeNode currentNode)
@@ -55,6 +62,11 @@ namespace CosmosManager.Presenters
             }
         }
 
+        public void UpdateNewQueryTabName(string newTabName)
+        {
+            _view.UpdateNewQueryTabName(newTabName);
+        }
+
         public void SetStatusBarMessage(string message)
         {
             _view.SetStatusBarMessage(message);
@@ -65,6 +77,11 @@ namespace CosmosManager.Presenters
             File.WriteAllText(fileLocation, "");
             var fileInfo = new FileInfo(fileLocation);
             LoadSubDirsAndFiles(fileInfo.Directory, currentNode);
+        }
+
+        public void CreateTempQueryTab(string query)
+        {
+            _view.CreateTempQueryTab(query);
         }
 
         private void GetDirectories(DirectoryInfo[] subDirs, TreeNode nodeToAddTo)
@@ -104,6 +121,8 @@ namespace CosmosManager.Presenters
                 nodeToAddTo.Nodes.Add(aNode);
             }
         }
+
+
 
 
     }

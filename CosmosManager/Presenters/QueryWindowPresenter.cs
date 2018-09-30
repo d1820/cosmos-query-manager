@@ -19,7 +19,7 @@ namespace CosmosManager.Presenters
     {
         private List<Connection> _currentConnections;
         public Connection SelectedConnection { get; set; }
-        public FileInfo _currentFileInfo { get; private set; }
+        public FileInfo CurrentFileInfo { get; private set; }
 
         private IDocumentClient _client;
         private IDocumentStore _documentStore;
@@ -51,8 +51,17 @@ namespace CosmosManager.Presenters
 
         public void SetFile(FileInfo fileInfo)
         {
-            _currentFileInfo = fileInfo;
+            if (fileInfo == null)
+            {
+                return;
+            }
+            CurrentFileInfo = fileInfo;
             _view.Query = File.ReadAllText(fileInfo.FullName);
+        }
+
+        public void SetTempQuery(string query)
+        {
+            _view.Query = query;
         }
 
         public async void Run()
@@ -90,26 +99,28 @@ namespace CosmosManager.Presenters
             }
         }
 
-        public void SaveSelectedRecord(string fileName)
+        public async Task SaveQueryAsync()
         {
-
+            using (var sw = new StreamWriter(CurrentFileInfo.FullName))
+            {
+                await sw.WriteAsync(_view.Query);
+            }
+            _view.SetStatusBarMessage($"{CurrentFileInfo.Name} Saved");
         }
 
-        public void SetCurrentRecordInView(object record)
+        public async Task SaveTempQueryAsync(string fileName)
         {
-
-        }
-
-        public void SaveQuery()
-        {
-            File.WriteAllText(_currentFileInfo.FullName, _view.Query);
-            _view.SetStatusBarMessage($"{_currentFileInfo.Name} Saved");
+            using (var sw = new StreamWriter(fileName))
+            {
+                await sw.WriteAsync(_view.Query);
+            }
+            _view.SetStatusBarMessage($"{fileName} Saved");
         }
 
         public async Task SaveDocumentAsync(string fileName)
         {
             _view.SetStatusBarMessage("Saving Document...");
-             using (var sw = new StreamWriter(fileName))
+            using (var sw = new StreamWriter(fileName))
             {
                 await sw.WriteAsync(_view.DocumentText);
             }
@@ -126,6 +137,12 @@ namespace CosmosManager.Presenters
             }
 
             _view.SetStatusBarMessage($"{fileName} Saved");
+        }
+
+        public string GetCurrentQueryCollectionName()
+        {
+            var query = CleanQuery(_view.Query);
+            return ParseCollectionName(query);
         }
 
 
