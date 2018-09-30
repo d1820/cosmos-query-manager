@@ -41,7 +41,7 @@ namespace CosmosManager.Domain
                 {
                     var parts = stat.Value?.ToString().Split(new[] { ',' });
 
-                    _view.Stats = JsonConvert.SerializeObject(parts, Formatting.Indented) + Environment.NewLine;
+                    _view.Stats += JsonConvert.SerializeObject(parts, Formatting.Indented) + Environment.NewLine;
                 }
             }
 
