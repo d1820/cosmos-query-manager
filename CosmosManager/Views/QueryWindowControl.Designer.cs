@@ -39,13 +39,18 @@
             this.selectConnections = new System.Windows.Forms.ComboBox();
             this.splitResultVIew = new System.Windows.Forms.SplitContainer();
             this.resultListView = new System.Windows.Forms.ListView();
-            this.textDocument = new System.Windows.Forms.RichTextBox();
-            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
-            this.saveResultButton = new System.Windows.Forms.ToolStripButton();
-            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.columnSelect = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnPartitionKey = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.textDocument = new System.Windows.Forms.RichTextBox();
+            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
+            this.saveRecordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAllResultsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.selectedToUpdateButton = new System.Windows.Forms.ToolStripButton();
+            this.selectedToDeleteButton = new System.Windows.Forms.ToolStripButton();
             this.connectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryResult)).BeginInit();
             this.splitQueryResult.Panel1.SuspendLayout();
@@ -61,11 +66,13 @@
             this.splitResultVIew.Panel2.SuspendLayout();
             this.splitResultVIew.SuspendLayout();
             this.toolStrip2.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.connectionBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // splitQueryResult
             // 
+            this.splitQueryResult.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.splitQueryResult.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitQueryResult.Location = new System.Drawing.Point(0, 0);
             this.splitQueryResult.Name = "splitQueryResult";
@@ -117,7 +124,7 @@
             this.textStats.Location = new System.Drawing.Point(0, 0);
             this.textStats.Name = "textStats";
             this.textStats.ReadOnly = true;
-            this.textStats.Size = new System.Drawing.Size(317, 189);
+            this.textStats.Size = new System.Drawing.Size(96, 100);
             this.textStats.TabIndex = 0;
             this.textStats.Text = "";
             // 
@@ -133,11 +140,14 @@
             // 
             // runQueryButton
             // 
+            this.runQueryButton.Image = ((System.Drawing.Image)(resources.GetObject("runQueryButton.Image")));
+            this.runQueryButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.runQueryButton.Location = new System.Drawing.Point(192, 4);
             this.runQueryButton.Name = "runQueryButton";
-            this.runQueryButton.Size = new System.Drawing.Size(53, 20);
+            this.runQueryButton.Size = new System.Drawing.Size(83, 25);
             this.runQueryButton.TabIndex = 1;
-            this.runQueryButton.Text = "Run";
+            this.runQueryButton.Text = "Run Query";
+            this.runQueryButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.runQueryButton.UseVisualStyleBackColor = true;
             this.runQueryButton.Click += new System.EventHandler(this.runQueryButton_Click_1);
             // 
@@ -146,7 +156,7 @@
             this.selectConnections.DisplayMember = "Name";
             this.selectConnections.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.selectConnections.FormattingEnabled = true;
-            this.selectConnections.Location = new System.Drawing.Point(3, 3);
+            this.selectConnections.Location = new System.Drawing.Point(4, 6);
             this.selectConnections.Name = "selectConnections";
             this.selectConnections.Size = new System.Drawing.Size(182, 21);
             this.selectConnections.TabIndex = 0;
@@ -155,19 +165,21 @@
             // splitResultVIew
             // 
             this.splitResultVIew.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitResultVIew.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitResultVIew.Location = new System.Drawing.Point(0, 0);
             this.splitResultVIew.Name = "splitResultVIew";
             // 
             // splitResultVIew.Panel1
             // 
             this.splitResultVIew.Panel1.Controls.Add(this.resultListView);
+            this.splitResultVIew.Panel1.Controls.Add(this.toolStrip1);
             // 
             // splitResultVIew.Panel2
             // 
             this.splitResultVIew.Panel2.Controls.Add(this.textDocument);
             this.splitResultVIew.Panel2.Controls.Add(this.toolStrip2);
             this.splitResultVIew.Size = new System.Drawing.Size(930, 360);
-            this.splitResultVIew.SplitterDistance = 310;
+            this.splitResultVIew.SplitterDistance = 350;
             this.splitResultVIew.TabIndex = 0;
             // 
             // resultListView
@@ -180,42 +192,12 @@
             this.resultListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.resultListView.FullRowSelect = true;
             this.resultListView.GridLines = true;
-            this.resultListView.Location = new System.Drawing.Point(0, 0);
+            this.resultListView.Location = new System.Drawing.Point(0, 25);
             this.resultListView.Name = "resultListView";
-            this.resultListView.Size = new System.Drawing.Size(310, 360);
+            this.resultListView.Size = new System.Drawing.Size(350, 335);
             this.resultListView.TabIndex = 0;
             this.resultListView.UseCompatibleStateImageBehavior = false;
             this.resultListView.View = System.Windows.Forms.View.Details;
-            // 
-            // textDocument
-            // 
-            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textDocument.Location = new System.Drawing.Point(0, 25);
-            this.textDocument.Name = "textDocument";
-            this.textDocument.Size = new System.Drawing.Size(616, 335);
-            this.textDocument.TabIndex = 2;
-            this.textDocument.Text = "";
-            // 
-            // toolStrip2
-            // 
-            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.saveResultButton});
-            this.toolStrip2.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(616, 25);
-            this.toolStrip2.TabIndex = 0;
-            this.toolStrip2.Text = "toolStrip2";
-            // 
-            // saveResultButton
-            // 
-            this.saveResultButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.saveResultButton.Image = ((System.Drawing.Image)(resources.GetObject("saveResultButton.Image")));
-            this.saveResultButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.saveResultButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.saveResultButton.Name = "saveResultButton";
-            this.saveResultButton.Size = new System.Drawing.Size(35, 22);
-            this.saveResultButton.Text = "Save";
-            this.saveResultButton.Click += new System.EventHandler(this.saveResultButton_Click);
             // 
             // columnSelect
             // 
@@ -225,12 +207,89 @@
             // columnId
             // 
             this.columnId.Text = "id";
-            this.columnId.Width = 103;
+            this.columnId.Width = 136;
             // 
             // columnPartitionKey
             // 
             this.columnPartitionKey.Text = "PartitionKey";
-            this.columnPartitionKey.Width = 150;
+            this.columnPartitionKey.Width = 166;
+            // 
+            // textDocument
+            // 
+            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textDocument.Location = new System.Drawing.Point(0, 25);
+            this.textDocument.Name = "textDocument";
+            this.textDocument.Size = new System.Drawing.Size(576, 335);
+            this.textDocument.TabIndex = 2;
+            this.textDocument.Text = "";
+            // 
+            // toolStrip2
+            // 
+            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripDropDownButton1});
+            this.toolStrip2.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip2.Name = "toolStrip2";
+            this.toolStrip2.Size = new System.Drawing.Size(576, 25);
+            this.toolStrip2.TabIndex = 0;
+            this.toolStrip2.Text = "toolStrip2";
+            // 
+            // toolStripDropDownButton1
+            // 
+            this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveRecordToolStripMenuItem,
+            this.saveAllResultsToolStripMenuItem});
+            this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
+            this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(29, 22);
+            this.toolStripDropDownButton1.Text = "toolStripDropDownButton1";
+            // 
+            // saveRecordToolStripMenuItem
+            // 
+            this.saveRecordToolStripMenuItem.Name = "saveRecordToolStripMenuItem";
+            this.saveRecordToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.saveRecordToolStripMenuItem.Text = "Save Document";
+            this.saveRecordToolStripMenuItem.Click += new System.EventHandler(this.saveRecordToolStripMenuItem_Click);
+            // 
+            // saveAllResultsToolStripMenuItem
+            // 
+            this.saveAllResultsToolStripMenuItem.Name = "saveAllResultsToolStripMenuItem";
+            this.saveAllResultsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.saveAllResultsToolStripMenuItem.Text = "Save All Documents";
+            this.saveAllResultsToolStripMenuItem.Click += new System.EventHandler(this.saveAllResultsToolStripMenuItem_Click);
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.selectedToUpdateButton,
+            this.selectedToDeleteButton});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(350, 25);
+            this.toolStrip1.TabIndex = 1;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // selectedToUpdateButton
+            // 
+            this.selectedToUpdateButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.selectedToUpdateButton.Image = ((System.Drawing.Image)(resources.GetObject("selectedToUpdateButton.Image")));
+            this.selectedToUpdateButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.selectedToUpdateButton.Name = "selectedToUpdateButton";
+            this.selectedToUpdateButton.Size = new System.Drawing.Size(145, 22);
+            this.selectedToUpdateButton.Text = "Selected to Update Query";
+            this.selectedToUpdateButton.ToolTipText = "Selected to Update Query";
+            this.selectedToUpdateButton.Click += new System.EventHandler(this.selectedToUpdateButton_Click);
+            // 
+            // selectedToDeleteButton
+            // 
+            this.selectedToDeleteButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.selectedToDeleteButton.Image = ((System.Drawing.Image)(resources.GetObject("selectedToDeleteButton.Image")));
+            this.selectedToDeleteButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.selectedToDeleteButton.Name = "selectedToDeleteButton";
+            this.selectedToDeleteButton.Size = new System.Drawing.Size(140, 22);
+            this.selectedToDeleteButton.Text = "Selected to Delete Query";
+            this.selectedToDeleteButton.Click += new System.EventHandler(this.selectedToDeleteButton_Click);
             // 
             // connectionBindingSource
             // 
@@ -253,12 +312,15 @@
             this.splitQueryAndStats.ResumeLayout(false);
             this.queryStatusBar.ResumeLayout(false);
             this.splitResultVIew.Panel1.ResumeLayout(false);
+            this.splitResultVIew.Panel1.PerformLayout();
             this.splitResultVIew.Panel2.ResumeLayout(false);
             this.splitResultVIew.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitResultVIew)).EndInit();
             this.splitResultVIew.ResumeLayout(false);
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.connectionBindingSource)).EndInit();
             this.ResumeLayout(false);
 
@@ -270,7 +332,6 @@
         private System.Windows.Forms.SplitContainer splitResultVIew;
         private System.Windows.Forms.ListView resultListView;
         private System.Windows.Forms.ToolStrip toolStrip2;
-        private System.Windows.Forms.ToolStripButton saveResultButton;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.Panel queryStatusBar;
         private System.Windows.Forms.ComboBox selectConnections;
@@ -282,5 +343,11 @@
         private System.Windows.Forms.ColumnHeader columnSelect;
         private System.Windows.Forms.ColumnHeader columnId;
         private System.Windows.Forms.ColumnHeader columnPartitionKey;
+        private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
+        private System.Windows.Forms.ToolStripMenuItem saveRecordToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAllResultsToolStripMenuItem;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton selectedToUpdateButton;
+        private System.Windows.Forms.ToolStripButton selectedToDeleteButton;
     }
 }

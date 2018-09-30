@@ -139,5 +139,25 @@ namespace CosmosManager
         }
 
         private void Checkbox_CheckedChanged(object sender, EventArgs e) => throw new NotImplementedException();
+
+        private void saveRecordToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void saveAllResultsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void selectedToUpdateButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void selectedToDeleteButton_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

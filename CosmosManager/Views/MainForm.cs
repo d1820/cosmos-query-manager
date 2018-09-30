@@ -126,6 +126,10 @@ namespace CosmosManager
 
                 var presenter = new QueryWindowPresenter(queryWindow);
                 presenter.SetFile(fi);
+                if(Connections != null)
+                {
+                    presenter.SetConnections(Connections);
+                }
                 tab.Tag = presenter;
                 tab.Controls.Add(queryWindow);
                 queryTabControl.TabPages.Add(tab);
