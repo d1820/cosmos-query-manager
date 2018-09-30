@@ -1,4 +1,5 @@
 ﻿using CosmosManager.Presenters;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
 namespace CosmosManager.Interfaces
@@ -18,5 +19,6 @@ namespace CosmosManager.Interfaces
         void RenderResults(IReadOnlyCollection<object> results);
 
         void SetStatusBarMessage(string message);
+
     }
 }

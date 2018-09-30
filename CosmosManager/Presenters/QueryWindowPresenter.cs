@@ -5,10 +5,13 @@ using CosmosManager.QueryRunners;
 using CosmosManager.Stores;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CosmosManager.Presenters
 {
@@ -16,6 +19,8 @@ namespace CosmosManager.Presenters
     {
         private List<Connection> _currentConnections;
         public Connection SelectedConnection { get; set; }
+        public FileInfo _currentFileInfo { get; private set; }
+
         private IDocumentClient _client;
         private IDocumentStore _documentStore;
         private IQueryWindowControl _view;
@@ -46,6 +51,7 @@ namespace CosmosManager.Presenters
 
         public void SetFile(FileInfo fileInfo)
         {
+            _currentFileInfo = fileInfo;
             _view.Query = File.ReadAllText(fileInfo.FullName);
         }
 
@@ -55,7 +61,7 @@ namespace CosmosManager.Presenters
             if (SelectedConnection is Connection && SelectedConnection != null)
             {
                 _view.ToggleStatsPanel(true);
-
+                _view.SetStatusBarMessage("Executing Query...");
 
                 if (_client == null)
                 {
@@ -76,6 +82,7 @@ namespace CosmosManager.Presenters
                         _view.ShowMessage("Unable to execute query. Verify query and try again.", "Query Execution Error");
                     }
                 }
+                _view.SetStatusBarMessage("");
             }
             else
             {
@@ -93,6 +100,35 @@ namespace CosmosManager.Presenters
 
         }
 
+        public void SaveQuery()
+        {
+            File.WriteAllText(_currentFileInfo.FullName, _view.Query);
+            _view.SetStatusBarMessage($"{_currentFileInfo.Name} Saved");
+        }
+
+        public async Task SaveDocumentAsync(string fileName)
+        {
+            _view.SetStatusBarMessage("Saving Document...");
+             using (var sw = new StreamWriter(fileName))
+            {
+                await sw.WriteAsync(_view.DocumentText);
+            }
+            _view.SetStatusBarMessage($"{fileName} Saved");
+        }
+
+        public async Task SaveAllToDocumentAsync(List<JObject> documents, string fileName)
+        {
+            _view.SetStatusBarMessage("Saving documents...");
+
+            using (var sw = new StreamWriter(fileName))
+            {
+                await sw.WriteAsync(JsonConvert.SerializeObject(documents, Formatting.Indented));
+            }
+
+            _view.SetStatusBarMessage($"{fileName} Saved");
+        }
+
+
         private string CleanQuery(string query)
         {
             return query
@@ -100,6 +136,8 @@ namespace CosmosManager.Presenters
                 .Replace("From", "FROM")
                 .Replace("select", "SELECT")
                 .Replace("Select", "SELECT")
+                .Replace("set", "SET")
+                .Replace("Set", "SET")
                 .Replace("update", "UPDATE")
                 .Replace("Update", "UPDATE");
         }

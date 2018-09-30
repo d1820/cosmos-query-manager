@@ -13,70 +13,37 @@ namespace CosmosManager
 
     public partial class MainForm : Form, IMainForm
     {
-
-
-        public static List<Connection> Connections { get; private set; }
         public MainFormPresenter Presenter { private get; set; }
 
         public MainForm()
         {
             InitializeComponent();
-            PopulateTreeView(@"C:\Users\Administrator.WIN-JLVDOKCVKPQ\Desktop\TestScripts");
+            //Presenter.PopulateTreeView(@"C:\Users\Administrator.WIN-JLVDOKCVKPQ\Desktop\TestScripts");
 
         }
 
-
-        private void PopulateTreeView(string rootDir)
+        public void ClearFileTreeView()
         {
-            TreeNode rootNode;
             fileTreeView.Nodes.Clear();
-            var info = new DirectoryInfo(rootDir);
-            if (info.Exists)
+        }
+
+        public void AddFileNode(TreeNode newNode)
+        {
+            fileTreeView.Nodes.Add(newNode);
+        }
+
+        public void SetConnectionsOnExistingTabs()
+        {
+            foreach (TabPage tab in queryTabControl.TabPages)
             {
-                rootNode = new TreeNode(info.Name);
-                rootNode.Tag = info;
-                GetDirectories(info.GetDirectories(), rootNode);
-                GetFiles(rootNode);
-                fileTreeView.Nodes.Add(rootNode);
+
+                (tab.Tag as QueryWindowPresenter).SetConnections(Presenter.Connections);
             }
         }
 
-        private void GetDirectories(DirectoryInfo[] subDirs, TreeNode nodeToAddTo)
+        public void ShowMessage(string message, string title = null)
         {
-            TreeNode aNode;
-            DirectoryInfo[] subSubDirs;
-            foreach (var subDir in subDirs)
-            {
-                aNode = new TreeNode(subDir.Name, 0, 0);
-                aNode.Tag = subDir;
-                aNode.ImageKey = "Folder";
-                subSubDirs = subDir.GetDirectories();
-                if (subSubDirs.Length != 0)
-                {
-                    GetDirectories(subSubDirs, aNode);
-                }
-                nodeToAddTo.Nodes.Add(aNode);
-            }
-        }
-
-        private void GetFiles(TreeNode nodeToAddTo)
-        {
-            var nodeDirInfo = (DirectoryInfo)nodeToAddTo.Tag;
-
-            TreeNode aNode;
-            nodeToAddTo.Nodes.Clear();
-            var files = nodeDirInfo.GetFiles("*.csql", SearchOption.TopDirectoryOnly);
-            if (files.Length > 0)
-            {
-                nodeToAddTo.Expand();
-            }
-            foreach (var file in files)
-            {
-                aNode = new TreeNode(file.Name, 1, 1);
-                aNode.Tag = file;
-                aNode.ImageKey = "File";
-                nodeToAddTo.Nodes.Add(aNode);
-            }
+            MessageBox.Show(message, title);
         }
 
         private void fileTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -85,9 +52,7 @@ namespace CosmosManager
             if (newSelected.Tag is DirectoryInfo)
             {
                 var nodeDirInfo = (DirectoryInfo)newSelected.Tag;
-
-                GetDirectories(nodeDirInfo.GetDirectories(), newSelected);
-                GetFiles(newSelected);
+                Presenter.LoadSubDirsAndFiles(nodeDirInfo, newSelected);
             }
         }
 
@@ -95,7 +60,7 @@ namespace CosmosManager
         {
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
-                PopulateTreeView(folderBrowserDialog1.SelectedPath);
+                Presenter.PopulateTreeView(folderBrowserDialog1.SelectedPath);
             }
         }
 
@@ -126,9 +91,9 @@ namespace CosmosManager
 
                 var presenter = new QueryWindowPresenter(queryWindow);
                 presenter.SetFile(fi);
-                if(Connections != null)
+                if (Presenter.Connections != null)
                 {
-                    presenter.SetConnections(Connections);
+                    presenter.SetConnections(Presenter.Connections);
                 }
                 tab.Tag = presenter;
                 tab.Controls.Add(queryWindow);
@@ -139,21 +104,13 @@ namespace CosmosManager
 
         private void queryTabControl_DrawItem(object sender, DrawItemEventArgs e)
         {
-            var tabPage = this.queryTabControl.TabPages[e.Index];
-
-            var tabRect = this.queryTabControl.GetTabRect(e.Index);
+            var tabPage = queryTabControl.TabPages[e.Index];
+            var tabRect = queryTabControl.GetTabRect(e.Index);
             tabRect.Inflate(-2, -2);
             var closeImage = Properties.Resources.closeIcon;
-            e.Graphics.DrawImage(closeImage,
-                (tabRect.Right - 10),
-                tabRect.Top + (tabRect.Height - closeImage.Height) / 2,
-                10, 10);
+            e.Graphics.DrawImage(closeImage, (tabRect.Right - 10), tabRect.Top + (tabRect.Height - closeImage.Height) / 2, 10, 10);
 
-
-
-            TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font,
-                tabRect, tabPage.ForeColor, TextFormatFlags.Left);
-
+            TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font, tabRect, tabPage.ForeColor, TextFormatFlags.Left);
         }
 
         private void queryTabControl_MouseDown(object sender, MouseEventArgs e)
@@ -173,20 +130,7 @@ namespace CosmosManager
             openFileDialog1.Filter = "Connection File|*.json";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                var jsonString = File.ReadAllText(openFileDialog1.FileName);
-                try
-                {
-                    Connections = JsonConvert.DeserializeObject<List<Connection>>(jsonString);
-                    foreach (TabPage tab in queryTabControl.TabPages)
-                    {
-
-                        (tab.Tag as QueryWindowPresenter).SetConnections(Connections);
-                    }
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("Unable to open connections file. Please verify format, and try again", "Error Parsing Connections File");
-                }
+                Presenter.SetupConnections(openFileDialog1.FileName);
             }
         }
 
@@ -199,6 +143,37 @@ namespace CosmosManager
         public void SetStatusBarMessage(string message)
         {
             appStatusLabel.Text = message;
+        }
+
+        private void createNewQueryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var newFileForm = new NewFileForm();
+            if (newFileForm.ShowDialog() == DialogResult.OK)
+            {
+                var saveFile = $"{ (_contextSelectedNode.Tag as DirectoryInfo).FullName}/{newFileForm.FileName}.csql";
+                Presenter.SaveNewQuery(saveFile, _contextSelectedNode);
+            }
+        }
+
+        private TreeNode _contextSelectedNode;
+        private void fileTreeView_MouseUp(object sender, MouseEventArgs e)
+        {
+            // Show menu only if the right mouse button is clicked.
+            if (e.Button == MouseButtons.Right)
+            {
+                // Point where the mouse is clicked.
+                var p = new Point(e.X, e.Y);
+
+                // Get the node that the user has clicked.
+                var node = fileTreeView.GetNodeAt(p);
+                if (node != null && node.Tag is DirectoryInfo)
+                {
+                    _contextSelectedNode = fileTreeView.SelectedNode;
+                    fileTreeView.SelectedNode = node;
+                    contextMenuStrip1.Show(fileTreeView, p);
+                    fileTreeView.SelectedNode = _contextSelectedNode;
+                }
+            }
         }
     }
 }

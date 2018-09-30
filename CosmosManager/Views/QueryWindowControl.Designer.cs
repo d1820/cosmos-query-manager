@@ -42,16 +42,19 @@
             this.columnSelect = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnPartitionKey = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.textDocument = new System.Windows.Forms.RichTextBox();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
-            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.saveQueryDialog = new System.Windows.Forms.SaveFileDialog();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.saveRecordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllResultsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.selectedToUpdateButton = new System.Windows.Forms.ToolStripButton();
             this.selectedToDeleteButton = new System.Windows.Forms.ToolStripButton();
+            this.saveQueryButton = new System.Windows.Forms.Button();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.textDocument = new CosmosManager.Controls.SyntaxRichTextBox();
             this.connectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.saveJsonDialog = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryResult)).BeginInit();
             this.splitQueryResult.Panel1.SuspendLayout();
             this.splitQueryResult.Panel2.SuspendLayout();
@@ -130,6 +133,7 @@
             // 
             // queryStatusBar
             // 
+            this.queryStatusBar.Controls.Add(this.saveQueryButton);
             this.queryStatusBar.Controls.Add(this.runQueryButton);
             this.queryStatusBar.Controls.Add(this.selectConnections);
             this.queryStatusBar.Dock = System.Windows.Forms.DockStyle.Top;
@@ -140,15 +144,15 @@
             // 
             // runQueryButton
             // 
+            this.runQueryButton.BackColor = System.Drawing.SystemColors.Control;
             this.runQueryButton.Image = ((System.Drawing.Image)(resources.GetObject("runQueryButton.Image")));
-            this.runQueryButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.runQueryButton.Location = new System.Drawing.Point(192, 4);
             this.runQueryButton.Name = "runQueryButton";
-            this.runQueryButton.Size = new System.Drawing.Size(83, 25);
+            this.runQueryButton.Size = new System.Drawing.Size(27, 25);
             this.runQueryButton.TabIndex = 1;
-            this.runQueryButton.Text = "Run Query";
             this.runQueryButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.runQueryButton.UseVisualStyleBackColor = true;
+            this.toolTip1.SetToolTip(this.runQueryButton, "Run Query");
+            this.runQueryButton.UseVisualStyleBackColor = false;
             this.runQueryButton.Click += new System.EventHandler(this.runQueryButton_Click_1);
             // 
             // selectConnections
@@ -198,6 +202,7 @@
             this.resultListView.TabIndex = 0;
             this.resultListView.UseCompatibleStateImageBehavior = false;
             this.resultListView.View = System.Windows.Forms.View.Details;
+            this.resultListView.SelectedIndexChanged += new System.EventHandler(this.resultListView_SelectedIndexChanged);
             // 
             // columnSelect
             // 
@@ -213,15 +218,6 @@
             // 
             this.columnPartitionKey.Text = "PartitionKey";
             this.columnPartitionKey.Width = 166;
-            // 
-            // textDocument
-            // 
-            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textDocument.Location = new System.Drawing.Point(0, 25);
-            this.textDocument.Name = "textDocument";
-            this.textDocument.Size = new System.Drawing.Size(576, 335);
-            this.textDocument.TabIndex = 2;
-            this.textDocument.Text = "";
             // 
             // toolStrip2
             // 
@@ -248,14 +244,14 @@
             // saveRecordToolStripMenuItem
             // 
             this.saveRecordToolStripMenuItem.Name = "saveRecordToolStripMenuItem";
-            this.saveRecordToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.saveRecordToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveRecordToolStripMenuItem.Text = "Save Document";
             this.saveRecordToolStripMenuItem.Click += new System.EventHandler(this.saveRecordToolStripMenuItem_Click);
             // 
             // saveAllResultsToolStripMenuItem
             // 
             this.saveAllResultsToolStripMenuItem.Name = "saveAllResultsToolStripMenuItem";
-            this.saveAllResultsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.saveAllResultsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveAllResultsToolStripMenuItem.Text = "Save All Documents";
             this.saveAllResultsToolStripMenuItem.Click += new System.EventHandler(this.saveAllResultsToolStripMenuItem_Click);
             // 
@@ -291,9 +287,37 @@
             this.selectedToDeleteButton.Text = "Selected to Delete Query";
             this.selectedToDeleteButton.Click += new System.EventHandler(this.selectedToDeleteButton_Click);
             // 
+            // saveQueryButton
+            // 
+            this.saveQueryButton.BackColor = System.Drawing.SystemColors.Control;
+            this.saveQueryButton.Image = ((System.Drawing.Image)(resources.GetObject("saveQueryButton.Image")));
+            this.saveQueryButton.Location = new System.Drawing.Point(220, 4);
+            this.saveQueryButton.Name = "saveQueryButton";
+            this.saveQueryButton.Size = new System.Drawing.Size(30, 25);
+            this.saveQueryButton.TabIndex = 2;
+            this.saveQueryButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolTip1.SetToolTip(this.saveQueryButton, "Save Query");
+            this.saveQueryButton.UseVisualStyleBackColor = false;
+            this.saveQueryButton.Click += new System.EventHandler(this.saveQueryButton_Click);
+            // 
+            // textDocument
+            // 
+            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textDocument.Location = new System.Drawing.Point(0, 25);
+            this.textDocument.Name = "textDocument";
+            this.textDocument.Size = new System.Drawing.Size(576, 335);
+            this.textDocument.TabIndex = 1;
+            this.textDocument.Text = "";
+            // 
             // connectionBindingSource
             // 
             this.connectionBindingSource.DataSource = typeof(CosmosManager.Domain.Connection);
+            // 
+            // saveJsonDialog
+            // 
+            this.saveJsonDialog.DefaultExt = "json";
+            this.saveJsonDialog.Filter = "Json|*.json";
+            this.saveJsonDialog.SupportMultiDottedExtensions = true;
             // 
             // QueryWindowControl
             // 
@@ -332,14 +356,13 @@
         private System.Windows.Forms.SplitContainer splitResultVIew;
         private System.Windows.Forms.ListView resultListView;
         private System.Windows.Forms.ToolStrip toolStrip2;
-        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.SaveFileDialog saveQueryDialog;
         private System.Windows.Forms.Panel queryStatusBar;
         private System.Windows.Forms.ComboBox selectConnections;
         private System.Windows.Forms.Button runQueryButton;
         private System.Windows.Forms.BindingSource connectionBindingSource;
         private System.Windows.Forms.RichTextBox textStats;
         private System.Windows.Forms.SplitContainer splitQueryAndStats;
-        private System.Windows.Forms.RichTextBox textDocument;
         private System.Windows.Forms.ColumnHeader columnSelect;
         private System.Windows.Forms.ColumnHeader columnId;
         private System.Windows.Forms.ColumnHeader columnPartitionKey;
@@ -349,5 +372,9 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton selectedToUpdateButton;
         private System.Windows.Forms.ToolStripButton selectedToDeleteButton;
+        private System.Windows.Forms.Button saveQueryButton;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private Controls.SyntaxRichTextBox textDocument;
+        private System.Windows.Forms.SaveFileDialog saveJsonDialog;
     }
 }
