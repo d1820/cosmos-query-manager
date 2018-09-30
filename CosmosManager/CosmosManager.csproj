@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9F9A2550-C280-49E1-B953-53AAA624FED6}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>CosmosManager</RootNamespace>
+    <AssemblyName>CosmosManager</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>documentdb_54645_jq4_icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Decorators\QueryResultMetricDecorator.cs" />
+    <Compile Include="Decorators\QueryResultTotalCostDecorator.cs" />
+    <Compile Include="Domain\Connection.cs" />
+    <Compile Include="Domain\Constants.cs" />
+    <Compile Include="Domain\DocumentQueryParameter.cs" />
+    <Compile Include="Domain\QueryOptions.cs" />
+    <Compile Include="Domain\RequestOptions.cs" />
+    <Compile Include="Domain\StatsLogger.cs" />
+    <Compile Include="Exceptions\DataStoreException.cs" />
+    <Compile Include="Exceptions\DocumentUpdateException.cs" />
+    <Compile Include="Extensions\DocumentDBExtensions.cs" />
+    <Compile Include="Extensions\LoggerExtensions.cs" />
+    <Compile Include="Extensions\OptionExtensions.cs" />
+    <Compile Include="Interfaces\ICosmosDocument.cs" />
+    <Compile Include="Interfaces\IMainForm.cs" />
+    <Compile Include="Presenters\MainFormPresenter.cs" />
+    <Compile Include="Presenters\QueryWindowPresenter.cs" />
+    <Compile Include="Interfaces\IQueryRunner.cs" />
+    <Compile Include="Views\HelpForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\HelpForm.Designer.cs">
+      <DependentUpon>HelpForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Interfaces\IDocumentExecuteContext.cs" />
+    <Compile Include="Interfaces\IDocumentStore.cs" />
+    <Compile Include="Interfaces\IQueryResultDecorator.cs" />
+    <Compile Include="Interfaces\IStoredProcedureExecuteContext.cs" />
+    <Compile Include="Interfaces\IQueryWindowControl.cs" />
+    <Compile Include="Views\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryRunners\SelectQueryRunner.cs" />
+    <Compile Include="Views\QueryWindowControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\QueryWindowControl.Designer.cs">
+      <DependentUpon>QueryWindowControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Stores\CosmosDocumentStore.cs" />
+    <Compile Include="Stores\DocumentExecuteContext.cs" />
+    <Compile Include="Stores\StoredProcedureExecuteContext.cs" />
+    <EmbeddedResource Include="Views\HelpForm.resx">
+      <DependentUpon>HelpForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Views\QueryWindowControl.resx">
+      <DependentUpon>QueryWindowControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="help.Designer.md" />
+    <None Include="help.md">
+      <SubType>Form</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Properties\DataSources\CosmosManager.Domain.Connection.datasource" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="documentdb_54645_jq4_icon.ico" />
+    <None Include="Resources\closeIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Markdig">
+      <Version>0.15.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Azure.DocumentDB">
+      <Version>1.17.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions">
+      <Version>2.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>11.0.2</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

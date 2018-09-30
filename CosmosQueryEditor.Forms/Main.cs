@@ -8,7 +8,7 @@ using CosmosQueryEditor.Forms.Presenters;
 
 namespace CosmosQueryEditor.Forms
 {
-    public partial class Main : Form, IFileListView, IMenuView
+    public partial class Main : Form, IMenuView
     {
         private readonly IMenuPresenter _menuPresenter;
 
@@ -22,6 +22,7 @@ namespace CosmosQueryEditor.Forms
 
             OnFolderChange = (sender, args) =>
                              {
+                                 //TODO move all the treeview to own presenter??
                                  fileView.Nodes.Clear();
                                  //load the treeview
                                  var root = new TreeNode
