@@ -52,9 +52,9 @@
             this.selectedToDeleteButton = new System.Windows.Forms.ToolStripButton();
             this.saveQueryButton = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.saveJsonDialog = new System.Windows.Forms.SaveFileDialog();
             this.textDocument = new CosmosManager.Controls.SyntaxRichTextBox();
             this.connectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.saveJsonDialog = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryResult)).BeginInit();
             this.splitQueryResult.Panel1.SuspendLayout();
             this.splitQueryResult.Panel2.SuspendLayout();
@@ -196,6 +196,7 @@
             this.resultListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.resultListView.FullRowSelect = true;
             this.resultListView.GridLines = true;
+            this.resultListView.HideSelection = false;
             this.resultListView.Location = new System.Drawing.Point(0, 25);
             this.resultListView.Name = "resultListView";
             this.resultListView.Size = new System.Drawing.Size(350, 335);
@@ -207,7 +208,7 @@
             // columnSelect
             // 
             this.columnSelect.Text = "";
-            this.columnSelect.Width = 37;
+            this.columnSelect.Width = 20;
             // 
             // columnId
             // 
@@ -244,14 +245,14 @@
             // saveRecordToolStripMenuItem
             // 
             this.saveRecordToolStripMenuItem.Name = "saveRecordToolStripMenuItem";
-            this.saveRecordToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveRecordToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.saveRecordToolStripMenuItem.Text = "Save Document";
             this.saveRecordToolStripMenuItem.Click += new System.EventHandler(this.saveRecordToolStripMenuItem_Click);
             // 
             // saveAllResultsToolStripMenuItem
             // 
             this.saveAllResultsToolStripMenuItem.Name = "saveAllResultsToolStripMenuItem";
-            this.saveAllResultsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAllResultsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.saveAllResultsToolStripMenuItem.Text = "Save All Documents";
             this.saveAllResultsToolStripMenuItem.Click += new System.EventHandler(this.saveAllResultsToolStripMenuItem_Click);
             // 
@@ -300,6 +301,12 @@
             this.saveQueryButton.UseVisualStyleBackColor = false;
             this.saveQueryButton.Click += new System.EventHandler(this.saveQueryButton_Click);
             // 
+            // saveJsonDialog
+            // 
+            this.saveJsonDialog.DefaultExt = "json";
+            this.saveJsonDialog.Filter = "Json|*.json";
+            this.saveJsonDialog.SupportMultiDottedExtensions = true;
+            // 
             // textDocument
             // 
             this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -312,12 +319,6 @@
             // connectionBindingSource
             // 
             this.connectionBindingSource.DataSource = typeof(CosmosManager.Domain.Connection);
-            // 
-            // saveJsonDialog
-            // 
-            this.saveJsonDialog.DefaultExt = "json";
-            this.saveJsonDialog.Filter = "Json|*.json";
-            this.saveJsonDialog.SupportMultiDottedExtensions = true;
             // 
             // QueryWindowControl
             // 

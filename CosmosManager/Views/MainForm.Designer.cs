@@ -174,8 +174,8 @@
             // appStatusLabel
             // 
             this.appStatusLabel.Name = "appStatusLabel";
-            this.appStatusLabel.Size = new System.Drawing.Size(19, 17);
-            this.appStatusLabel.Text = "ee";
+            this.appStatusLabel.Size = new System.Drawing.Size(39, 17);
+            this.appStatusLabel.Text = "Ready";
             // 
             // contextMenuStrip1
             // 
