@@ -11,14 +11,13 @@ namespace CosmosManager
     public partial class MainForm : Form, IMainForm
     {
         private TreeNode _contextSelectedNode;
+        private TabPage contextTabPage = null;
 
         public MainFormPresenter Presenter { private get; set; }
 
         public MainForm()
         {
             InitializeComponent();
-            //Presenter.PopulateTreeView(@"C:\Users\Administrator.WIN-JLVDOKCVKPQ\Desktop\TestScripts");
-
         }
 
         public void ClearFileTreeView()
@@ -58,9 +57,19 @@ namespace CosmosManager
 
         public void CreateTempQueryTab(string query)
         {
-             var tabName = "New Query *";
+            var tabName = "New Query *";
             CreateTab(tabName, null, query);
 
+        }
+
+        public void SetTransactionCacheLabel(string text)
+        {
+            transactionCacheSizeLabel.Text = text;
+        }
+
+        public void UpdateTabHeaderColors()
+        {
+            queryTabControl.Invalidate();
         }
 
         private void fileTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -105,11 +114,30 @@ namespace CosmosManager
         {
             var tabPage = queryTabControl.TabPages[e.Index];
             var tabRect = queryTabControl.GetTabRect(e.Index);
+
+            var presenter = tabPage.Tag as QueryWindowPresenter;
+            var brushColor = Color.Transparent;
+            if (presenter.SelectedConnection != null)
+            {
+                brushColor = Presenter.GetConnectionColor(presenter.SelectedConnection.Name);
+            }
+
+            using (Brush br = new SolidBrush(brushColor))
+            {
+                e.Graphics.FillRectangle(br, tabRect);
+                var rect = tabRect;
+                rect.Offset(0, 1);
+                rect.Inflate(0, -1);
+                e.Graphics.DrawRectangle(Pens.DarkGray, rect);
+                e.DrawFocusRectangle();
+            }
+
             tabRect.Inflate(-2, -2);
             var closeImage = Properties.Resources.closeIcon;
             e.Graphics.DrawImage(closeImage, (tabRect.Right - 10), tabRect.Top + (tabRect.Height - closeImage.Height) / 2, 10, 10);
 
-            TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font, tabRect, tabPage.ForeColor, TextFormatFlags.Left);
+            TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font, tabRect, Color.Black, TextFormatFlags.Left);
+
         }
 
         private void queryTabControl_MouseDown(object sender, MouseEventArgs e)
@@ -169,6 +197,42 @@ namespace CosmosManager
             }
         }
 
+        private void duplicateTabToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (contextTabPage != null && contextTabPage.Tag != null)
+            {
+                var currentTabPresenter = (QueryWindowPresenter)contextTabPage.Tag;
+                CreateTempQueryTab(currentTabPresenter.CurrentTabQuery);
+                contextTabPage = null;
+            }
+        }
+
+        private void viewTransactionCacheToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Presenter.OpenTransactionCacheFolder();
+        }
+
+        private void queryTabControl_MouseUp(object sender, MouseEventArgs e)
+        {
+            // Show menu only if the right mouse button is clicked.
+            if (e.Button == MouseButtons.Right)
+            {
+                for (var i = 0; i < queryTabControl.TabCount; i++)
+                {
+                    var r = queryTabControl.GetTabRect(i);
+                    if (r.Contains(e.Location))
+                    {
+                        contextTabPage = queryTabControl.TabPages[i];
+                        if (contextTabPage.Tag != null)
+                        {
+                            contextTabs.Show(queryTabControl, e.Location);
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+
         private void CreateTab(string tabName, FileInfo fileInfo, string tempQuery = null)
         {
             var tab = new TabPage(tabName + "   ");
@@ -178,7 +242,7 @@ namespace CosmosManager
             queryWindow.Dock = DockStyle.Fill;
             queryWindow.MainPresenter = Presenter;
 
-            var presenter = new QueryWindowPresenter(queryWindow);
+            var presenter = new QueryWindowPresenter(queryWindow, queryTabControl.TabPages.Count);
             if (fileInfo != null)
             {
                 presenter.SetFile(fileInfo);
@@ -197,5 +261,9 @@ namespace CosmosManager
             queryTabControl.SelectedTab = tab;
         }
 
+        private void transactionCacheSizeLabel_DoubleClick(object sender, EventArgs e)
+        {
+            Presenter.OpenTransactionCacheFolder();
+        }
     }
 }

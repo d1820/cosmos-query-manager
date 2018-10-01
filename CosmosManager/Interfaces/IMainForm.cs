@@ -13,5 +13,7 @@ namespace CosmosManager.Interfaces
         void ShowMessage(string message, string title = null);
         void UpdateNewQueryTabName(string newTabName);
         void CreateTempQueryTab(string query);
+        void SetTransactionCacheLabel(string text);
+        void UpdateTabHeaderColors();
     }
 }

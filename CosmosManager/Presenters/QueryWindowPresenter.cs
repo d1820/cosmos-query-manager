@@ -15,11 +15,13 @@ using System.Threading.Tasks;
 
 namespace CosmosManager.Presenters
 {
-    public class QueryWindowPresenter
+
+    public class QueryWindowPresenter : IResultsPresenter
     {
         private List<Connection> _currentConnections;
         public Connection SelectedConnection { get; set; }
         public FileInfo CurrentFileInfo { get; private set; }
+        public int TabIndexReference { get; }
 
         private IDocumentClient _client;
         private IDocumentStore _documentStore;
@@ -27,14 +29,24 @@ namespace CosmosManager.Presenters
         private StatsLogger _logger;
         private List<IQueryRunner> _queryRunners = new List<IQueryRunner>();
 
-        public QueryWindowPresenter(IQueryWindowControl view)
+        public QueryWindowPresenter(IQueryWindowControl view, int tabIndexReference)
         {
             _view = view;
             view.Presenter = this;
             _logger = new StatsLogger(view);
-            _queryRunners.Add(new SelectQueryRunner(view));
-
+            _queryRunners.Add(new SelectQueryRunner(this));
+            TabIndexReference = tabIndexReference;
         }
+
+        public string CurrentTabQuery
+        {
+            get
+            {
+                return _view.Query;
+            }
+        }
+
+
 
         public void SetConnections(List<Connection> connections)
         {
@@ -145,7 +157,10 @@ namespace CosmosManager.Presenters
             return ParseCollectionName(query);
         }
 
-
+        public void RenderResults(IReadOnlyCollection<object> results)
+        {
+            _view.RenderResults(results);
+        }
         private string CleanQuery(string query)
         {
             return query

@@ -35,6 +35,11 @@
             this.textQuery = new System.Windows.Forms.RichTextBox();
             this.textStats = new System.Windows.Forms.RichTextBox();
             this.queryStatusBar = new System.Windows.Forms.Panel();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.wordWrapToggleButton = new System.Windows.Forms.Button();
+            this.increaseFontButton = new System.Windows.Forms.Button();
+            this.decreaseFontButton = new System.Windows.Forms.Button();
+            this.saveQueryButton = new System.Windows.Forms.Button();
             this.runQueryButton = new System.Windows.Forms.Button();
             this.selectConnections = new System.Windows.Forms.ComboBox();
             this.splitResultVIew = new System.Windows.Forms.SplitContainer();
@@ -42,20 +47,23 @@
             this.columnSelect = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnPartitionKey = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
-            this.saveQueryDialog = new System.Windows.Forms.SaveFileDialog();
-            this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
-            this.saveRecordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAllResultsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.selectedToUpdateButton = new System.Windows.Forms.ToolStripButton();
             this.selectedToDeleteButton = new System.Windows.Forms.ToolStripButton();
-            this.saveQueryButton = new System.Windows.Forms.Button();
+            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+            this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
+            this.saveRecordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAllResultsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveQueryDialog = new System.Windows.Forms.SaveFileDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.saveJsonDialog = new System.Windows.Forms.SaveFileDialog();
+            this.saveTempQueryDialog = new System.Windows.Forms.SaveFileDialog();
             this.textDocument = new CosmosManager.Controls.SyntaxRichTextBox();
             this.connectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.saveTempQueryDialog = new System.Windows.Forms.SaveFileDialog();
+            this.resultWordWrapButton = new System.Windows.Forms.ToolStripButton();
+            this.resultFontSizeDecreaseButton = new System.Windows.Forms.ToolStripButton();
+            this.resuleFontSizeIncreaseButton = new System.Windows.Forms.ToolStripButton();
+            this.panel2 = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryResult)).BeginInit();
             this.splitQueryResult.Panel1.SuspendLayout();
             this.splitQueryResult.Panel2.SuspendLayout();
@@ -65,13 +73,15 @@
             this.splitQueryAndStats.Panel2.SuspendLayout();
             this.splitQueryAndStats.SuspendLayout();
             this.queryStatusBar.SuspendLayout();
+            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitResultVIew)).BeginInit();
             this.splitResultVIew.Panel1.SuspendLayout();
             this.splitResultVIew.Panel2.SuspendLayout();
             this.splitResultVIew.SuspendLayout();
-            this.toolStrip2.SuspendLayout();
             this.toolStrip1.SuspendLayout();
+            this.toolStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.connectionBindingSource)).BeginInit();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitQueryResult
@@ -115,11 +125,13 @@
             // textQuery
             // 
             this.textQuery.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textQuery.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textQuery.Location = new System.Drawing.Point(0, 0);
             this.textQuery.Name = "textQuery";
             this.textQuery.Size = new System.Drawing.Size(930, 189);
             this.textQuery.TabIndex = 0;
             this.textQuery.Text = "";
+            this.textQuery.WordWrap = false;
             // 
             // textStats
             // 
@@ -134,20 +146,97 @@
             // 
             // queryStatusBar
             // 
-            this.queryStatusBar.Controls.Add(this.saveQueryButton);
-            this.queryStatusBar.Controls.Add(this.runQueryButton);
-            this.queryStatusBar.Controls.Add(this.selectConnections);
+            this.queryStatusBar.Controls.Add(this.panel1);
             this.queryStatusBar.Dock = System.Windows.Forms.DockStyle.Top;
             this.queryStatusBar.Location = new System.Drawing.Point(0, 0);
             this.queryStatusBar.Name = "queryStatusBar";
             this.queryStatusBar.Size = new System.Drawing.Size(930, 32);
             this.queryStatusBar.TabIndex = 1;
             // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.SystemColors.Control;
+            this.panel1.Controls.Add(this.decreaseFontButton);
+            this.panel1.Controls.Add(this.panel2);
+            this.panel1.Controls.Add(this.wordWrapToggleButton);
+            this.panel1.Controls.Add(this.runQueryButton);
+            this.panel1.Controls.Add(this.increaseFontButton);
+            this.panel1.Controls.Add(this.saveQueryButton);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(930, 32);
+            this.panel1.TabIndex = 2;
+            // 
+            // wordWrapToggleButton
+            // 
+            this.wordWrapToggleButton.BackColor = System.Drawing.SystemColors.Control;
+            this.wordWrapToggleButton.FlatAppearance.BorderSize = 0;
+            this.wordWrapToggleButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.wordWrapToggleButton.Image = global::CosmosManager.Properties.Resources.arrow_undo;
+            this.wordWrapToggleButton.Location = new System.Drawing.Point(3, 4);
+            this.wordWrapToggleButton.Name = "wordWrapToggleButton";
+            this.wordWrapToggleButton.Size = new System.Drawing.Size(30, 25);
+            this.wordWrapToggleButton.TabIndex = 5;
+            this.wordWrapToggleButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolTip1.SetToolTip(this.wordWrapToggleButton, "Toggle Word Wrap");
+            this.wordWrapToggleButton.UseVisualStyleBackColor = false;
+            this.wordWrapToggleButton.Click += new System.EventHandler(this.wordWrapToggleButton_Click);
+            // 
+            // increaseFontButton
+            // 
+            this.increaseFontButton.AutoSize = true;
+            this.increaseFontButton.BackColor = System.Drawing.SystemColors.Control;
+            this.increaseFontButton.FlatAppearance.BorderSize = 0;
+            this.increaseFontButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.increaseFontButton.Image = global::CosmosManager.Properties.Resources.gb_font_larger_d;
+            this.increaseFontButton.Location = new System.Drawing.Point(72, 4);
+            this.increaseFontButton.Name = "increaseFontButton";
+            this.increaseFontButton.Size = new System.Drawing.Size(47, 26);
+            this.increaseFontButton.TabIndex = 4;
+            this.increaseFontButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolTip1.SetToolTip(this.increaseFontButton, "Increase Font Size");
+            this.increaseFontButton.UseVisualStyleBackColor = false;
+            this.increaseFontButton.Click += new System.EventHandler(this.increaseFontButton_Click);
+            // 
+            // decreaseFontButton
+            // 
+            this.decreaseFontButton.AutoSize = true;
+            this.decreaseFontButton.BackColor = System.Drawing.SystemColors.Control;
+            this.decreaseFontButton.FlatAppearance.BorderSize = 0;
+            this.decreaseFontButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.decreaseFontButton.Image = global::CosmosManager.Properties.Resources.gb_font_smaller_d;
+            this.decreaseFontButton.Location = new System.Drawing.Point(30, 4);
+            this.decreaseFontButton.Name = "decreaseFontButton";
+            this.decreaseFontButton.Size = new System.Drawing.Size(45, 26);
+            this.decreaseFontButton.TabIndex = 3;
+            this.decreaseFontButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolTip1.SetToolTip(this.decreaseFontButton, "Decrease Font Size");
+            this.decreaseFontButton.UseVisualStyleBackColor = false;
+            this.decreaseFontButton.Click += new System.EventHandler(this.decreaseFontButton_Click);
+            // 
+            // saveQueryButton
+            // 
+            this.saveQueryButton.BackColor = System.Drawing.SystemColors.Control;
+            this.saveQueryButton.FlatAppearance.BorderSize = 0;
+            this.saveQueryButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.saveQueryButton.Image = ((System.Drawing.Image)(resources.GetObject("saveQueryButton.Image")));
+            this.saveQueryButton.Location = new System.Drawing.Point(114, 4);
+            this.saveQueryButton.Name = "saveQueryButton";
+            this.saveQueryButton.Size = new System.Drawing.Size(30, 25);
+            this.saveQueryButton.TabIndex = 2;
+            this.saveQueryButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolTip1.SetToolTip(this.saveQueryButton, "Save Query");
+            this.saveQueryButton.UseVisualStyleBackColor = false;
+            this.saveQueryButton.Click += new System.EventHandler(this.saveQueryButton_Click);
+            // 
             // runQueryButton
             // 
             this.runQueryButton.BackColor = System.Drawing.SystemColors.Control;
+            this.runQueryButton.FlatAppearance.BorderSize = 0;
+            this.runQueryButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.runQueryButton.Image = ((System.Drawing.Image)(resources.GetObject("runQueryButton.Image")));
-            this.runQueryButton.Location = new System.Drawing.Point(192, 4);
+            this.runQueryButton.Location = new System.Drawing.Point(138, 4);
             this.runQueryButton.Name = "runQueryButton";
             this.runQueryButton.Size = new System.Drawing.Size(27, 25);
             this.runQueryButton.TabIndex = 1;
@@ -161,9 +250,9 @@
             this.selectConnections.DisplayMember = "Name";
             this.selectConnections.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.selectConnections.FormattingEnabled = true;
-            this.selectConnections.Location = new System.Drawing.Point(4, 6);
+            this.selectConnections.Location = new System.Drawing.Point(6, 6);
             this.selectConnections.Name = "selectConnections";
-            this.selectConnections.Size = new System.Drawing.Size(182, 21);
+            this.selectConnections.Size = new System.Drawing.Size(262, 21);
             this.selectConnections.TabIndex = 0;
             this.selectConnections.SelectedValueChanged += new System.EventHandler(this.selectConnections_SelectedValueChanged);
             // 
@@ -221,42 +310,6 @@
             this.columnPartitionKey.Text = "PartitionKey";
             this.columnPartitionKey.Width = 166;
             // 
-            // toolStrip2
-            // 
-            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripDropDownButton1});
-            this.toolStrip2.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(576, 25);
-            this.toolStrip2.TabIndex = 0;
-            this.toolStrip2.Text = "toolStrip2";
-            // 
-            // toolStripDropDownButton1
-            // 
-            this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.saveRecordToolStripMenuItem,
-            this.saveAllResultsToolStripMenuItem});
-            this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
-            this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
-            this.toolStripDropDownButton1.Size = new System.Drawing.Size(29, 22);
-            this.toolStripDropDownButton1.Text = "toolStripDropDownButton1";
-            // 
-            // saveRecordToolStripMenuItem
-            // 
-            this.saveRecordToolStripMenuItem.Name = "saveRecordToolStripMenuItem";
-            this.saveRecordToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.saveRecordToolStripMenuItem.Text = "Save Document";
-            this.saveRecordToolStripMenuItem.Click += new System.EventHandler(this.saveRecordToolStripMenuItem_Click);
-            // 
-            // saveAllResultsToolStripMenuItem
-            // 
-            this.saveAllResultsToolStripMenuItem.Name = "saveAllResultsToolStripMenuItem";
-            this.saveAllResultsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.saveAllResultsToolStripMenuItem.Text = "Save All Documents";
-            this.saveAllResultsToolStripMenuItem.Click += new System.EventHandler(this.saveAllResultsToolStripMenuItem_Click);
-            // 
             // toolStrip1
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -289,18 +342,45 @@
             this.selectedToDeleteButton.Text = "Selected to Delete Query";
             this.selectedToDeleteButton.Click += new System.EventHandler(this.selectedToDeleteButton_Click);
             // 
-            // saveQueryButton
+            // toolStrip2
             // 
-            this.saveQueryButton.BackColor = System.Drawing.SystemColors.Control;
-            this.saveQueryButton.Image = ((System.Drawing.Image)(resources.GetObject("saveQueryButton.Image")));
-            this.saveQueryButton.Location = new System.Drawing.Point(220, 4);
-            this.saveQueryButton.Name = "saveQueryButton";
-            this.saveQueryButton.Size = new System.Drawing.Size(30, 25);
-            this.saveQueryButton.TabIndex = 2;
-            this.saveQueryButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.toolTip1.SetToolTip(this.saveQueryButton, "Save Query");
-            this.saveQueryButton.UseVisualStyleBackColor = false;
-            this.saveQueryButton.Click += new System.EventHandler(this.saveQueryButton_Click);
+            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.resultWordWrapButton,
+            this.resultFontSizeDecreaseButton,
+            this.resuleFontSizeIncreaseButton,
+            this.toolStripDropDownButton1});
+            this.toolStrip2.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip2.Name = "toolStrip2";
+            this.toolStrip2.Size = new System.Drawing.Size(576, 25);
+            this.toolStrip2.TabIndex = 0;
+            this.toolStrip2.Text = "toolStrip2";
+            // 
+            // toolStripDropDownButton1
+            // 
+            this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveRecordToolStripMenuItem,
+            this.saveAllResultsToolStripMenuItem});
+            this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
+            this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(29, 22);
+            this.toolStripDropDownButton1.Text = "toolStripDropDownButton1";
+            this.toolStripDropDownButton1.ToolTipText = "Save Options";
+            // 
+            // saveRecordToolStripMenuItem
+            // 
+            this.saveRecordToolStripMenuItem.Name = "saveRecordToolStripMenuItem";
+            this.saveRecordToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveRecordToolStripMenuItem.Text = "Save Document";
+            this.saveRecordToolStripMenuItem.Click += new System.EventHandler(this.saveRecordToolStripMenuItem_Click);
+            // 
+            // saveAllResultsToolStripMenuItem
+            // 
+            this.saveAllResultsToolStripMenuItem.Name = "saveAllResultsToolStripMenuItem";
+            this.saveAllResultsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAllResultsToolStripMenuItem.Text = "Save All Documents";
+            this.saveAllResultsToolStripMenuItem.Click += new System.EventHandler(this.saveAllResultsToolStripMenuItem_Click);
             // 
             // saveJsonDialog
             // 
@@ -308,25 +388,69 @@
             this.saveJsonDialog.Filter = "Json|*.json";
             this.saveJsonDialog.SupportMultiDottedExtensions = true;
             // 
-            // textDocument
-            // 
-            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textDocument.Location = new System.Drawing.Point(0, 25);
-            this.textDocument.Name = "textDocument";
-            this.textDocument.Size = new System.Drawing.Size(576, 335);
-            this.textDocument.TabIndex = 1;
-            this.textDocument.Text = "";
-            // 
-            // connectionBindingSource
-            // 
-            this.connectionBindingSource.DataSource = typeof(CosmosManager.Domain.Connection);
-            // 
             // saveTempQueryDialog
             // 
             this.saveTempQueryDialog.DefaultExt = "csql";
             this.saveTempQueryDialog.Filter = "Cosmos Script|*.csql";
             this.saveTempQueryDialog.SupportMultiDottedExtensions = true;
             this.saveTempQueryDialog.Title = "Save New Query";
+            // 
+            // textDocument
+            // 
+            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textDocument.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textDocument.Location = new System.Drawing.Point(0, 25);
+            this.textDocument.Name = "textDocument";
+            this.textDocument.Size = new System.Drawing.Size(576, 335);
+            this.textDocument.TabIndex = 1;
+            this.textDocument.Text = "";
+            this.textDocument.WordWrap = false;
+            // 
+            // connectionBindingSource
+            // 
+            this.connectionBindingSource.DataSource = typeof(CosmosManager.Domain.Connection);
+            // 
+            // resultWordWrapButton
+            // 
+            this.resultWordWrapButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.resultWordWrapButton.Image = global::CosmosManager.Properties.Resources.arrow_undo;
+            this.resultWordWrapButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.resultWordWrapButton.Name = "resultWordWrapButton";
+            this.resultWordWrapButton.Size = new System.Drawing.Size(23, 22);
+            this.resultWordWrapButton.Text = "toolStripButton1";
+            this.resultWordWrapButton.ToolTipText = "Toggle Word Wrap";
+            this.resultWordWrapButton.Click += new System.EventHandler(this.resultWordWrapButton_Click);
+            // 
+            // resultFontSizeDecreaseButton
+            // 
+            this.resultFontSizeDecreaseButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.resultFontSizeDecreaseButton.Image = global::CosmosManager.Properties.Resources.gb_font_smaller_d;
+            this.resultFontSizeDecreaseButton.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.resultFontSizeDecreaseButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.resultFontSizeDecreaseButton.Name = "resultFontSizeDecreaseButton";
+            this.resultFontSizeDecreaseButton.Size = new System.Drawing.Size(43, 22);
+            this.resultFontSizeDecreaseButton.Text = "Decrease Font Size";
+            this.resultFontSizeDecreaseButton.Click += new System.EventHandler(this.resultFontSizeDecreaseButton_Click);
+            // 
+            // resuleFontSizeIncreaseButton
+            // 
+            this.resuleFontSizeIncreaseButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.resuleFontSizeIncreaseButton.Image = global::CosmosManager.Properties.Resources.gb_font_larger_d;
+            this.resuleFontSizeIncreaseButton.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.resuleFontSizeIncreaseButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.resuleFontSizeIncreaseButton.Name = "resuleFontSizeIncreaseButton";
+            this.resuleFontSizeIncreaseButton.Size = new System.Drawing.Size(43, 22);
+            this.resuleFontSizeIncreaseButton.Text = "Increase Font Size";
+            this.resuleFontSizeIncreaseButton.Click += new System.EventHandler(this.resuleFontSizeIncreaseButton_Click);
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.selectConnections);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panel2.Location = new System.Drawing.Point(656, 0);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(274, 32);
+            this.panel2.TabIndex = 2;
             // 
             // QueryWindowControl
             // 
@@ -344,17 +468,20 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryAndStats)).EndInit();
             this.splitQueryAndStats.ResumeLayout(false);
             this.queryStatusBar.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.splitResultVIew.Panel1.ResumeLayout(false);
             this.splitResultVIew.Panel1.PerformLayout();
             this.splitResultVIew.Panel2.ResumeLayout(false);
             this.splitResultVIew.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitResultVIew)).EndInit();
             this.splitResultVIew.ResumeLayout(false);
-            this.toolStrip2.ResumeLayout(false);
-            this.toolStrip2.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            this.toolStrip2.ResumeLayout(false);
+            this.toolStrip2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.connectionBindingSource)).EndInit();
+            this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -386,5 +513,13 @@
         private Controls.SyntaxRichTextBox textDocument;
         private System.Windows.Forms.SaveFileDialog saveJsonDialog;
         private System.Windows.Forms.SaveFileDialog saveTempQueryDialog;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button wordWrapToggleButton;
+        private System.Windows.Forms.Button increaseFontButton;
+        private System.Windows.Forms.Button decreaseFontButton;
+        private System.Windows.Forms.ToolStripButton resultWordWrapButton;
+        private System.Windows.Forms.ToolStripButton resultFontSizeDecreaseButton;
+        private System.Windows.Forms.ToolStripButton resuleFontSizeIncreaseButton;
+        private System.Windows.Forms.Panel panel2;
     }
 }

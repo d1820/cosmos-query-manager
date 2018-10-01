@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.IO;
+using CosmosManager.Controls;
 
 namespace CosmosManager
 {
@@ -93,12 +94,6 @@ namespace CosmosManager
         }
 
 
-
-        private void saveResultButton_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private async void runQueryButton_Click_1(object sender, EventArgs e)
         {
             Presenter.Run();
@@ -109,6 +104,7 @@ namespace CosmosManager
             if (selectConnections.SelectedItem is Connection)
             {
                 Presenter.SelectedConnection = (Connection)selectConnections.SelectedItem;
+                MainPresenter.UpdateTabHeaderColor();
             }
         }
 
@@ -172,22 +168,22 @@ namespace CosmosManager
         private void selectedToUpdateButton_Click(object sender, EventArgs e)
         {
             var items = GetCheckedListItems();
-            var ids = items.Select(s=> s["id"]);
+            var ids = items.Select(s => s["id"]);
             MainPresenter.CreateTempQueryTab($"UPDATE @{{['{string.Join("','", ids)}']}}@{Environment.NewLine}FROM {Presenter.GetCurrentQueryCollectionName()}{Environment.NewLine}SET @SET{{ }}SET@");
         }
 
         private void selectedToDeleteButton_Click(object sender, EventArgs e)
         {
             var items = GetCheckedListItems();
-            var ids = items.Select(s=> s["id"]);
-             MainPresenter.CreateTempQueryTab($"DELETE @{{['{string.Join(",", ids)}']}}@{Environment.NewLine}FROM {Presenter.GetCurrentQueryCollectionName()}");
+            var ids = items.Select(s => s["id"]);
+            MainPresenter.CreateTempQueryTab($"DELETE @{{['{string.Join(",", ids)}']}}@{Environment.NewLine}FROM {Presenter.GetCurrentQueryCollectionName()}");
         }
 
         private async void saveQueryButton_Click(object sender, EventArgs e)
         {
-            if(Presenter.CurrentFileInfo == null)
+            if (Presenter.CurrentFileInfo == null)
             {
-                if(saveTempQueryDialog.ShowDialog() == DialogResult.OK)
+                if (saveTempQueryDialog.ShowDialog() == DialogResult.OK)
                 {
                     await Presenter.SaveTempQueryAsync(saveTempQueryDialog.FileName);
                     var fileName = new FileInfo(saveTempQueryDialog.FileName);
@@ -198,15 +194,19 @@ namespace CosmosManager
             await Presenter.SaveQueryAsync();
         }
 
-        private void resultListView_SelectedIndexChanged(object sender, EventArgs e)
+        private async void resultListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (resultListView.SelectedItems.Count == 0)
             {
                 return;
             }
             var selectedItem = resultListView.SelectedItems[0];
-            //await SetSyntaxHighlightAsync((JObject)selectedItem.Tag);
+            //textDocument.Visible = false;
+
+            //textDocument.Text = JsonConvert.SerializeObject(selectedItem.Tag, Formatting.Indented);
+            var tempTextbox = new SyntaxRichTextBox();
             textDocument.Text = JsonConvert.SerializeObject(selectedItem.Tag, Formatting.Indented);
+            //await SetSyntaxHighlightAsync((JObject)selectedItem.Tag, tempTextbox);
 
         }
 
@@ -216,102 +216,129 @@ namespace CosmosManager
             var objects = new List<JObject>();
             foreach (ListViewItem item in resultListView.Items)
             {
-               if(item.Tag is JObject && item.Checked)
+                if (item.Tag is JObject && item.Checked)
                 {
                     objects.Add(item.Tag as JObject);
                 }
             }
             return objects;
         }
-        //private Task SetSyntaxHighlightAsync(JObject document)
-        //{
-        //    //https://www.codeproject.com/Articles/10675/Enabling-syntax-highlighting-in-a-RichTextBox
 
-        //    return Task.Run(() =>
-        //    {
-        //        if (textDocument.InvokeRequired)
-        //        {
-        //            textDocument.BeginInvoke((Action)(() =>
-        //            {
-        //                GetAllProperties(document, textDocument.Settings.Keywords);
+        private void increaseFontButton_Click(object sender, EventArgs e)
+        {
+            textQuery.ZoomFactor++;
+        }
 
-        //                // Set the colors that will be used.
-        //                textDocument.Settings.KeywordColor = Color.SlateBlue;
-        //                textDocument.Settings.CommentColor = Color.Green;
-        //                textDocument.Settings.StringColor = Color.DarkGray;
-        //                textDocument.Settings.IntegerColor = Color.Red;
+        private void decreaseFontButton_Click(object sender, EventArgs e)
+        {
+            if (textQuery.ZoomFactor > 0)
+            {
+                textQuery.ZoomFactor--;
+            }
+        }
 
-        //                // Let's not process strings and integers.
-        //                textDocument.Settings.EnableStrings = false;
-        //                textDocument.Settings.EnableIntegers = false;
+        private void wordWrapToggleButton_Click(object sender, EventArgs e)
+        {
+            textQuery.WordWrap = !textQuery.WordWrap;
+        }
 
-        //                // Let's make the settings we just set valid by compiling
-        //                // the keywords to a regular expression.
-        //                textDocument.CompileKeywords();
-        //                textDocument.ProcessAllLines();
+        private void resultWordWrapButton_Click(object sender, EventArgs e)
+        {
+            textDocument.WordWrap = !textDocument.WordWrap;
+        }
 
-        //            }));
-        //        }
-        //        else
-        //        {
-        //            GetAllProperties(document, textDocument.Settings.Keywords);
+        private void resultFontSizeDecreaseButton_Click(object sender, EventArgs e)
+        {
+            if (textDocument.ZoomFactor > 0)
+            {
+                textDocument.ZoomFactor--;
+            }
+        }
 
-        //            // Set the colors that will be used.
-        //            textDocument.Settings.KeywordColor = Color.SlateBlue;
-        //            textDocument.Settings.CommentColor = Color.Green;
-        //            textDocument.Settings.StringColor = Color.DarkGray;
-        //            textDocument.Settings.IntegerColor = Color.Red;
-
-        //            // Let's not process strings and integers.
-        //            //textDocument.Settings.EnableStrings = false;
-        //            //textDocument.Settings.EnableIntegers = false;
-
-        //            // Let's make the settings we just set valid by compiling
-        //            // the keywords to a regular expression.
-        //            textDocument.CompileKeywords();
-        //            textDocument.ProcessAllLines();
-        //        }
-
-        //    });
+        private void resuleFontSizeIncreaseButton_Click(object sender, EventArgs e)
+        {
+            textDocument.ZoomFactor++;
+        }
 
 
-        //}
+        private Task SetSyntaxHighlightAsync(JObject document, SyntaxRichTextBox textbox)
+        {
+            //https://www.codeproject.com/Articles/10675/Enabling-syntax-highlighting-in-a-RichTextBox
 
-        //private void GetAllProperties(JObject parent, List<string> propList)
-        //{
-        //    var props = parent.Properties();
-        //    foreach (var property in props)
-        //    {
-        //        if (!propList.Contains(property.Name))
-        //        {
-        //            propList.Add($"{property.Name}");
-        //            ParseJArray(property.Value.Children<JArray>(), propList);
+            return Task.Run(() =>
+            {
+                if (textbox.InvokeRequired)
+                {
+                    textbox.BeginInvoke((Action)(() =>
+                    {
+                        // Set the colors that will be used.
+                        textbox.Settings.KeywordColor = Color.SlateBlue;
+                        textbox.Settings.CommentColor = Color.Green;
+                        textbox.Settings.StringColor = Color.DarkGray;
+                        textbox.Settings.IntegerColor = Color.Red;
 
-        //        }
-        //    }
-        //    foreach (var child in parent.Children<JObject>())
-        //    {
-        //        GetAllProperties(child, propList);
-        //    }
+                        // Let's not process strings and integers.
+                        textbox.Settings.EnableComments = false;
+                        textbox.ProcessAllLines();
 
-        //    ParseJArray(parent.Children<JArray>(), propList);
-        //}
-
-        //private void ParseJArray(IEnumerable<JArray> arrays, List<string> propList)
-        //{
-        //    foreach (var childArray in arrays)
-        //    {
-        //        foreach (var child in childArray)
-        //        {
-        //            var objects = child.Children<JObject>();
-        //            foreach (var obj in objects)
-        //            {
-        //                GetAllProperties(obj, propList);
-        //            }
-        //        }
-        //    }
-        //}
+                    }));
+                }
+                else
+                {
 
 
+                    // Set the colors that will be used.
+                    textbox.Settings.KeywordColor = Color.SlateBlue;
+                    textbox.Settings.CommentColor = Color.Green;
+                    textbox.Settings.StringColor = Color.DarkGray;
+                    textbox.Settings.IntegerColor = Color.Red;
+
+                    textbox.Settings.EnableComments = false;
+
+                    textbox.ProcessAllLines();
+                }
+
+            });
+
+
+            //}
+
+            //private void GetAllProperties(JObject parent, List<string> propList)
+            //{
+            //    var props = parent.Properties();
+            //    foreach (var property in props)
+            //    {
+            //        if (!propList.Contains(property.Name))
+            //        {
+            //            propList.Add($"{property.Name}");
+            //            ParseJArray(property.Value.Children<JArray>(), propList);
+
+            //        }
+            //    }
+            //    foreach (var child in parent.Children<JObject>())
+            //    {
+            //        GetAllProperties(child, propList);
+            //    }
+
+            //    ParseJArray(parent.Children<JArray>(), propList);
+            //}
+
+            //private void ParseJArray(IEnumerable<JArray> arrays, List<string> propList)
+            //{
+            //    foreach (var childArray in arrays)
+            //    {
+            //        foreach (var child in childArray)
+            //        {
+            //            var objects = child.Children<JObject>();
+            //            foreach (var obj in objects)
+            //            {
+            //                GetAllProperties(obj, propList);
+            //            }
+            //        }
+            //    }
+            //}
+
+
+        }
     }
 }

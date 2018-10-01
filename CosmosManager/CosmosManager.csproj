@@ -66,6 +66,7 @@
     <Compile Include="Extensions\OptionExtensions.cs" />
     <Compile Include="Interfaces\ICosmosDocument.cs" />
     <Compile Include="Interfaces\IMainForm.cs" />
+    <Compile Include="Interfaces\IResultsPresenter.cs" />
     <Compile Include="Presenters\MainFormPresenter.cs" />
     <Compile Include="Presenters\QueryWindowPresenter.cs" />
     <Compile Include="Interfaces\IQueryRunner.cs" />
@@ -147,6 +148,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="documentdb_54645_jq4_icon.ico" />
+    <None Include="Resources\arrow_undo.png" />
+    <None Include="Resources\gb_font_smaller_d.png" />
+    <None Include="Resources\gb_font_larger_d.png" />
     <None Include="Resources\closeIcon.png" />
   </ItemGroup>
   <ItemGroup>

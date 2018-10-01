@@ -9,11 +9,11 @@ namespace CosmosManager.QueryRunners
 {
     public class SelectQueryRunner : IQueryRunner
     {
-        private readonly IQueryWindowControl _view;
+        private readonly IResultsPresenter _presenter;
 
-        public SelectQueryRunner(IQueryWindowControl view)
+        public SelectQueryRunner(IResultsPresenter presenter)
         {
-            _view = view;
+            _presenter = presenter;
         }
 
         public bool CanRun(string queryType)
@@ -40,7 +40,7 @@ namespace CosmosManager.QueryRunners
                                                                           var query = context.QueryAsSql<object>(sql, queryOptions);
                                                                           return await query.ConvertAndLogRequestUnits(true, logger);
                                                                       });
-                _view.RenderResults(results);
+                _presenter.RenderResults(results);
                 return true;
 
             }
