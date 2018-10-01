@@ -20,5 +20,7 @@ namespace CosmosManager.Interfaces
 
         void SetStatusBarMessage(string message);
 
+        void ResetResultsView();
+
     }
 }

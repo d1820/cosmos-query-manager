@@ -148,6 +148,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="documentdb_54645_jq4_icon.ico" />
+    <None Include="Resources\gbl_Save.gif" />
+    <None Include="Resources\move_waiting_down_alternative.png" />
     <None Include="Resources\776907_document_512x512.png" />
     <None Include="Resources\file_document_sync_synchronization_reload_refresh_update-128.png" />
     <None Include="Resources\arrow_undo.png" />

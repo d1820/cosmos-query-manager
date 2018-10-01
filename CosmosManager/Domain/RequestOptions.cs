@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 
 namespace CosmosManager.Domain
@@ -32,6 +33,7 @@ namespace CosmosManager.Domain
 
         public string PartitionKey { get; set; }
 
-        internal Microsoft.Azure.Documents.Client.RequestOptions ToRequestOptions() => throw new NotImplementedException();
+
+
     }
 }

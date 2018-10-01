@@ -6,6 +6,6 @@ namespace CosmosManager.Interfaces
     public interface IQueryRunner
     {
         bool CanRun(string queryType);
-        Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string collectionName, string sql, ILogger logger);
+        Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string collectionName, string sql, bool logStats, ILogger logger);
     }
 }

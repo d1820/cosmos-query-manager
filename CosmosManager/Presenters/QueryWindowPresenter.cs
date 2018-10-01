@@ -76,17 +76,14 @@ namespace CosmosManager.Presenters
 
         public async void Run()
         {
+            _view.ResetResultsView();
             //execute th interpretor and run against cosmos and connection
             if (SelectedConnection is Connection && SelectedConnection != null)
             {
                 _view.ToggleStatsPanel(true);
                 _view.SetStatusBarMessage("Executing Query...");
 
-                if (_client == null)
-                {
-                    _client = new DocumentClient(new Uri(SelectedConnection.EndPointUrl), SelectedConnection.ConnectionKey);
-                    _documentStore = new CosmosDocumentStore(_client);
-                }
+                CreateDocumentClientAndStore();
                 //TODO  RUN PARSER
                 var query = CleanQuery(_view.Query);
                 var collectionName = ParseCollectionName(query);
@@ -95,7 +92,7 @@ namespace CosmosManager.Presenters
                 var runner = _queryRunners.FirstOrDefault(f => f.CanRun(queryType));
                 if (runner != null)
                 {
-                    var didRun = await runner.RunAsync(_documentStore, SelectedConnection.Database, collectionName, query, _logger);
+                    var didRun = await runner.RunAsync(_documentStore, SelectedConnection.Database, collectionName, query, true, _logger);
                     if (!didRun)
                     {
                         _view.ShowMessage("Unable to execute query. Verify query and try again.", "Query Execution Error");
@@ -107,6 +104,17 @@ namespace CosmosManager.Presenters
             {
                 _view.ShowMessage("Invalid connection. Please select a valid connection and try again", "Data Connection Error");
             }
+        }
+
+        public async Task<object> SaveDocumentAsync(object document)
+        {
+            _view.SetStatusBarMessage("Saving Document...");
+            CreateDocumentClientAndStore();
+            var query = CleanQuery(_view.Query);
+            var collectionName = ParseCollectionName(query);
+            var result =  await _documentStore.ExecuteAsync(SelectedConnection.Database, collectionName, context => context.UpdateAsync(document));
+            _view.SetStatusBarMessage("Document Saved");
+            return result;
         }
 
         public async Task SaveQueryAsync()
@@ -127,26 +135,26 @@ namespace CosmosManager.Presenters
             _view.SetStatusBarMessage($"{fileName} Saved");
         }
 
-        public async Task SaveDocumentAsync(string fileName)
+        public async Task ExportDocumentAsync(string fileName)
         {
-            _view.SetStatusBarMessage("Saving Document...");
+            _view.SetStatusBarMessage("Exporting Document...");
             using (var sw = new StreamWriter(fileName))
             {
                 await sw.WriteAsync(_view.DocumentText);
             }
-            _view.SetStatusBarMessage($"{fileName} Saved");
+            _view.SetStatusBarMessage($"{fileName} Exported");
         }
 
-        public async Task SaveAllToDocumentAsync(List<JObject> documents, string fileName)
+        public async Task ExportAllToDocumentAsync(List<JObject> documents, string fileName)
         {
-            _view.SetStatusBarMessage("Saving documents...");
+            _view.SetStatusBarMessage("Exporting documents...");
 
             using (var sw = new StreamWriter(fileName))
             {
                 await sw.WriteAsync(JsonConvert.SerializeObject(documents, Formatting.Indented));
             }
 
-            _view.SetStatusBarMessage($"{fileName} Saved");
+            _view.SetStatusBarMessage($"{fileName} Exported");
         }
 
         public string GetCurrentQueryCollectionName()
@@ -185,6 +193,15 @@ namespace CosmosManager.Presenters
         {
             var parts = query.Trim().Split(new[] { ' ' });
             return parts[0];
+        }
+
+        private void CreateDocumentClientAndStore()
+        {
+            if (_client == null)
+            {
+                _client = new DocumentClient(new Uri(SelectedConnection.EndPointUrl), SelectedConnection.ConnectionKey);
+                _documentStore = new CosmosDocumentStore(_client);
+            }
         }
     }
 }

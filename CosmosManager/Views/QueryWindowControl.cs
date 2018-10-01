@@ -85,6 +85,12 @@ namespace CosmosManager
             textStats.Text = "";
         }
 
+        public void ResetResultsView()
+        {
+           resultListView.Items.Clear();
+            textDocument.Clear();
+        }
+
         public QueryWindowPresenter Presenter { private get; set; }
         public MainFormPresenter MainPresenter { private get; set; }
 
@@ -141,17 +147,15 @@ namespace CosmosManager
 
         }
 
-        private void Checkbox_CheckedChanged(object sender, EventArgs e) => throw new NotImplementedException();
-
-        private async void saveRecordToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void exportRecordToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (saveJsonDialog.ShowDialog() == DialogResult.OK)
             {
-                await Presenter.SaveDocumentAsync(saveJsonDialog.FileName);
+                await Presenter.ExportDocumentAsync(saveJsonDialog.FileName);
             }
         }
 
-        private async void saveAllResultsToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void exportAllResultsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (saveJsonDialog.ShowDialog() == DialogResult.OK)
             {
@@ -160,7 +164,7 @@ namespace CosmosManager
                 {
                     objects.Add((JObject)item.Tag);
                 }
-                await Presenter.SaveAllToDocumentAsync(objects, saveJsonDialog.FileName);
+                await Presenter.ExportAllToDocumentAsync(objects, saveJsonDialog.FileName);
             }
 
         }
@@ -391,6 +395,12 @@ namespace CosmosManager
         private void resultListView_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
              e.DrawDefault = true;
+        }
+
+        private async void saveExistingDocument_Click(object sender, EventArgs e)
+        {
+            var doc = JsonConvert.DeserializeObject<object>(textDocument.Text);
+           await Presenter.SaveDocumentAsync(doc);
         }
     }
 }

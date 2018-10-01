@@ -44,6 +44,7 @@
             this.columnId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnPartitionKey = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.textDocument = new CosmosManager.Controls.SyntaxRichTextBox();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.saveQueryDialog = new System.Windows.Forms.SaveFileDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -62,7 +63,7 @@
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.saveRecordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllResultsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.textDocument = new CosmosManager.Controls.SyntaxRichTextBox();
+            this.saveExistingDocument = new System.Windows.Forms.ToolStripButton();
             this.connectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryResult)).BeginInit();
             this.splitQueryResult.Panel1.SuspendLayout();
@@ -140,7 +141,7 @@
             this.textStats.Location = new System.Drawing.Point(0, 0);
             this.textStats.Name = "textStats";
             this.textStats.ReadOnly = true;
-            this.textStats.Size = new System.Drawing.Size(317, 189);
+            this.textStats.Size = new System.Drawing.Size(96, 100);
             this.textStats.TabIndex = 0;
             this.textStats.Text = "";
             this.textStats.WordWrap = false;
@@ -258,13 +259,25 @@
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
+            // textDocument
+            // 
+            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textDocument.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textDocument.Location = new System.Drawing.Point(0, 25);
+            this.textDocument.Name = "textDocument";
+            this.textDocument.Size = new System.Drawing.Size(576, 335);
+            this.textDocument.TabIndex = 1;
+            this.textDocument.Text = "";
+            this.textDocument.WordWrap = false;
+            // 
             // toolStrip2
             // 
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.resultWordWrapButton,
             this.resultFontSizeDecreaseButton,
             this.resuleFontSizeIncreaseButton,
-            this.toolStripDropDownButton1});
+            this.toolStripDropDownButton1,
+            this.saveExistingDocument});
             this.toolStrip2.Location = new System.Drawing.Point(0, 0);
             this.toolStrip2.Name = "toolStrip2";
             this.toolStrip2.Size = new System.Drawing.Size(576, 25);
@@ -421,7 +434,7 @@
             this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.saveRecordToolStripMenuItem,
             this.saveAllResultsToolStripMenuItem});
-            this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
+            this.toolStripDropDownButton1.Image = global::CosmosManager.Properties.Resources.move_waiting_down_alternative;
             this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
             this.toolStripDropDownButton1.Size = new System.Drawing.Size(29, 22);
@@ -431,27 +444,26 @@
             // saveRecordToolStripMenuItem
             // 
             this.saveRecordToolStripMenuItem.Name = "saveRecordToolStripMenuItem";
-            this.saveRecordToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.saveRecordToolStripMenuItem.Text = "Save Document";
-            this.saveRecordToolStripMenuItem.Click += new System.EventHandler(this.saveRecordToolStripMenuItem_Click);
+            this.saveRecordToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.saveRecordToolStripMenuItem.Text = "Export Document";
+            this.saveRecordToolStripMenuItem.Click += new System.EventHandler(this.exportRecordToolStripMenuItem_Click);
             // 
             // saveAllResultsToolStripMenuItem
             // 
             this.saveAllResultsToolStripMenuItem.Name = "saveAllResultsToolStripMenuItem";
-            this.saveAllResultsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.saveAllResultsToolStripMenuItem.Text = "Save All Documents";
-            this.saveAllResultsToolStripMenuItem.Click += new System.EventHandler(this.saveAllResultsToolStripMenuItem_Click);
+            this.saveAllResultsToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.saveAllResultsToolStripMenuItem.Text = "Export All Documents";
+            this.saveAllResultsToolStripMenuItem.Click += new System.EventHandler(this.exportAllResultsToolStripMenuItem_Click);
             // 
-            // textDocument
+            // saveExistingDocument
             // 
-            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textDocument.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textDocument.Location = new System.Drawing.Point(0, 25);
-            this.textDocument.Name = "textDocument";
-            this.textDocument.Size = new System.Drawing.Size(576, 335);
-            this.textDocument.TabIndex = 1;
-            this.textDocument.Text = "";
-            this.textDocument.WordWrap = false;
+            this.saveExistingDocument.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.saveExistingDocument.Image = global::CosmosManager.Properties.Resources.gbl_Save;
+            this.saveExistingDocument.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.saveExistingDocument.Name = "saveExistingDocument";
+            this.saveExistingDocument.Size = new System.Drawing.Size(23, 22);
+            this.saveExistingDocument.Text = "toolStripButton1";
+            this.saveExistingDocument.Click += new System.EventHandler(this.saveExistingDocument_Click);
             // 
             // connectionBindingSource
             // 
@@ -526,5 +538,6 @@
         private System.Windows.Forms.ToolStripButton resultFontSizeDecreaseButton;
         private System.Windows.Forms.ToolStripButton resuleFontSizeIncreaseButton;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.ToolStripButton saveExistingDocument;
     }
 }

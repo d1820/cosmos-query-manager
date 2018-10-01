@@ -21,7 +21,7 @@ namespace CosmosManager.QueryRunners
             return queryType.Equals("SELECT", StringComparison.InvariantCultureIgnoreCase);
 
         }
-        public async Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string collectionName, string sql, ILogger logger)
+        public async Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string collectionName, string sql, bool logStats, ILogger logger)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace CosmosManager.QueryRunners
                                                                           };
 
                                                                           var query = context.QueryAsSql<object>(sql, queryOptions);
-                                                                          return await query.ConvertAndLogRequestUnits(true, logger);
+                                                                          return await query.ConvertAndLogRequestUnits(logStats, logger);
                                                                       });
                 _presenter.RenderResults(results);
                 return true;
