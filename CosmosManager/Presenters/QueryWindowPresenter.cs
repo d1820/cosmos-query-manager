@@ -33,8 +33,9 @@ namespace CosmosManager.Presenters
         {
             _view = view;
             view.Presenter = this;
-            _logger = new StatsLogger(view);
+            _logger = new StatsLogger(this);
             _queryRunners.Add(new SelectQueryRunner(this));
+            _queryRunners.Add(new DeletQueryRunner(this));
             TabIndexReference = tabIndexReference;
         }
 
@@ -62,6 +63,16 @@ namespace CosmosManager.Presenters
         public void ResetStatsLog()
         {
             _view.Stats = string.Empty;
+        }
+
+        public void AddToStatsLog(string message)
+        {
+            _view.Stats = message;
+        }
+
+        public void ToggleStatsPanel(bool collapse)
+        {
+            _view.ToggleStatsPanel(collapse);
         }
 
         public void SetFile(FileInfo fileInfo)
@@ -117,7 +128,7 @@ namespace CosmosManager.Presenters
             CreateDocumentClientAndStore();
             var query = CleanQuery(_view.Query);
             var collectionName = ParseCollectionName(query);
-            var result =  await _documentStore.ExecuteAsync(SelectedConnection.Database, collectionName, context => context.UpdateAsync(document));
+            var result = await _documentStore.ExecuteAsync(SelectedConnection.Database, collectionName, context => context.UpdateAsync(document));
             _view.SetStatusBarMessage("Document Saved");
             return result;
         }
@@ -172,6 +183,10 @@ namespace CosmosManager.Presenters
         {
             _view.RenderResults(results);
         }
+
+
+
+
 
         private string CleanQuery(string query)
         {

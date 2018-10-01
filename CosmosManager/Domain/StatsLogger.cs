@@ -9,11 +9,11 @@ namespace CosmosManager.Domain
 
     public class StatsLogger : ILogger
     {
-        private readonly IQueryWindowControl _view;
+        private readonly IResultsPresenter _presenter;
 
-        public StatsLogger(IQueryWindowControl view)
+        public StatsLogger(IResultsPresenter presenter)
         {
-            _view = view;
+            _presenter = presenter;
         }
         public IDisposable BeginScope<TState>(TState state) => throw new NotImplementedException();
         public bool IsEnabled(LogLevel logLevel) => true;
@@ -29,7 +29,7 @@ namespace CosmosManager.Domain
                     errorMessage = exception != null ? exception.GetBaseException().Message : ""
                 };
 
-                _view.Stats =  JsonConvert.SerializeObject(logObject, Formatting.Indented);
+                _presenter.AddToStatsLog(JsonConvert.SerializeObject(logObject, Formatting.Indented));
             }
             else
             {
@@ -41,11 +41,11 @@ namespace CosmosManager.Domain
                 {
                     var parts = stat.Value?.ToString().Split(new[] { ',' });
 
-                    _view.Stats += JsonConvert.SerializeObject(parts, Formatting.Indented) + Environment.NewLine;
+                   _presenter.AddToStatsLog(JsonConvert.SerializeObject(parts, Formatting.Indented) + Environment.NewLine);
                 }
             }
 
-            _view.ToggleStatsPanel(false);
+            _presenter.ToggleStatsPanel(false);
         }
     }
 }

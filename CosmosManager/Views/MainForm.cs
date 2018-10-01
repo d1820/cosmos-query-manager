@@ -7,7 +7,6 @@ using System.Windows.Forms;
 
 namespace CosmosManager
 {
-
     public partial class MainForm : Form, IMainForm
     {
         private TreeNode _contextSelectedNode;
@@ -161,12 +160,6 @@ namespace CosmosManager
             }
         }
 
-        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var helpForm = new HelpForm();
-            helpForm.Show();
-        }
-
         private void createNewQueryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var newFileForm = new NewFileForm();
@@ -264,6 +257,17 @@ namespace CosmosManager
             tab.Controls.Add(queryWindow);
             queryTabControl.TabPages.Add(tab);
             queryTabControl.SelectedTab = tab;
+        }
+
+        private void guideToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var helpForm = new HelpForm();
+            helpForm.Show();
+        }
+
+        private void reportABugToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(@"https://github.com/d1820/cosmos-query-manager/issues");
         }
     }
 }

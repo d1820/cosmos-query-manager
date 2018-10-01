@@ -10,6 +10,7 @@ using System.Windows.Forms;
 
 namespace CosmosManager.Presenters
 {
+
     public class MainFormPresenter
     {
         private readonly IMainForm _view;
@@ -28,9 +29,6 @@ namespace CosmosManager.Presenters
         };
 
         private Dictionary<string, Color> _tabColors = new Dictionary<string, Color>();
-
-        public string AppDataFolder { get; private set; }
-        public string TransactionCacheDataFolder { get; private set; }
 
         public List<Connection> Connections { get; private set; }
 
@@ -74,9 +72,14 @@ namespace CosmosManager.Presenters
             try
             {
                 Connections = JsonConvert.DeserializeObject<List<Connection>>(jsonString);
+                _tabColors.Clear();
                 _view.SetConnectionsOnExistingTabs();
                 for (var i = 0; i < Connections.Count; i++)
                 {
+                    if (_tabColors.ContainsKey(Connections[i].Name))
+                    {
+                        continue;
+                    }
                     if (i <= _colors.Count - 1)
                     {
                         _tabColors.Add(Connections[i].Name, _colors[i]);
@@ -87,10 +90,11 @@ namespace CosmosManager.Presenters
                     }
 
                 }
+                _view.SetStatusBarMessage("Connections Loaded");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                _view.ShowMessage("Unable to open connections file. Please verify format, and try again", "Error Parsing Connections File");
+                _view.ShowMessage($"Unable to open connections file. Please verify format, and try again. Error: {ex.Message}. Base: {ex.GetBaseException().Message}", "Error Parsing Connections File");
             }
         }
 
@@ -118,7 +122,7 @@ namespace CosmosManager.Presenters
 
         public void OpenTransactionCacheFolder()
         {
-            Process.Start(TransactionCacheDataFolder);
+            Process.Start(AppReferences.TransactionCacheDataFolder);
         }
 
         public void UpdateTabHeaderColor()
@@ -179,13 +183,13 @@ namespace CosmosManager.Presenters
             var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
             // Combine the base folder with your specific folder....
-            AppDataFolder = Path.Combine(folder, "CosmosManager");
-            Directory.CreateDirectory(AppDataFolder);
+            AppReferences.AppDataFolder = Path.Combine(folder, "CosmosManager");
+            Directory.CreateDirectory(AppReferences.AppDataFolder);
 
-            TransactionCacheDataFolder = Path.Combine(folder, "CosmosManager/TransactionCache");
-            Directory.CreateDirectory(TransactionCacheDataFolder);
+            AppReferences.TransactionCacheDataFolder = Path.Combine(folder, "CosmosManager/TransactionCache");
+            Directory.CreateDirectory(AppReferences.TransactionCacheDataFolder);
 
-            var size = CalculateFolderSize(TransactionCacheDataFolder);
+            var size = CalculateFolderSize(AppReferences.TransactionCacheDataFolder);
             _view.SetTransactionCacheLabel($"Transaction Cache: {BytesToSting(size)}");
 
         }
