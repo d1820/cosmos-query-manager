@@ -233,6 +233,11 @@ namespace CosmosManager
             }
         }
 
+        private void transactionCacheSizeLabel_DoubleClick(object sender, EventArgs e)
+        {
+            Presenter.OpenTransactionCacheFolder();
+        }
+
         private void CreateTab(string tabName, FileInfo fileInfo, string tempQuery = null)
         {
             var tab = new TabPage(tabName + "   ");
@@ -259,11 +264,6 @@ namespace CosmosManager
             tab.Controls.Add(queryWindow);
             queryTabControl.TabPages.Add(tab);
             queryTabControl.SelectedTab = tab;
-        }
-
-        private void transactionCacheSizeLabel_DoubleClick(object sender, EventArgs e)
-        {
-            Presenter.OpenTransactionCacheFolder();
         }
     }
 }

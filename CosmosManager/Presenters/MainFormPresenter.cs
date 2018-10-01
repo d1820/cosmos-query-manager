@@ -57,7 +57,6 @@ namespace CosmosManager.Presenters
             }
         }
 
-
         public void RefreshTreeView()
         {
             PopulateTreeView(_rootDir);

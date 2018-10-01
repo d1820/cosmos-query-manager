@@ -46,8 +46,6 @@ namespace CosmosManager.Presenters
             }
         }
 
-
-
         public void SetConnections(List<Connection> connections)
         {
             _currentConnections = connections;
@@ -161,6 +159,7 @@ namespace CosmosManager.Presenters
         {
             _view.RenderResults(results);
         }
+
         private string CleanQuery(string query)
         {
             return query

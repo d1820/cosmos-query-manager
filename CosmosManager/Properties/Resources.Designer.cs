@@ -63,6 +63,16 @@ namespace CosmosManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        public static System.Drawing.Bitmap _776907_document_512x512 {
+            get {
+                object obj = ResourceManager.GetObject("776907_document_512x512", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         public static System.Drawing.Bitmap arrow_undo {
             get {
                 object obj = ResourceManager.GetObject("arrow_undo", resourceCulture);
@@ -76,6 +86,16 @@ namespace CosmosManager.Properties {
         public static System.Drawing.Bitmap closeIcon {
             get {
                 object obj = ResourceManager.GetObject("closeIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap file_document_sync_synchronization_reload_refresh_update_128 {
+            get {
+                object obj = ResourceManager.GetObject("file_document_sync_synchronization_reload_refresh_update-128", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

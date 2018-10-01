@@ -176,7 +176,7 @@ namespace CosmosManager
         {
             var items = GetCheckedListItems();
             var ids = items.Select(s => s["id"]);
-            MainPresenter.CreateTempQueryTab($"DELETE @{{['{string.Join(",", ids)}']}}@{Environment.NewLine}FROM {Presenter.GetCurrentQueryCollectionName()}");
+            MainPresenter.CreateTempQueryTab($"DELETE @{{['{string.Join("','", ids)}']}}@{Environment.NewLine}FROM {Presenter.GetCurrentQueryCollectionName()}");
         }
 
         private async void saveQueryButton_Click(object sender, EventArgs e)
@@ -211,29 +211,18 @@ namespace CosmosManager
         }
 
 
-        private List<JObject> GetCheckedListItems()
-        {
-            var objects = new List<JObject>();
-            foreach (ListViewItem item in resultListView.Items)
-            {
-                if (item.Tag is JObject && item.Checked)
-                {
-                    objects.Add(item.Tag as JObject);
-                }
-            }
-            return objects;
-        }
+
 
         private void increaseFontButton_Click(object sender, EventArgs e)
         {
-            textQuery.ZoomFactor++;
+            textQuery.ZoomFactor *= 1.25F;
         }
 
         private void decreaseFontButton_Click(object sender, EventArgs e)
         {
             if (textQuery.ZoomFactor > 0)
             {
-                textQuery.ZoomFactor--;
+                textQuery.ZoomFactor /= 1.25F;
             }
         }
 
@@ -251,15 +240,27 @@ namespace CosmosManager
         {
             if (textDocument.ZoomFactor > 0)
             {
-                textDocument.ZoomFactor--;
+                textDocument.ZoomFactor /= 1.25F;
             }
         }
 
         private void resuleFontSizeIncreaseButton_Click(object sender, EventArgs e)
         {
-            textDocument.ZoomFactor++;
+            textDocument.ZoomFactor *= 1.25F;
         }
 
+        private List<JObject> GetCheckedListItems()
+        {
+            var objects = new List<JObject>();
+            foreach (ListViewItem item in resultListView.Items)
+            {
+                if (item.Tag is JObject && item.Checked)
+                {
+                    objects.Add(item.Tag as JObject);
+                }
+            }
+            return objects;
+        }
 
         private Task SetSyntaxHighlightAsync(JObject document, SyntaxRichTextBox textbox)
         {
@@ -339,6 +340,57 @@ namespace CosmosManager
             //}
 
 
+        }
+
+        private CheckState headerCheckState = CheckState.Unchecked;
+        private void resultListView_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
+        {
+            if ((e.ColumnIndex == 0))
+            {
+                var cck = new CheckBox();
+                // With...
+                Text = "";
+                Visible = true;
+                resultListView.SuspendLayout();
+                e.DrawBackground();
+                cck.BackColor = e.BackColor;
+                cck.UseVisualStyleBackColor = true;
+
+                cck.SetBounds(e.Bounds.X, e.Bounds.Y, cck.GetPreferredSize(new Size(e.Bounds.Width, e.Bounds.Height)).Width, cck.GetPreferredSize(new Size(e.Bounds.Width, e.Bounds.Height)).Width);
+                cck.Size = new Size((cck.GetPreferredSize(new Size((e.Bounds.Width - 1), e.Bounds.Height)).Width + 1), e.Bounds.Height);
+                cck.Location = new Point(4, 0);
+                cck.CheckState = headerCheckState;
+                resultListView.Controls.Add(cck);
+                cck.Show();
+                cck.BringToFront();
+                e.DrawText((TextFormatFlags.VerticalCenter | TextFormatFlags.Left));
+                cck.Click += resultListViewheaderCheckAll;
+                resultListView.ResumeLayout(true);
+            }
+            else
+            {
+                e.DrawDefault = true;
+            }
+        }
+
+        private void resultListViewheaderCheckAll(object sender, EventArgs e)
+        {
+            var listboxCheckHeader = sender as CheckBox;
+            headerCheckState = listboxCheckHeader.CheckState;
+            for (var i = 0; i < resultListView.Items.Count; i++)
+            {
+                resultListView.Items[i].Checked = listboxCheckHeader.Checked;
+            }
+        }
+
+        private void resultListView_DrawItem(object sender, DrawListViewItemEventArgs e)
+        {
+             e.DrawDefault = true;
+        }
+
+        private void resultListView_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        {
+             e.DrawDefault = true;
         }
     }
 }
