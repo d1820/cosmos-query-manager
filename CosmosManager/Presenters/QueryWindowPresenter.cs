@@ -59,6 +59,11 @@ namespace CosmosManager.Presenters
             }
         }
 
+        public void ResetStatsLog()
+        {
+            _view.Stats = string.Empty;
+        }
+
         public void SetFile(FileInfo fileInfo)
         {
             if (fileInfo == null)
