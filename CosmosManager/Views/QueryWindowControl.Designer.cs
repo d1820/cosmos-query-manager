@@ -44,7 +44,6 @@
             this.columnId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnPartitionKey = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.textDocument = new CosmosManager.Controls.SyntaxRichTextBox();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.saveQueryDialog = new System.Windows.Forms.SaveFileDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -64,6 +63,7 @@
             this.saveRecordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllResultsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveExistingDocument = new System.Windows.Forms.ToolStripButton();
+            this.textDocument = new CosmosManager.Controls.SyntaxRichTextBox();
             this.connectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryResult)).BeginInit();
             this.splitQueryResult.Panel1.SuspendLayout();
@@ -259,17 +259,6 @@
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // textDocument
-            // 
-            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textDocument.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textDocument.Location = new System.Drawing.Point(0, 25);
-            this.textDocument.Name = "textDocument";
-            this.textDocument.Size = new System.Drawing.Size(576, 335);
-            this.textDocument.TabIndex = 1;
-            this.textDocument.Text = "";
-            this.textDocument.WordWrap = false;
-            // 
             // toolStrip2
             // 
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -383,6 +372,7 @@
             this.selectedToUpdateButton.Size = new System.Drawing.Size(23, 22);
             this.selectedToUpdateButton.Text = "Selected to Update Query";
             this.selectedToUpdateButton.ToolTipText = "Selected to Update Query";
+            this.selectedToUpdateButton.Visible = false;
             this.selectedToUpdateButton.Click += new System.EventHandler(this.selectedToUpdateButton_Click);
             // 
             // selectedToDeleteButton
@@ -393,6 +383,7 @@
             this.selectedToDeleteButton.Name = "selectedToDeleteButton";
             this.selectedToDeleteButton.Size = new System.Drawing.Size(23, 22);
             this.selectedToDeleteButton.Text = "Selected to Delete Query";
+            this.selectedToDeleteButton.Visible = false;
             this.selectedToDeleteButton.Click += new System.EventHandler(this.selectedToDeleteButton_Click);
             // 
             // resultWordWrapButton
@@ -464,6 +455,17 @@
             this.saveExistingDocument.Size = new System.Drawing.Size(23, 22);
             this.saveExistingDocument.Text = "toolStripButton1";
             this.saveExistingDocument.Click += new System.EventHandler(this.saveExistingDocument_Click);
+            // 
+            // textDocument
+            // 
+            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textDocument.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textDocument.Location = new System.Drawing.Point(0, 25);
+            this.textDocument.Name = "textDocument";
+            this.textDocument.Size = new System.Drawing.Size(576, 335);
+            this.textDocument.TabIndex = 1;
+            this.textDocument.Text = "";
+            this.textDocument.WordWrap = false;
             // 
             // connectionBindingSource
             // 
