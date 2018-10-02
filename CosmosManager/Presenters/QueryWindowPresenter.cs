@@ -1,6 +1,7 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
+using CosmosManager.Parsers;
 using CosmosManager.QueryRunners;
 using CosmosManager.Stores;
 using Microsoft.Azure.Documents;
@@ -100,15 +101,11 @@ namespace CosmosManager.Presenters
                 _view.SetStatusBarMessage("Executing Query...");
 
                 CreateDocumentClientAndStore();
-                //TODO  RUN PARSER
-                var query = CleanQuery(_view.Query);
-                var collectionName = ParseCollectionName(query);
-                var queryType = ParseQueryType(query);
 
-                var runner = _queryRunners.FirstOrDefault(f => f.CanRun(queryType));
+                var runner = _queryRunners.FirstOrDefault(f => f.CanRun(_view.Query));
                 if (runner != null)
                 {
-                    var didRun = await runner.RunAsync(_documentStore, SelectedConnection.Database, collectionName, query, true, _logger);
+                    var didRun = await runner.RunAsync(_documentStore, SelectedConnection.Database, _view.Query, true, _logger);
                     if (!didRun)
                     {
                         _view.ShowMessage("Unable to execute query. Verify query and try again.", "Query Execution Error");
@@ -126,9 +123,10 @@ namespace CosmosManager.Presenters
         {
             _view.SetStatusBarMessage("Saving Document...");
             CreateDocumentClientAndStore();
-            var query = CleanQuery(_view.Query);
-            var collectionName = ParseCollectionName(query);
-            var result = await _documentStore.ExecuteAsync(SelectedConnection.Database, collectionName, context => context.UpdateAsync(document));
+            var parser = new QueryStatmentParser();
+            //var parts = parser.Parse(_view.Query);
+
+            var result = await _documentStore.ExecuteAsync(SelectedConnection.Database, QueryStatmentParser.GetCollectionName(parts), context => context.UpdateAsync(document));
             _view.SetStatusBarMessage("Document Saved");
             return result;
         }
@@ -173,12 +171,6 @@ namespace CosmosManager.Presenters
             _view.SetStatusBarMessage($"{fileName} Exported");
         }
 
-        public string GetCurrentQueryCollectionName()
-        {
-            var query = CleanQuery(_view.Query);
-            return ParseCollectionName(query);
-        }
-
         public void RenderResults(IReadOnlyCollection<object> results)
         {
             _view.RenderResults(results);
@@ -188,32 +180,7 @@ namespace CosmosManager.Presenters
 
 
 
-        private string CleanQuery(string query)
-        {
-            return query
-                .Replace("from", "FROM")
-                .Replace("From", "FROM")
-                .Replace("select", "SELECT")
-                .Replace("Select", "SELECT")
-                .Replace("set", "SET")
-                .Replace("Set", "SET")
-                .Replace("update", "UPDATE")
-                .Replace("Update", "UPDATE");
-        }
 
-        private string ParseCollectionName(string query)
-        {
-            query = query.Replace("from", "FROM").Replace("select", "SELECT").Replace("update", "UPDATE");
-            var parts = query.Trim().Split(new string[] { "FROM" }, StringSplitOptions.None);
-            var collectionName = parts[1].Trim().Split(new[] { ' ' }).FirstOrDefault();
-            return collectionName;
-        }
-
-        private string ParseQueryType(string query)
-        {
-            var parts = query.Trim().Split(new[] { ' ' });
-            return parts[0];
-        }
 
         private void CreateDocumentClientAndStore()
         {

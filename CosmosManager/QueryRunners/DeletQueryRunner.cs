@@ -1,10 +1,14 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
+using CosmosManager.Parsers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -14,34 +18,42 @@ namespace CosmosManager.QueryRunners
     public class DeletQueryRunner : IQueryRunner
     {
         private int MAX_DEGREE_PARALLEL = 5;
-
+        private QueryStatmentParser _queryParser;
         private readonly IResultsPresenter _presenter;
+
 
         public DeletQueryRunner(IResultsPresenter presenter)
         {
             _presenter = presenter;
+            _queryParser = new QueryStatmentParser();
         }
 
-        public bool CanRun(string queryType)
+        public bool CanRun(string query)
         {
-            return queryType.Equals(Constants.QueryTypes.DELETE, StringComparison.InvariantCultureIgnoreCase);
-
+            var queryParts = _queryParser.Parse(query);
+            return queryParts.QueryType.Equals(Constants.QueryTypes.DELETE, StringComparison.InvariantCultureIgnoreCase);
         }
+
 
 #pragma warning disable RCS1168 // Parameter name differs from base name.
-        public async Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string collectionName, string idsToDelete, bool logStats, ILogger logger)
+        public async Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string queryStatement, bool logStats, ILogger logger)
 #pragma warning restore RCS1168 // Parameter name differs from base name.
         {
-            _presenter.ResetStatsLog();
-
             try
             {
-                var ids = idsToDelete.Split(new[] { ',' });
+                _presenter.ResetStatsLog();
+                var queryParts = _queryParser.Parse(queryStatement);
+                if (queryParts.IsValidQuery())
+                {
+                    return false;
+                }
+
+                var ids = queryParts.QueryBody.Split(new[] { ',' });
 
                 var actionTransactionCacheBlock = new ActionBlock<string>(async documentId =>
                                                                        {
                                                                            //this handles transaction saving for recovery
-                                                                           await documentStore.ExecuteAsync(databaseName, collectionName,
+                                                                           await documentStore.ExecuteAsync(databaseName, QueryStatmentParser.GetCollectionName(queryParts),
                                                                                          async (IDocumentExecuteContext context) =>
                                                                                          {
                                                                                              var doc = await context.QueryById<object>(documentId);

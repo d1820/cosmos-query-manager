@@ -68,10 +68,14 @@
     <Compile Include="Interfaces\IMainForm.cs" />
     <Compile Include="Interfaces\IResultsPresenter.cs" />
     <Compile Include="Domain\AppReferences.cs" />
+    <Compile Include="Interfaces\IQueryParser.cs" />
+    <Compile Include="Parsers\RazorQueryParser.cs" />
     <Compile Include="Presenters\MainFormPresenter.cs" />
     <Compile Include="Presenters\QueryWindowPresenter.cs" />
     <Compile Include="Interfaces\IQueryRunner.cs" />
     <Compile Include="QueryRunners\DeletQueryRunner.cs" />
+    <Compile Include="Domain\QueryParts.cs" />
+    <Compile Include="Parsers\QueryStatmentParser.cs" />
     <Compile Include="Views\HelpForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -176,5 +180,6 @@
       <Version>4.9.0</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
