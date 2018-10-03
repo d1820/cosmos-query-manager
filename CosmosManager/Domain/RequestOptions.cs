@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
+﻿using System.Collections.Generic;
 
 namespace CosmosManager.Domain
 {
     public class RequestOptions
     {
-
         /// <summary>
         /// Gets or sets the pre trigger include.
         /// </summary>
@@ -18,7 +14,6 @@ namespace CosmosManager.Domain
         /// https://msdn.microsoft.com/en-us/library/microsoft.azure.documents.client.requestoptions.pretriggerinclude.aspx
         /// </remarks>
         public IList<string> PreTriggerInclude { get; set; }
-
 
         /// <summary>
         /// Gets or sets the post trigger include.
@@ -32,8 +27,5 @@ namespace CosmosManager.Domain
         public IList<string> PostTriggerInclude { get; set; }
 
         public string PartitionKey { get; set; }
-
-
-
     }
 }

@@ -49,6 +49,7 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.saveJsonDialog = new System.Windows.Forms.SaveFileDialog();
             this.saveTempQueryDialog = new System.Windows.Forms.SaveFileDialog();
+            this.textDocument = new System.Windows.Forms.RichTextBox();
             this.decreaseFontButton = new System.Windows.Forms.Button();
             this.wordWrapToggleButton = new System.Windows.Forms.Button();
             this.runQueryButton = new System.Windows.Forms.Button();
@@ -63,7 +64,9 @@
             this.saveRecordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllResultsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveExistingDocument = new System.Windows.Forms.ToolStripButton();
-            this.textDocument = new CosmosManager.Controls.SyntaxRichTextBox();
+            this.deleteDocumentButton = new System.Windows.Forms.ToolStripButton();
+            this.textPartitionKeyPath = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.connectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryResult)).BeginInit();
             this.splitQueryResult.Panel1.SuspendLayout();
@@ -172,11 +175,13 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.label1);
+            this.panel2.Controls.Add(this.textPartitionKeyPath);
             this.panel2.Controls.Add(this.selectConnections);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel2.Location = new System.Drawing.Point(656, 0);
+            this.panel2.Location = new System.Drawing.Point(392, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(274, 32);
+            this.panel2.Size = new System.Drawing.Size(538, 32);
             this.panel2.TabIndex = 2;
             // 
             // selectConnections
@@ -266,6 +271,7 @@
             this.resultFontSizeDecreaseButton,
             this.resuleFontSizeIncreaseButton,
             this.toolStripDropDownButton1,
+            this.deleteDocumentButton,
             this.saveExistingDocument});
             this.toolStrip2.Location = new System.Drawing.Point(0, 0);
             this.toolStrip2.Name = "toolStrip2";
@@ -285,6 +291,15 @@
             this.saveTempQueryDialog.Filter = "Cosmos Script|*.csql";
             this.saveTempQueryDialog.SupportMultiDottedExtensions = true;
             this.saveTempQueryDialog.Title = "Save New Query";
+            // 
+            // textDocument
+            // 
+            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textDocument.Location = new System.Drawing.Point(0, 25);
+            this.textDocument.Name = "textDocument";
+            this.textDocument.Size = new System.Drawing.Size(576, 335);
+            this.textDocument.TabIndex = 1;
+            this.textDocument.Text = "";
             // 
             // decreaseFontButton
             // 
@@ -456,16 +471,32 @@
             this.saveExistingDocument.Text = "toolStripButton1";
             this.saveExistingDocument.Click += new System.EventHandler(this.saveExistingDocument_Click);
             // 
-            // textDocument
+            // deleteDocumentButton
             // 
-            this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textDocument.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textDocument.Location = new System.Drawing.Point(0, 25);
-            this.textDocument.Name = "textDocument";
-            this.textDocument.Size = new System.Drawing.Size(576, 335);
-            this.textDocument.TabIndex = 1;
-            this.textDocument.Text = "";
-            this.textDocument.WordWrap = false;
+            this.deleteDocumentButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.deleteDocumentButton.Image = global::CosmosManager.Properties.Resources.page_delete;
+            this.deleteDocumentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.deleteDocumentButton.Name = "deleteDocumentButton";
+            this.deleteDocumentButton.Size = new System.Drawing.Size(23, 22);
+            this.deleteDocumentButton.Text = "toolStripButton1";
+            this.deleteDocumentButton.Click += new System.EventHandler(this.deleteDocumentButton_Click);
+            // 
+            // textPartitionKeyPath
+            // 
+            this.textPartitionKeyPath.Location = new System.Drawing.Point(407, 6);
+            this.textPartitionKeyPath.Name = "textPartitionKeyPath";
+            this.textPartitionKeyPath.Size = new System.Drawing.Size(105, 20);
+            this.textPartitionKeyPath.TabIndex = 1;
+            this.textPartitionKeyPath.Text = "PartitionKey";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(289, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(115, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Collection PartitionKey:";
             // 
             // connectionBindingSource
             // 
@@ -490,6 +521,7 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.splitResultVIew.Panel1.ResumeLayout(false);
             this.splitResultVIew.Panel1.PerformLayout();
             this.splitResultVIew.Panel2.ResumeLayout(false);
@@ -529,7 +561,6 @@
         private System.Windows.Forms.ToolStripButton selectedToDeleteButton;
         private System.Windows.Forms.Button saveQueryButton;
         private System.Windows.Forms.ToolTip toolTip1;
-        private Controls.SyntaxRichTextBox textDocument;
         private System.Windows.Forms.SaveFileDialog saveJsonDialog;
         private System.Windows.Forms.SaveFileDialog saveTempQueryDialog;
         private System.Windows.Forms.Panel panel1;
@@ -541,5 +572,9 @@
         private System.Windows.Forms.ToolStripButton resuleFontSizeIncreaseButton;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.ToolStripButton saveExistingDocument;
+        private System.Windows.Forms.RichTextBox textDocument;
+        private System.Windows.Forms.ToolStripButton deleteDocumentButton;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox textPartitionKeyPath;
     }
 }

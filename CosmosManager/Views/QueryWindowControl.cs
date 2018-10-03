@@ -1,23 +1,23 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using CosmosManager.Controls;
 using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using System.Linq;
+using CosmosManager.Parsers;
 using CosmosManager.Presenters;
-using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
-using static System.Windows.Forms.ListViewItem;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.IO;
-using CosmosManager.Controls;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using static System.Windows.Forms.ListViewItem;
 
 namespace CosmosManager
 {
     public partial class QueryWindowControl : UserControl, IQueryWindowControl
     {
-
         private StatsLogger _logger;
 
         public QueryWindowControl()
@@ -26,7 +26,6 @@ namespace CosmosManager
 
             //look for a connections string file
             selectConnections.Items.Add("Load Connection File");
-
         }
 
         public object[] ConnectionsList
@@ -76,7 +75,6 @@ namespace CosmosManager
             set
             {
                 textDocument.Text = value;
-
             }
         }
 
@@ -87,7 +85,7 @@ namespace CosmosManager
 
         public void ResetResultsView()
         {
-           resultListView.Items.Clear();
+            resultListView.Items.Clear();
             textDocument.Clear();
         }
 
@@ -98,7 +96,6 @@ namespace CosmosManager
         {
             splitQueryAndStats.Panel2Collapsed = collapse;
         }
-
 
         private async void runQueryButton_Click_1(object sender, EventArgs e)
         {
@@ -114,9 +111,9 @@ namespace CosmosManager
             }
         }
 
-        public void ShowMessage(string message, string title = null)
+        public void ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
         {
-            MessageBox.Show(message, title);
+            MessageBox.Show(message, title, buttons, icon);
         }
 
         public void SetStatusBarMessage(string message)
@@ -139,12 +136,11 @@ namespace CosmosManager
                 listItem.SubItems.Add(subItem);
                 subItem = new ListViewSubItem
                 {
-                    Text = fromObject["PartitionKey"]?.Value<string>()
+                    Text = fromObject[textPartitionKeyPath.Text]?.Value<string>()
                 };
                 listItem.SubItems.Add(subItem);
                 resultListView.Items.Add(listItem);
             }
-
         }
 
         private async void exportRecordToolStripMenuItem_Click(object sender, EventArgs e)
@@ -166,21 +162,24 @@ namespace CosmosManager
                 }
                 await Presenter.ExportAllToDocumentAsync(objects, saveJsonDialog.FileName);
             }
-
         }
 
         private void selectedToUpdateButton_Click(object sender, EventArgs e)
         {
             var items = GetCheckedListItems();
             var ids = items.Select(s => s["id"]);
-            MainPresenter.CreateTempQueryTab($"UPDATE @{{['{string.Join("','", ids)}']}}@{Environment.NewLine}FROM {Presenter.GetCurrentQueryCollectionName()}{Environment.NewLine}SET @SET{{ }}SET@");
+            var parser = new QueryStatmentParser();
+            var parts = parser.Parse(Query);
+            MainPresenter.CreateTempQueryTab($"UPDATE @{{['{string.Join("','", ids)}']}}@{Environment.NewLine}FROM {parts.CollectionName}{Environment.NewLine}SET @SET{{ }}SET@");
         }
 
         private void selectedToDeleteButton_Click(object sender, EventArgs e)
         {
             var items = GetCheckedListItems();
             var ids = items.Select(s => s["id"]);
-            MainPresenter.CreateTempQueryTab($"DELETE @{{['{string.Join("','", ids)}']}}@{Environment.NewLine}FROM {Presenter.GetCurrentQueryCollectionName()}");
+            var parser = new QueryStatmentParser();
+            var parts = parser.Parse(Query);
+            MainPresenter.CreateTempQueryTab($"DELETE @{{['{string.Join("','", ids)}']}}@{Environment.NewLine}FROM {parts.CollectionName}");
         }
 
         private async void saveQueryButton_Click(object sender, EventArgs e)
@@ -205,17 +204,9 @@ namespace CosmosManager
                 return;
             }
             var selectedItem = resultListView.SelectedItems[0];
-            //textDocument.Visible = false;
 
-            //textDocument.Text = JsonConvert.SerializeObject(selectedItem.Tag, Formatting.Indented);
-            var tempTextbox = new SyntaxRichTextBox();
             textDocument.Text = JsonConvert.SerializeObject(selectedItem.Tag, Formatting.Indented);
-            //await SetSyntaxHighlightAsync((JObject)selectedItem.Tag, tempTextbox);
-
         }
-
-
-
 
         private void increaseFontButton_Click(object sender, EventArgs e)
         {
@@ -285,13 +276,10 @@ namespace CosmosManager
                         // Let's not process strings and integers.
                         textbox.Settings.EnableComments = false;
                         textbox.ProcessAllLines();
-
                     }));
                 }
                 else
                 {
-
-
                     // Set the colors that will be used.
                     textbox.Settings.KeywordColor = Color.SlateBlue;
                     textbox.Settings.CommentColor = Color.Green;
@@ -302,9 +290,7 @@ namespace CosmosManager
 
                     textbox.ProcessAllLines();
                 }
-
             });
-
 
             //}
 
@@ -342,11 +328,10 @@ namespace CosmosManager
             //        }
             //    }
             //}
-
-
         }
 
         private CheckState headerCheckState = CheckState.Unchecked;
+
         private void resultListView_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
             if ((e.ColumnIndex == 0))
@@ -389,18 +374,32 @@ namespace CosmosManager
 
         private void resultListView_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
-             e.DrawDefault = true;
+            e.DrawDefault = true;
         }
 
         private void resultListView_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
-             e.DrawDefault = true;
+            e.DrawDefault = true;
         }
 
         private async void saveExistingDocument_Click(object sender, EventArgs e)
         {
             var doc = JsonConvert.DeserializeObject<object>(textDocument.Text);
-           await Presenter.SaveDocumentAsync(doc);
+            await Presenter.SaveDocumentAsync(doc);
+        }
+
+        private async void deleteDocumentButton_Click(object sender, EventArgs e)
+        {
+            var selectedItem = (JObject)resultListView.SelectedItems[0].Tag;
+            if (MessageBox.Show(this, $"Are you sure you want to delete document {selectedItem["id"]}", "Delete Document", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                var wasDeleted = await Presenter.DeleteDocumentAsync(selectedItem["id"]?.ToString(), selectedItem[textPartitionKeyPath.Text]?.ToString());
+                if (wasDeleted)
+                {
+                    //remove item from list
+                    resultListView.Items.Remove(resultListView.SelectedItems[0]);
+                }
+            }
         }
     }
 }

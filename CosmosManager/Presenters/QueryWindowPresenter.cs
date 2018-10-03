@@ -1,5 +1,4 @@
 ﻿using CosmosManager.Domain;
-using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using CosmosManager.Parsers;
 using CosmosManager.QueryRunners;
@@ -16,7 +15,6 @@ using System.Threading.Tasks;
 
 namespace CosmosManager.Presenters
 {
-
     public class QueryWindowPresenter : IResultsPresenter
     {
         private List<Connection> _currentConnections;
@@ -24,8 +22,7 @@ namespace CosmosManager.Presenters
         public FileInfo CurrentFileInfo { get; private set; }
         public int TabIndexReference { get; }
 
-        private IDocumentClient _client;
-        private IDocumentStore _documentStore;
+        private Dictionary<string, (IDocumentClient client, IDocumentStore store)> _clients = new Dictionary<string, (IDocumentClient, IDocumentStore)>();
         private IQueryWindowControl _view;
         private StatsLogger _logger;
         private List<IQueryRunner> _queryRunners = new List<IQueryRunner>();
@@ -36,7 +33,7 @@ namespace CosmosManager.Presenters
             view.Presenter = this;
             _logger = new StatsLogger(this);
             _queryRunners.Add(new SelectQueryRunner(this));
-            _queryRunners.Add(new DeletQueryRunner(this));
+            _queryRunners.Add(new DeleteByIdQueryRunner(this));
             TabIndexReference = tabIndexReference;
         }
 
@@ -53,7 +50,7 @@ namespace CosmosManager.Presenters
             _currentConnections = connections;
             if (connections != null)
             {
-                _client = null;
+                _clients.Clear();
                 var c = new List<object>();
                 c.Add("Select Connection");
                 c.AddRange(connections.ToArray());
@@ -100,12 +97,12 @@ namespace CosmosManager.Presenters
                 _view.ToggleStatsPanel(true);
                 _view.SetStatusBarMessage("Executing Query...");
 
-                CreateDocumentClientAndStore();
+                var documentStore = CreateDocumentClientAndStore();
 
                 var runner = _queryRunners.FirstOrDefault(f => f.CanRun(_view.Query));
                 if (runner != null)
                 {
-                    var didRun = await runner.RunAsync(_documentStore, SelectedConnection.Database, _view.Query, true, _logger);
+                    var didRun = await runner.RunAsync(documentStore, SelectedConnection.Database, _view.Query, true, _logger);
                     if (!didRun)
                     {
                         _view.ShowMessage("Unable to execute query. Verify query and try again.", "Query Execution Error");
@@ -122,14 +119,49 @@ namespace CosmosManager.Presenters
         public async Task<object> SaveDocumentAsync(object document)
         {
             _view.SetStatusBarMessage("Saving Document...");
-            CreateDocumentClientAndStore();
+            var documentStore = CreateDocumentClientAndStore();
             var parser = new QueryStatmentParser();
-            //var parts = parser.Parse(_view.Query);
+            var parts = parser.Parse(_view.Query);
 
-            var result = await _documentStore.ExecuteAsync(SelectedConnection.Database, QueryStatmentParser.GetCollectionName(parts), context => context.UpdateAsync(document));
-            _view.SetStatusBarMessage("Document Saved");
-            return result;
+            try
+            {
+                var result = await documentStore.ExecuteAsync(SelectedConnection.Database, parts.CollectionName, context => context.UpdateAsync(document));
+                _view.SetStatusBarMessage("Document Saved");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _view.SetStatusBarMessage("Unable to save document");
+                _view.ShowMessage(ex.Message, "Document Save Error", icon: System.Windows.Forms.MessageBoxIcon.Error);
+                return false;
+            }
         }
+
+
+        public async Task<bool> DeleteDocumentAsync(string documentId, string partitionKey)
+        {
+            _view.SetStatusBarMessage("Deleting Document...");
+            var documentStore = CreateDocumentClientAndStore();
+            var parser = new QueryStatmentParser();
+            var parts = parser.Parse(_view.Query);
+
+            try
+            {
+                var result = await documentStore.ExecuteAsync(SelectedConnection.Database, parts.CollectionName,
+                       context => context.DeleteAsync(documentId, new Domain.RequestOptions() { PartitionKey = partitionKey }));
+
+                _view.SetStatusBarMessage("Document Deleted");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _view.SetStatusBarMessage("Unable to delete document");
+                _view.ShowMessage(ex.Message, "Document Delete Error", icon: System.Windows.Forms.MessageBoxIcon.Error);
+                return false;
+            }
+
+        }
+
 
         public async Task SaveQueryAsync()
         {
@@ -176,19 +208,16 @@ namespace CosmosManager.Presenters
             _view.RenderResults(results);
         }
 
-
-
-
-
-
-
-        private void CreateDocumentClientAndStore()
+        private IDocumentStore CreateDocumentClientAndStore()
         {
-            if (_client == null)
+            if (!_clients.ContainsKey(SelectedConnection.EndPointUrl))
             {
-                _client = new DocumentClient(new Uri(SelectedConnection.EndPointUrl), SelectedConnection.ConnectionKey);
-                _documentStore = new CosmosDocumentStore(_client);
+                var client = new DocumentClient(new Uri(SelectedConnection.EndPointUrl), SelectedConnection.ConnectionKey);
+                var documentStore = new CosmosDocumentStore(client);
+                _clients.Add(SelectedConnection.EndPointUrl, (client, documentStore));
+                return documentStore;
             }
+            return _clients[SelectedConnection.EndPointUrl].store;
         }
     }
 }

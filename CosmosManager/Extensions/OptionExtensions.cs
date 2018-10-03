@@ -8,7 +8,8 @@ namespace CosmosManager.Extensions
     {
         public static FeedOptions ToFeedOptions(this QueryOptions options)
         {
-            if (options == null) { return null; }
+            if (options == null)
+            { return null; }
             var fo = new FeedOptions
             {
                 MaxItemCount = options.MaxItemCount,
@@ -23,12 +24,12 @@ namespace CosmosManager.Extensions
                 fo.PartitionKey = new PartitionKey(options.PartitionKey);
             }
             return fo;
-
         }
 
         public static Microsoft.Azure.Documents.Client.RequestOptions ToRequestOptions(this Domain.RequestOptions options)
         {
-            if (options == null) { return null; }
+            if (options == null)
+            { return null; }
             var ro = new Microsoft.Azure.Documents.Client.RequestOptions
             {
                 PreTriggerInclude = options.PreTriggerInclude,

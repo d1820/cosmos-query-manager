@@ -33,7 +33,6 @@ namespace CosmosManager
         {
             foreach (TabPage tab in queryTabControl.TabPages)
             {
-
                 (tab.Tag as QueryWindowPresenter).SetConnections(Presenter.Connections);
             }
         }
@@ -58,7 +57,6 @@ namespace CosmosManager
         {
             var tabName = "New Query *";
             CreateTab(tabName, null, query);
-
         }
 
         public void SetTransactionCacheLabel(string text)
@@ -91,7 +89,6 @@ namespace CosmosManager
 
         private void fileTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-
             if (e.Node.Tag is FileInfo)
             {
                 var fi = (FileInfo)e.Node.Tag;
@@ -136,7 +133,6 @@ namespace CosmosManager
             e.Graphics.DrawImage(closeImage, (tabRect.Right - 10), tabRect.Top + (tabRect.Height - closeImage.Height) / 2, 10, 10);
 
             TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font, tabRect, Color.Black, TextFormatFlags.Left);
-
         }
 
         private void queryTabControl_MouseDown(object sender, MouseEventArgs e)

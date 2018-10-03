@@ -1,10 +1,10 @@
-﻿using System.Net;
-using System.Threading.Tasks;
-using CosmosManager.Exceptions;
+﻿using CosmosManager.Exceptions;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace CosmosManager.Stores
 {
@@ -30,7 +30,8 @@ namespace CosmosManager.Stores
 
         public async Task<TResult> ExecuteStoredProcedureAsync<TResult>(Domain.RequestOptions options, params dynamic[] procedureParams) where TResult : class
         {
-            if (_databaseName == null) throw new DataStoreException("Connect must be called to query CosmosDB");
+            if (_databaseName == null)
+                throw new DataStoreException("Connect must be called to query CosmosDB");
 
             try
             {

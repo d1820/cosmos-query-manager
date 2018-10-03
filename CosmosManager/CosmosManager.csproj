@@ -73,9 +73,10 @@
     <Compile Include="Presenters\MainFormPresenter.cs" />
     <Compile Include="Presenters\QueryWindowPresenter.cs" />
     <Compile Include="Interfaces\IQueryRunner.cs" />
-    <Compile Include="QueryRunners\DeletQueryRunner.cs" />
+    <Compile Include="QueryRunners\DeleteByIdQueryRunner.cs" />
     <Compile Include="Domain\QueryParts.cs" />
     <Compile Include="Parsers\QueryStatmentParser.cs" />
+    <Compile Include="QueryRunners\DeleteByWhereQueryRunner.cs" />
     <Compile Include="Views\HelpForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -154,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="documentdb_54645_jq4_icon.ico" />
+    <None Include="Resources\page_delete.gif" />
     <None Include="Resources\gbl_Save.gif" />
     <None Include="Resources\move_waiting_down_alternative.png" />
     <None Include="Resources\776907_document_512x512.png" />

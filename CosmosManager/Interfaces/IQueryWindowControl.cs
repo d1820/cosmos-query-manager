@@ -1,6 +1,6 @@
 ﻿using CosmosManager.Presenters;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace CosmosManager.Interfaces
 {
@@ -12,15 +12,17 @@ namespace CosmosManager.Interfaces
         string DocumentText { get; set; }
         QueryWindowPresenter Presenter { set; }
         MainFormPresenter MainPresenter { set; }
+
         void ToggleStatsPanel(bool collapse);
+
         void ClearStats();
-        void ShowMessage(string message, string title = null);
+
+        void ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None);
 
         void RenderResults(IReadOnlyCollection<object> results);
 
         void SetStatusBarMessage(string message);
 
         void ResetResultsView();
-
     }
 }

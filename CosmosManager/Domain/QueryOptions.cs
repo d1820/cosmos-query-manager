@@ -34,7 +34,6 @@
         /// </remarks>
         public bool EnableCrossPartitionQuery { get; set; }
 
-
         /// <summary>
         /// Gets or sets the <see cref="P:Microsoft.Azure.Documents.Client.FeedOptions.PartitionKey" /> for the current request in the Azure DocumentDB database service.
         /// </summary>
@@ -56,7 +55,6 @@
         /// </code>
         /// </example>
         public string PartitionKey { get; set; }
-
 
         /// <summary>
         /// Gets or sets the number of concurrent operations run client side during
@@ -81,6 +79,5 @@
         public int MaxBufferedItemCount { get; set; }
 
         public bool PopulateQueryMetrics { get; set; }
-
     }
 }

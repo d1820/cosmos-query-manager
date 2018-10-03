@@ -21,21 +21,21 @@ namespace CosmosManager.QueryRunners
 
         public bool CanRun(string query)
         {
-             var queryParts = _queryParser.Parse(query);
+            var queryParts = _queryParser.Parse(query);
             return queryParts.QueryType.Equals(Constants.QueryTypes.SELECT, StringComparison.InvariantCultureIgnoreCase);
-
         }
+
         public async Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string queryStatement, bool logStats, ILogger logger)
         {
             try
             {
                 _presenter.ResetStatsLog();
                 var queryParts = _queryParser.Parse(queryStatement);
-                if (queryParts.IsValidQuery())
+                if (!queryParts.IsValidQuery())
                 {
                     return false;
                 }
-                var results = await documentStore.ExecuteAsync(databaseName, QueryStatmentParser.GetCollectionName(queryParts),
+                var results = await documentStore.ExecuteAsync(databaseName, queryParts.CollectionName,
                                                                        async (IDocumentExecuteContext context) =>
                                                                       {
                                                                           var queryOptions = new QueryOptions
@@ -52,7 +52,6 @@ namespace CosmosManager.QueryRunners
                                                                       });
                 _presenter.RenderResults(results);
                 return true;
-
             }
             catch (Exception ex)
             {

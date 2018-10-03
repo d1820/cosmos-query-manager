@@ -5,24 +5,19 @@ using CosmosManager.Parsers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 namespace CosmosManager.QueryRunners
 {
-
-    public class DeletQueryRunner : IQueryRunner
+    public class DeleteByIdQueryRunner : IQueryRunner
     {
         private int MAX_DEGREE_PARALLEL = 5;
         private QueryStatmentParser _queryParser;
         private readonly IResultsPresenter _presenter;
 
-
-        public DeletQueryRunner(IResultsPresenter presenter)
+        public DeleteByIdQueryRunner(IResultsPresenter presenter)
         {
             _presenter = presenter;
             _queryParser = new QueryStatmentParser();
@@ -31,11 +26,11 @@ namespace CosmosManager.QueryRunners
         public bool CanRun(string query)
         {
             var queryParts = _queryParser.Parse(query);
-            return queryParts.QueryType.Equals(Constants.QueryTypes.DELETE, StringComparison.InvariantCultureIgnoreCase);
+            return queryParts.QueryType.Equals(Constants.QueryTypes.DELETE, StringComparison.InvariantCultureIgnoreCase) && !queryParts.QueryBody.Equals("*");
         }
 
-
 #pragma warning disable RCS1168 // Parameter name differs from base name.
+
         public async Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string queryStatement, bool logStats, ILogger logger)
 #pragma warning restore RCS1168 // Parameter name differs from base name.
         {
@@ -43,7 +38,7 @@ namespace CosmosManager.QueryRunners
             {
                 _presenter.ResetStatsLog();
                 var queryParts = _queryParser.Parse(queryStatement);
-                if (queryParts.IsValidQuery())
+                if (!queryParts.IsValidQuery())
                 {
                     return false;
                 }
@@ -53,7 +48,7 @@ namespace CosmosManager.QueryRunners
                 var actionTransactionCacheBlock = new ActionBlock<string>(async documentId =>
                                                                        {
                                                                            //this handles transaction saving for recovery
-                                                                           await documentStore.ExecuteAsync(databaseName, QueryStatmentParser.GetCollectionName(queryParts),
+                                                                           await documentStore.ExecuteAsync(databaseName, queryParts.CollectionName,
                                                                                          async (IDocumentExecuteContext context) =>
                                                                                          {
                                                                                              var doc = await context.QueryById<object>(documentId);

@@ -18,9 +18,24 @@ Cosmos Manager uses a custom sql query language that is a mixture of Cosmos and 
 
 **Tip** When writing select statements the FROM must use the collection name that you wish to query against. The syntax parsers will read that and use it in the requests
 
+
+### SELECTS
+
+Plain SQL/Cosmos syntax
 ```
 SELECT * FROM CollectionName WHERE CollectionName.id = 'test'
 ```
+
+Razor SQL Syntax
+```
+@SELECT{ * }@ 
+@FROM{ CollectionName }@
+@WHERE{ CollectionName.id = 'test' }@
+```
+
+### DELETES
+Coming Soon
+
 
 ## Supported Applications
 - Cosmos Emulator Required Version 1.17.x

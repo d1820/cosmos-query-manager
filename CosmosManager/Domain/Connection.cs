@@ -1,9 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-
-namespace CosmosManager.Domain
+﻿namespace CosmosManager.Domain
 {
     public class Connection
     {

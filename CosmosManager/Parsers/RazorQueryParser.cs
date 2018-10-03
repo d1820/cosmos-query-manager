@@ -4,9 +4,76 @@ using System.Text.RegularExpressions;
 
 namespace CosmosManager.Parsers
 {
+    public class StringQueryParser : IQueryParser
+    {
+        public (string queryType, string queryBody) ParseQueryBody(string query)
+        {
+            var rgx = new Regex(@"(SELECT|DELETE)[\s\S]*(.*?)(?=FROM)");
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 0)
+            {
+                return (string.Empty, string.Empty);
+            }
+            if (matches.Count > 1)
+            {
+                throw new FormatException("Invalid query. Only SELECT statement syntax supported.");
+            }
+            var queryTypeRx = new Regex("(SELECT|DELETE)(.*?)");
+
+            var queryTypeMatches = queryTypeRx.Matches(matches[0].Value);
+            if (queryTypeMatches.Count == 0)
+            {
+                return (string.Empty, string.Empty);
+            }
+
+            return (queryTypeMatches[0].Value, matches[0].Value.Replace("SELECT", ""));
+        }
+
+        public string ParseFromBody(string query)
+        {
+            var rgx = new Regex(@"(FROM)[\s\S]*(.*?)(?=WHERE)");
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 0)
+            {
+                return string.Empty;
+            }
+            if (matches.Count > 1)
+            {
+                throw new FormatException("Invalid query. Query FROM statement is not formated correct.");
+            }
+
+            return matches[0].Value;
+        }
+
+        public string ParseUpdateBody(string query)
+        {
+           // throw new NotSupportedException("Update statements are not supported with standard SQL syntax. Please use Razor formating.");
+           return string.Empty;
+        }
+
+        public string ParseWhere(string query)
+        {
+            var rgx = new Regex(@"(WHERE)[\s\S]*(.*)");
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 0)
+            {
+                return string.Empty;
+            }
+            if (matches.Count > 1)
+            {
+                throw new FormatException("Invalid query. Query WHERE statement is not formated correct.");
+            }
+
+            return matches[0].Value;
+        }
+    }
+
     public class RazorQueryParser : IQueryParser
     {
-          public (string queryType, string queryBody) ParseQueryBody(string query)
+        public (string queryType, string queryBody) ParseQueryBody(string query)
         {
             var rgx = new Regex(@"\@(SELECT|UPDATE|DELETE)\{[\s\S]*?(.*?)\}\@");
 
@@ -30,7 +97,6 @@ namespace CosmosManager.Parsers
             return (queryTypeMatches[0].Value, matches[0].Value.Replace("@SELECT{", "").Replace("@UPDATE{", "").Replace("@DELETE{", "").Replace("}@", " "));
         }
 
-
         public string ParseFromBody(string query)
         {
             var rgx = new Regex(@"\@(FROM)\{[\s\S]*?(.*?)\}\@");
@@ -45,9 +111,7 @@ namespace CosmosManager.Parsers
                 throw new FormatException("Invalid query. Query FROM statement is not formated correct. Please use @FROM{ }@ wrapping statement syntax.");
             }
 
-            return matches[0].Value.Replace("@From{", " FROM ").Replace("}@", " ");
-
-
+            return matches[0].Value.Replace("@FROM{", " FROM ").Replace("}@", " ");
         }
 
         public string ParseUpdateBody(string query)

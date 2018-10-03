@@ -1,10 +1,10 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-using CosmosManager.Exceptions;
+﻿using CosmosManager.Exceptions;
 using CosmosManager.Interfaces;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using System;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace CosmosManager.Stores
 {
@@ -12,7 +12,6 @@ namespace CosmosManager.Stores
     {
         private readonly IDocumentClient _client;
         private Database _cosmosDatabase;
-
 
         public CosmosDocumentStore(IDocumentClient client)
         {
@@ -33,7 +32,6 @@ namespace CosmosManager.Stores
 
             await EnsureDataStoreCreated(databaseName, collectionName);
             return await action(new DocumentExecuteContext(databaseName, collectionName, _client));
-
         }
 
         public async Task<TResult> ExecuteAsync<TResult>(string databaseName, string collectionName, Func<IDocumentExecuteContext, TResult> action)
@@ -140,6 +138,5 @@ namespace CosmosManager.Stores
                 }
             }
         }
-
     }
 }

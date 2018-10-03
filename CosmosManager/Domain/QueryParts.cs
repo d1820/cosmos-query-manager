@@ -1,4 +1,6 @@
-﻿namespace CosmosManager.Domain
+﻿using System.Linq;
+
+namespace CosmosManager.Domain
 {
     public class QueryParts
     {
@@ -7,6 +9,22 @@
         public string QueryFrom { get; set; }
         public string QueryUpdateBody { get; set; }
         public string QueryWhere { get; set; }
+
+        public string CollectionName
+        {
+            get
+            {
+                if (QueryFrom != null && !string.IsNullOrWhiteSpace(QueryFrom))
+                {
+                    var colName = QueryFrom.Split(new[] { ' ' }).LastOrDefault();
+                    if(!string.IsNullOrEmpty(colName))
+                    {
+                        return colName;
+                    }
+                }
+                return string.Empty;
+            }
+        }
 
         public bool IsValidQuery()
         {

@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Timers;
 using System.Windows.Forms;
 
 namespace CosmosManager.Presenters
 {
-
     public class MainFormPresenter
     {
         private readonly IMainForm _view;
@@ -27,16 +27,28 @@ namespace CosmosManager.Presenters
             Color.MediumAquamarine,
             Color.PaleGoldenrod,
         };
-
+        private System.Timers.Timer statusTimer;
         private Dictionary<string, Color> _tabColors = new Dictionary<string, Color>();
 
         public List<Connection> Connections { get; private set; }
+
+
 
         public MainFormPresenter(IMainForm view)
         {
             _view = view;
             _view.Presenter = this;
             InitializeUserAppData();
+
+            statusTimer = new System.Timers.Timer();
+            statusTimer.Elapsed += StatusTimer_Elapsed;
+            statusTimer.Interval = 5000;
+        }
+
+        private void StatusTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            _view.SetStatusBarMessage("Ready");
+            statusTimer.Stop();
         }
 
         public void PopulateTreeView(string rootDir)
@@ -88,9 +100,8 @@ namespace CosmosManager.Presenters
                     {
                         _tabColors.Add(Connections[i].Name, Color.Transparent);
                     }
-
                 }
-                _view.SetStatusBarMessage("Connections Loaded");
+                SetStatusBarMessage("Connections Loaded");
             }
             catch (Exception ex)
             {
@@ -103,10 +114,13 @@ namespace CosmosManager.Presenters
             _view.UpdateNewQueryTabName(newTabName);
         }
 
+
         public void SetStatusBarMessage(string message)
         {
             _view.SetStatusBarMessage(message);
+            statusTimer.Start();
         }
+
 
         public void SaveNewQuery(string fileLocation, TreeNode currentNode)
         {
@@ -191,7 +205,6 @@ namespace CosmosManager.Presenters
 
             var size = CalculateFolderSize(AppReferences.TransactionCacheDataFolder);
             _view.SetTransactionCacheLabel($"Transaction Cache: {BytesToSting(size)}");
-
         }
 
         private long CalculateFolderSize(string folderPath)
@@ -219,6 +232,5 @@ namespace CosmosManager.Presenters
             while (bytes >= 1024);
             return string.Format("{0:0.00} {1}", bytes, suffix[index]);
         }
-
     }
 }
