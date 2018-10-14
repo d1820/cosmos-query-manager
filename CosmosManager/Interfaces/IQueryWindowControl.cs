@@ -15,7 +15,7 @@ namespace CosmosManager.Interfaces
 
         void ClearStats();
 
-        void ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None);
+        DialogResult ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None);
 
         void RenderResults(IReadOnlyCollection<object> results);
 

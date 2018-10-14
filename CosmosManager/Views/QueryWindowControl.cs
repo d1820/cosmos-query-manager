@@ -102,9 +102,9 @@ namespace CosmosManager
             }
         }
 
-        public void ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
+        public DialogResult ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
         {
-            MessageBox.Show(message, title, buttons, icon);
+            return MessageBox.Show(message, title, buttons, icon);
         }
 
         public void SetStatusBarMessage(string message)

@@ -5,6 +5,7 @@ using CosmosManager.QueryRunners;
 using CosmosManager.Stores;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -25,6 +26,7 @@ namespace CosmosManager.Presenters
         private Dictionary<string, (IDocumentClient client, IDocumentStore store)> _clients = new Dictionary<string, (IDocumentClient, IDocumentStore)>();
         private IQueryWindowControl _view;
         private QueryOuputLogger _logger;
+        private readonly QueryStatementParser _queryParser;
         private List<IQueryRunner> _queryRunners = new List<IQueryRunner>();
 
         public QueryWindowPresenter(IQueryWindowControl view, int tabIndexReference)
@@ -32,6 +34,7 @@ namespace CosmosManager.Presenters
             _view = view;
             view.Presenter = this;
             _logger = new QueryOuputLogger(this);
+            _queryParser = new QueryStatementParser();
             _queryRunners.Add(new SelectQueryRunner(this));
             _queryRunners.Add(new DeleteByIdQueryRunner(this));
             TabIndexReference = tabIndexReference;
@@ -96,11 +99,22 @@ namespace CosmosManager.Presenters
                 var runner = _queryRunners.FirstOrDefault(f => f.CanRun(_view.Query));
                 if (runner != null)
                 {
+                    var queryParts = _queryParser.Parse(_view.Query);
+                    if (runner.QueryType == Constants.QueryKeywords.DELETE &&
+                        !queryParts.IsTransaction &&
+                        _view.ShowMessage("Are you sure you want to delete these documents. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+                    {
+                        return;
+                    }
                     var didRun = await runner.RunAsync(documentStore, SelectedConnection.Database, _view.Query, true, _logger);
                     if (!didRun)
                     {
                         _view.ShowMessage("Unable to execute query. Verify query and try again.", "Query Execution Error");
                     }
+                }
+                else
+                {
+                    _logger.LogError("Unable to find a query processor for query type");
                 }
                 _view.SetStatusBarMessage("");
             }
