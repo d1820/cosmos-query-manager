@@ -62,12 +62,12 @@ namespace CosmosManager.QueryRunners
                                                                            MaxDegreeOfParallelism = MAX_DEGREE_PARALLEL
                                                                        });
 
-                foreach (var id in ids)
-                {
-                    actionTransactionCacheBlock.Post(id);
-                }
-                actionTransactionCacheBlock.Complete();
-                await actionTransactionCacheBlock.Completion;
+                //foreach (var id in ids)
+                //{
+                //    actionTransactionCacheBlock.Post(id);
+                //}
+                //actionTransactionCacheBlock.Complete();
+                //await actionTransactionCacheBlock.Completion;
                 _presenter.ShowOutputTab();
                 return true;
             }

@@ -96,6 +96,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openFolderToolStripMenuItem});
+            this.fileToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlText;
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -113,6 +114,7 @@
             this.viewTransactionCacheToolStripMenuItem,
             this.toolStripSeparator1,
             this.preferencesToolStripMenuItem});
+            this.editToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlText;
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -129,6 +131,7 @@
             this.connectToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadConnectionFileToolStripMenuItem,
             this.editConnectionFileToolStripMenuItem});
+            this.connectToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlText;
             this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
             this.connectToolStripMenuItem.Size = new System.Drawing.Size(64, 20);
             this.connectToolStripMenuItem.Text = "Connect";
@@ -145,6 +148,7 @@
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.guideToolStripMenuItem,
             this.reportABugToolStripMenuItem});
+            this.helpToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlText;
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "Help";
@@ -152,14 +156,14 @@
             // guideToolStripMenuItem
             // 
             this.guideToolStripMenuItem.Name = "guideToolStripMenuItem";
-            this.guideToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.guideToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.guideToolStripMenuItem.Text = "Guide";
             this.guideToolStripMenuItem.Click += new System.EventHandler(this.guideToolStripMenuItem_Click);
             // 
             // reportABugToolStripMenuItem
             // 
             this.reportABugToolStripMenuItem.Name = "reportABugToolStripMenuItem";
-            this.reportABugToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.reportABugToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.reportABugToolStripMenuItem.Text = "Report A Bug";
             this.reportABugToolStripMenuItem.Click += new System.EventHandler(this.reportABugToolStripMenuItem_Click);
             // 
@@ -176,12 +180,16 @@
             // 
             // appStatusLabel
             // 
+            this.appStatusLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.appStatusLabel.ForeColor = System.Drawing.SystemColors.ControlText;
             this.appStatusLabel.Name = "appStatusLabel";
             this.appStatusLabel.Size = new System.Drawing.Size(39, 17);
             this.appStatusLabel.Text = "Ready";
             // 
             // transactionCacheSizeLabel
             // 
+            this.transactionCacheSizeLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.transactionCacheSizeLabel.ForeColor = System.Drawing.SystemColors.ControlText;
             this.transactionCacheSizeLabel.Name = "transactionCacheSizeLabel";
             this.transactionCacheSizeLabel.Size = new System.Drawing.Size(1175, 17);
             this.transactionCacheSizeLabel.Spring = true;
@@ -298,10 +306,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1229, 624);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
+            this.ForeColor = System.Drawing.SystemColors.Control;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
