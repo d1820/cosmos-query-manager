@@ -153,6 +153,12 @@ namespace CosmosManager.Presenters
             return Color.Transparent;
         }
 
+        public void UpdateTransactionFolderSize()
+        {
+            var size = CalculateFolderSize(AppReferences.TransactionCacheDataFolder);
+            _view.SetTransactionCacheLabel($"Transaction Cache: {BytesToSting(size)}");
+        }
+
         private void GetDirectories(DirectoryInfo[] subDirs, TreeNode nodeToAddTo)
         {
             TreeNode aNode;
@@ -205,6 +211,8 @@ namespace CosmosManager.Presenters
 
             var size = CalculateFolderSize(AppReferences.TransactionCacheDataFolder);
             _view.SetTransactionCacheLabel($"Transaction Cache: {BytesToSting(size)}");
+            _view.SetFileWatcherPath(AppReferences.TransactionCacheDataFolder);
+
         }
 
         private long CalculateFolderSize(string folderPath)

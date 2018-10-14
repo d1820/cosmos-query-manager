@@ -1,4 +1,5 @@
-﻿using CosmosManager.Interfaces;
+﻿using CosmosManager.Domain;
+using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
 using System;
 using System.Drawing;
@@ -17,11 +18,18 @@ namespace CosmosManager
         public MainForm()
         {
             InitializeComponent();
+
+
         }
 
         public void ClearFileTreeView()
         {
             fileTreeView.Nodes.Clear();
+        }
+
+        public void SetFileWatcherPath(string path)
+        {
+            fileSystemWatcher1.Path = path;
         }
 
         public void AddFileNode(TreeNode newNode)
@@ -264,6 +272,16 @@ namespace CosmosManager
         private void reportABugToolStripMenuItem_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start(@"https://github.com/d1820/cosmos-query-manager/issues");
+        }
+
+        private void fileSystemWatcher1_Created(object sender, FileSystemEventArgs e)
+        {
+            Presenter.UpdateTransactionFolderSize();
+        }
+
+        private void fileSystemWatcher1_Deleted(object sender, FileSystemEventArgs e)
+        {
+             Presenter.UpdateTransactionFolderSize();
         }
     }
 }

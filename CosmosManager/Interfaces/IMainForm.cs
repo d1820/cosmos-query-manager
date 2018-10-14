@@ -24,5 +24,7 @@ namespace CosmosManager.Interfaces
         void SetTransactionCacheLabel(string text);
 
         void UpdateTabHeaderColors();
+
+        void SetFileWatcherPath(string path);
     }
 }
