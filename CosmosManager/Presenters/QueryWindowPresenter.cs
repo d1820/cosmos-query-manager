@@ -100,7 +100,7 @@ namespace CosmosManager.Presenters
                 if (runner != null)
                 {
                     var queryParts = _queryParser.Parse(_view.Query);
-                    if (runner.QueryType == Constants.QueryKeywords.DELETE &&
+                    if (queryParts.QueryType == Constants.QueryKeywords.DELETE &&
                         !queryParts.IsTransaction &&
                         _view.ShowMessage("Are you sure you want to delete these documents. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
                     {

@@ -25,8 +25,6 @@ namespace CosmosManager.QueryRunners
             _queryParser = new QueryStatementParser();
         }
 
-        public string QueryType => Constants.QueryKeywords.DELETE;
-
         public bool CanRun(string query)
         {
             //this should only work on queries like:  DELETE * FROM Collection WHERE Collection.PartitionKey = 'test'
@@ -56,7 +54,7 @@ namespace CosmosManager.QueryRunners
                                                                              PopulateQueryMetrics = true,
                                                                              EnableCrossPartitionQuery = true,
                                                                              MaxBufferedItemCount = 200,
-                                                                             MaxDegreeOfParallelism = 5,
+                                                                             MaxDegreeOfParallelism = MAX_DEGREE_PARALLEL,
                                                                              MaxItemCount = -1,
                                                                          };
 

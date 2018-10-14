@@ -25,8 +25,6 @@ namespace CosmosManager.QueryRunners
             _queryParser = new QueryStatementParser();
         }
 
-        public string QueryType => Constants.QueryKeywords.DELETE;
-
         public bool CanRun(string query)
         {
             var queryParts = _queryParser.Parse(query);

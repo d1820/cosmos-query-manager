@@ -18,7 +18,6 @@ namespace CosmosManager.QueryRunners
             _presenter = presenter;
             _queryParser = new QueryStatementParser();
         }
-        public string QueryType => Constants.QueryKeywords.SELECT;
 
         public bool CanRun(string query)
         {
