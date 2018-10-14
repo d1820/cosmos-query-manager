@@ -18,6 +18,13 @@ namespace CosmosManager.Stores
             _client = client;
         }
 
+        public async Task<string> LookupPartitionKeyPath(string databaseName, string collectionName)
+        {
+            var collectionInfo = await _client.ReadDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), new Microsoft.Azure.Documents.Client.RequestOptions());
+            var jPath = string.Join(".", collectionInfo.Resource.PartitionKey.Paths);
+            return jPath.Replace("/","");
+        }
+
         public async Task<TResult> ExecuteAsync<TResult>(string databaseName, string collectionName, Func<IDocumentExecuteContext, Task<TResult>> action)
         {
             if (string.IsNullOrWhiteSpace(databaseName))

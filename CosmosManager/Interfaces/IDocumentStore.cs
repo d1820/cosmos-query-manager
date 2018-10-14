@@ -5,6 +5,8 @@ namespace CosmosManager.Interfaces
 {
     public interface IDocumentStore
     {
+        Task<string> LookupPartitionKeyPath(string databaseName, string collectionName);
+
         Task ExecuteAsync(string databaseName, string collectionName, Action<IDocumentExecuteContext> action);
 
         Task<TResult> ExecuteAsync<TResult>(string databaseName, string collectionName, Func<IDocumentExecuteContext, Task<TResult>> action);

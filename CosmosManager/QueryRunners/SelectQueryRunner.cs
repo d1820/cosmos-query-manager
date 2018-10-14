@@ -11,12 +11,12 @@ namespace CosmosManager.QueryRunners
     public class SelectQueryRunner : IQueryRunner
     {
         private readonly IResultsPresenter _presenter;
-        private readonly QueryStatmentParser _queryParser;
+        private readonly QueryStatementParser _queryParser;
 
         public SelectQueryRunner(IResultsPresenter presenter)
         {
             _presenter = presenter;
-            _queryParser = new QueryStatmentParser();
+            _queryParser = new QueryStatementParser();
         }
 
         public bool CanRun(string query)

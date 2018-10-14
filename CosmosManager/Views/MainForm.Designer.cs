@@ -70,6 +70,10 @@
             this.openFileDialog1.FileName = "openFileDialog1";
             this.openFileDialog1.SupportMultiDottedExtensions = true;
             // 
+            // folderBrowserDialog1
+            // 
+            this.folderBrowserDialog1.ShowNewFolderButton = false;
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {

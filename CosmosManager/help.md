@@ -34,6 +34,9 @@ Razor SQL Syntax
 ```
 
 ### DELETES
+
+Has Transaction Support
+
 Coming Soon
 
 

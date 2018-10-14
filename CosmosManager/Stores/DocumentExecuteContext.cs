@@ -34,8 +34,6 @@ namespace CosmosManager.Stores
             try
             {
                 var response = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(_databaseName, _collectionName, id), options.ToRequestOptions());
-                //this will noop in the prod build
-                Debug.WriteLine($"RU Charge for {id}: {response.RequestCharge}");
                 if (response.StatusCode != HttpStatusCode.OK)
                 { return null; }
                 return (TResult)(dynamic)response.Resource;
@@ -170,5 +168,6 @@ namespace CosmosManager.Stores
                 throw;
             }
         }
+
     }
 }

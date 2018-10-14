@@ -3,7 +3,7 @@ using CosmosManager.Interfaces;
 
 namespace CosmosManager.Parsers
 {
-    public class QueryStatmentParser
+    public class QueryStatementParser
     {
         private string _orginalQuery;
 
@@ -29,7 +29,9 @@ namespace CosmosManager.Parsers
                 QueryType = typeAndBody.queryType.Trim(),
                 QueryFrom = parser.ParseFromBody(cleanQuery).Trim(),
                 QueryUpdateBody = parser.ParseUpdateBody(cleanQuery).Trim(),
-                QueryWhere = parser.ParseWhere(cleanQuery).Trim()
+                QueryWhere = parser.ParseWhere(cleanQuery).Trim(),
+                RollbackName = parser.ParseRollback(cleanQuery).Trim(),
+                TransactionId = parser.ParseTransaction(cleanQuery).Trim()
             };
         }
 
@@ -45,6 +47,10 @@ namespace CosmosManager.Parsers
                 .Replace("Select", "SELECT")
                 .Replace("set", "SET")
                 .Replace("Set", "SET")
+                .Replace("rollback", "ROLLBACK")
+                .Replace("Rollback", "ROLLBACK")
+                .Replace("transaction", "TRANSACTION")
+                .Replace("Transaction", "TRANSACTION")
                 .Replace("where", "WHERE")
                 .Replace("Where", "WHERE")
                 .Replace("update", "UPDATE")

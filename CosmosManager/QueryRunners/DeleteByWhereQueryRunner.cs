@@ -16,13 +16,13 @@ namespace CosmosManager.QueryRunners
     public class DeleteByWhereQueryRunner : IQueryRunner
     {
         private int MAX_DEGREE_PARALLEL = 5;
-        private QueryStatmentParser _queryParser;
+        private QueryStatementParser _queryParser;
         private readonly IResultsPresenter _presenter;
 
         public DeleteByWhereQueryRunner(IResultsPresenter presenter)
         {
             _presenter = presenter;
-            _queryParser = new QueryStatmentParser();
+            _queryParser = new QueryStatementParser();
         }
 
         public bool CanRun(string query)
@@ -66,18 +66,27 @@ namespace CosmosManager.QueryRunners
                                                                      });
 
                 var fromObjects = JArray.FromObject(results);
-                var ids = new List<string>();
+                var documents = new List<dynamic>();
+                if (queryParts.IsTransaction)
+                {
+                    logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
+                }
                 foreach (var obj in fromObjects)
                 {
                     if (obj["id"] != null)
                     {
                         var documentId = obj["id"].ToString();
-                        ids.Add(documentId);
-                        var cacheFileName = $"{AppReferences.TransactionCacheDataFolder}/{DateTime.UtcNow.ToString("yyyMMdd")}_{DateTime.UtcNow.ToString("HHmmss")}_{documentId}.json";
-                        using (var sw = new StreamWriter(cacheFileName))
+                        documents.Add(obj);
+                        if (queryParts.IsTransaction)
                         {
-                            await sw.WriteAsync(JsonConvert.SerializeObject(obj));
+                            var cacheFileName = new FileInfo($"{AppReferences.TransactionCacheDataFolder}/{queryParts.TransactionId}/{documentId.CleanId()}.json");
+                            Directory.CreateDirectory(cacheFileName.Directory.FullName);
+                            using (var sw = new StreamWriter(cacheFileName.FullName))
+                            {
+                                await sw.WriteAsync(JsonConvert.SerializeObject(obj));
+                            }
                         }
+
                     }
                 }
 
@@ -85,12 +94,22 @@ namespace CosmosManager.QueryRunners
 
                 //var ids = queryParts.QueryBody.Split(new[] { ',' });
 
-                var actionTransactionCacheBlock = new ActionBlock<string>(async documentId =>
+                var partitionKeyPath = await documentStore.LookupPartitionKeyPath(databaseName, queryParts.CollectionName);
+
+
+                var actionTransactionCacheBlock = new ActionBlock<dynamic>(async document =>
                                                                        {
                                                                            await documentStore.ExecuteAsync(databaseName, queryParts.CollectionName,
                                                                                         async (IDocumentExecuteContext context) =>
                                                                                         {
-                                                                                            await context.DeleteAsync(documentId);
+                                                                                            var jobj = JObject.FromObject(document);
+                                                                                            var partionKeyValue = jobj.SelectToken(partitionKeyPath).ToString();
+                                                                                            //await context.DeleteAsync(document.id, new RequestOptions
+                                                                                            //{
+                                                                                            //    PartitionKey = partionKeyValue
+                                                                                            //});
+                                                                                            logger.LogInformation($"Deleted {document.id}");
+
                                                                                         });
                                                                        },
                                                                        new ExecutionDataflowBlockOptions
@@ -98,12 +117,13 @@ namespace CosmosManager.QueryRunners
                                                                            MaxDegreeOfParallelism = MAX_DEGREE_PARALLEL
                                                                        });
 
-                foreach (var id in ids)
+                foreach (var doc in documents)
                 {
-                    actionTransactionCacheBlock.Post(id);
+                    actionTransactionCacheBlock.Post(doc);
                 }
                 actionTransactionCacheBlock.Complete();
                 await actionTransactionCacheBlock.Completion;
+                _presenter.ShowOutputTab();
                 return true;
             }
             catch (Exception ex)

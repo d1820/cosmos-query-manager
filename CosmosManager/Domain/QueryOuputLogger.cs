@@ -6,11 +6,11 @@ using System;
 
 namespace CosmosManager.Domain
 {
-    public class StatsLogger : ILogger
+    public class QueryOuputLogger : ILogger
     {
         private readonly IResultsPresenter _presenter;
 
-        public StatsLogger(IResultsPresenter presenter)
+        public QueryOuputLogger(IResultsPresenter presenter)
         {
             _presenter = presenter;
         }
@@ -43,11 +43,9 @@ namespace CosmosManager.Domain
                 {
                     var parts = stat.Value?.ToString().Split(new[] { ',' });
 
-                    _presenter.AddToStatsLog(JsonConvert.SerializeObject(parts, Formatting.Indented) + Environment.NewLine);
+                    _presenter.AddToStatsLog(JsonConvert.SerializeObject(parts, Formatting.Indented));
                 }
             }
-
-            _presenter.ToggleStatsPanel(false);
         }
     }
 }

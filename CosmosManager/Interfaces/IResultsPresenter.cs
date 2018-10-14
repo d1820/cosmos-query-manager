@@ -10,6 +10,6 @@ namespace CosmosManager.Interfaces
 
         void AddToStatsLog(string message);
 
-        void ToggleStatsPanel(bool collapse);
+        void ShowOutputTab();
     }
 }

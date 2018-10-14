@@ -4,8 +4,10 @@ using CosmosManager.Interfaces;
 using CosmosManager.Parsers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -14,13 +16,13 @@ namespace CosmosManager.QueryRunners
     public class DeleteByIdQueryRunner : IQueryRunner
     {
         private int MAX_DEGREE_PARALLEL = 5;
-        private QueryStatmentParser _queryParser;
+        private QueryStatementParser _queryParser;
         private readonly IResultsPresenter _presenter;
 
         public DeleteByIdQueryRunner(IResultsPresenter presenter)
         {
             _presenter = presenter;
-            _queryParser = new QueryStatmentParser();
+            _queryParser = new QueryStatementParser();
         }
 
         public bool CanRun(string query)
@@ -45,29 +47,59 @@ namespace CosmosManager.QueryRunners
 
                 var ids = queryParts.QueryBody.Split(new[] { ',' });
 
+                if (queryParts.IsTransaction)
+                {
+                    logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
+
+                }
+                var partitionKeyPath = await documentStore.LookupPartitionKeyPath(databaseName, queryParts.CollectionName);
+
                 var actionTransactionCacheBlock = new ActionBlock<string>(async documentId =>
                                                                        {
                                                                            //this handles transaction saving for recovery
                                                                            await documentStore.ExecuteAsync(databaseName, queryParts.CollectionName,
                                                                                          async (IDocumentExecuteContext context) =>
                                                                                          {
-                                                                                             var doc = await context.QueryById<object>(documentId);
+
+                                                                                             var queryOptions = new QueryOptions
+                                                                                             {
+                                                                                                 PopulateQueryMetrics = false,
+                                                                                                 EnableCrossPartitionQuery = true,
+                                                                                                 MaxItemCount = 1,
+                                                                                             };
+                                                                                             var query = context.QueryAsSql<object>($"SELECT * FROM {queryParts.CollectionName} WHERE {queryParts.CollectionName}.id = {documentId}", queryOptions);
+                                                                                             var doc = (await query.ConvertAndLogRequestUnits(false, logger)).FirstOrDefault();
+
+
                                                                                              //save doc to file
                                                                                              if (doc != null)
                                                                                              {
-                                                                                                 var cacheFileName = $"{AppReferences.TransactionCacheDataFolder}/{DateTime.UtcNow.ToString("yyyMMdd")}_{DateTime.UtcNow.ToString("HHmmss")}_{documentId}.json";
-                                                                                                 using (var sw = new StreamWriter(cacheFileName))
+                                                                                                 if (queryParts.IsTransaction)
                                                                                                  {
-                                                                                                     await sw.WriteAsync(JsonConvert.SerializeObject(doc));
+                                                                                                     var cacheFileName = new FileInfo($"{AppReferences.TransactionCacheDataFolder}/{queryParts.TransactionId}/{documentId.CleanId()}.json");
+                                                                                                     Directory.CreateDirectory(cacheFileName.Directory.FullName);
+                                                                                                     using (var sw = new StreamWriter(cacheFileName.FullName))
+                                                                                                     {
+                                                                                                         await sw.WriteAsync(JsonConvert.SerializeObject(doc));
+                                                                                                     }
                                                                                                  }
-                                                                                             }
-                                                                                         });
 
-                                                                           //await documentStore.ExecuteAsync(databaseName, collectionName,
-                                                                           //             async (IDocumentExecuteContext context) =>
-                                                                           //             {
-                                                                           //                 await context.DeleteAsync(documentId);
-                                                                           //             });
+                                                                                                 var jobj = JObject.FromObject(doc);
+                                                                                                 var partionKeyValue = jobj.SelectToken(partitionKeyPath).ToString();
+                                                                                                 //await context.DeleteAsync(documentId, new RequestOptions
+                                                                                                 //{
+                                                                                                 //    PartitionKey = partionKeyValue
+                                                                                                 //});
+                                                                                                 logger.LogInformation($"Deleted {documentId}");
+
+                                                                                             }
+                                                                                             else
+                                                                                             {
+                                                                                                 logger.LogInformation($"Document {documentId} not found. Skipping");
+                                                                                             }
+
+
+                                                                                         });
                                                                        },
                                                                        new ExecutionDataflowBlockOptions
                                                                        {
@@ -80,6 +112,7 @@ namespace CosmosManager.QueryRunners
                 }
                 actionTransactionCacheBlock.Complete();
                 await actionTransactionCacheBlock.Completion;
+                _presenter.ShowOutputTab();
                 return true;
             }
             catch (Exception ex)

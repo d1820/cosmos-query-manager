@@ -27,7 +27,7 @@ namespace CosmosManager.Parsers
                 return (string.Empty, string.Empty);
             }
 
-            return (queryTypeMatches[0].Value, matches[0].Value.Replace("SELECT", ""));
+            return (queryTypeMatches[0].Value, matches[0].Value.Replace("SELECT", "").Replace("DELETE", "").Trim());
         }
 
         public string ParseFromBody(string query)
@@ -37,7 +37,14 @@ namespace CosmosManager.Parsers
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
             {
-                return string.Empty;
+                //lets check if its only a FROM and then end
+                rgx = new Regex(@"(FROM)[\s]*(.*)");
+
+                matches = rgx.Matches(query);
+                if (matches.Count == 0)
+                {
+                    return string.Empty;
+                }
             }
             if (matches.Count > 1)
             {
@@ -49,8 +56,8 @@ namespace CosmosManager.Parsers
 
         public string ParseUpdateBody(string query)
         {
-           // throw new NotSupportedException("Update statements are not supported with standard SQL syntax. Please use Razor formating.");
-           return string.Empty;
+            // throw new NotSupportedException("Update statements are not supported with standard SQL syntax. Please use Razor formating.");
+            return string.Empty;
         }
 
         public string ParseWhere(string query)
@@ -68,6 +75,39 @@ namespace CosmosManager.Parsers
             }
 
             return matches[0].Value;
+        }
+
+        public string ParseRollback(string query)
+        {
+            var rgx = new Regex(@"(ROLLBACK)[\s]*(.*?)");
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 0)
+            {
+                return string.Empty;
+            }
+            if (matches.Count > 1)
+            {
+                throw new FormatException("Invalid query. ROLLBACK statement is not formated correct.");
+            }
+
+            return matches[0].Value.Replace("ROLLBACK", "").Trim();
+        }
+
+        public string ParseTransaction(string query)
+        {
+            var rgx = new Regex(@"(TRANSACTION)[\s\S]*(.*?)");
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 0)
+            {
+                return string.Empty;
+            }
+            if (matches.Count > 1)
+            {
+                throw new FormatException("Invalid query. TRANSACTION statement should be on a line by itself.");
+            }
+            return $"{DateTime.Now.ToString("yyyyMMdd")}_{Guid.NewGuid()}";
         }
     }
 
@@ -146,6 +186,39 @@ namespace CosmosManager.Parsers
             }
 
             return matches[0].Value.Replace("@WHERE{", " WHERE ").Replace("}@", " ");
+        }
+
+        public string ParseRollback(string query)
+        {
+            var rgx = new Regex(@"\@(ROLLBACK)[\s\S]*(.*?)");
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 0)
+            {
+                return string.Empty;
+            }
+            if (matches.Count > 1)
+            {
+                throw new FormatException("Invalid query. ROLLBACK statement is not formated correct.");
+            }
+
+            return matches[0].Value.Replace("@ROLLBACK", "").Trim();
+        }
+
+        public string ParseTransaction(string query)
+        {
+            var rgx = new Regex(@"(TRANSACTION)[\s\S]*(.*?)");
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 0)
+            {
+                return string.Empty;
+            }
+            if (matches.Count > 1)
+            {
+                throw new FormatException("Invalid query. TRANSACTION statement should be on a line by itself.");
+            }
+            return $"{DateTime.Now.ToString("yyyyMMdd")}_{Guid.NewGuid()}";
         }
     }
 }

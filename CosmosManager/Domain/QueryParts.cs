@@ -10,6 +10,32 @@ namespace CosmosManager.Domain
         public string QueryUpdateBody { get; set; }
         public string QueryWhere { get; set; }
 
+        public bool IsTransaction {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(TransactionId);
+            }
+        }
+        public string TransactionId { get; set; }
+
+
+        public bool IsRollback
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(RollbackName);
+            }
+        }
+        public string RollbackName { get; set; }
+        public bool IsValidRollbackQuery()
+        {
+            return !string.IsNullOrEmpty(RollbackName) &&
+                string.IsNullOrEmpty(QueryType) &&
+                string.IsNullOrEmpty(QueryBody) &&
+                string.IsNullOrEmpty(QueryFrom);
+        }
+
+
         public string CollectionName
         {
             get
@@ -17,7 +43,7 @@ namespace CosmosManager.Domain
                 if (QueryFrom != null && !string.IsNullOrWhiteSpace(QueryFrom))
                 {
                     var colName = QueryFrom.Split(new[] { ' ' }).LastOrDefault();
-                    if(!string.IsNullOrEmpty(colName))
+                    if (!string.IsNullOrEmpty(colName))
                     {
                         return colName;
                     }

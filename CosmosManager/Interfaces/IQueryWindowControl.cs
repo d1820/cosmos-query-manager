@@ -13,8 +13,6 @@ namespace CosmosManager.Interfaces
         QueryWindowPresenter Presenter { set; }
         MainFormPresenter MainPresenter { set; }
 
-        void ToggleStatsPanel(bool collapse);
-
         void ClearStats();
 
         void ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None);
@@ -24,5 +22,7 @@ namespace CosmosManager.Interfaces
         void SetStatusBarMessage(string message);
 
         void ResetResultsView();
+
+        void ShowOutputTab();
     }
 }

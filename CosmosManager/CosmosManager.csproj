@@ -58,10 +58,11 @@
     <Compile Include="Domain\DocumentQueryParameter.cs" />
     <Compile Include="Domain\QueryOptions.cs" />
     <Compile Include="Domain\RequestOptions.cs" />
-    <Compile Include="Domain\StatsLogger.cs" />
+    <Compile Include="Domain\QueryOuputLogger.cs" />
     <Compile Include="Exceptions\DataStoreException.cs" />
     <Compile Include="Exceptions\DocumentUpdateException.cs" />
     <Compile Include="Extensions\DocumentDBExtensions.cs" />
+    <Compile Include="Extensions\DocumentExtensions.cs" />
     <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Extensions\OptionExtensions.cs" />
     <Compile Include="Interfaces\ICosmosDocument.cs" />
@@ -75,7 +76,7 @@
     <Compile Include="Interfaces\IQueryRunner.cs" />
     <Compile Include="QueryRunners\DeleteByIdQueryRunner.cs" />
     <Compile Include="Domain\QueryParts.cs" />
-    <Compile Include="Parsers\QueryStatmentParser.cs" />
+    <Compile Include="Parsers\QueryStatementParser.cs" />
     <Compile Include="QueryRunners\DeleteByWhereQueryRunner.cs" />
     <Compile Include="Views\HelpForm.cs">
       <SubType>Form</SubType>

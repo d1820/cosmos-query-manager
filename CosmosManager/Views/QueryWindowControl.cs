@@ -18,7 +18,7 @@ namespace CosmosManager
 {
     public partial class QueryWindowControl : UserControl, IQueryWindowControl
     {
-        private StatsLogger _logger;
+        private QueryOuputLogger _logger;
 
         public QueryWindowControl()
         {
@@ -92,11 +92,6 @@ namespace CosmosManager
         public QueryWindowPresenter Presenter { private get; set; }
         public MainFormPresenter MainPresenter { private get; set; }
 
-        public void ToggleStatsPanel(bool collapse)
-        {
-            splitQueryAndStats.Panel2Collapsed = collapse;
-        }
-
         private async void runQueryButton_Click_1(object sender, EventArgs e)
         {
             Presenter.Run();
@@ -121,9 +116,10 @@ namespace CosmosManager
             MainPresenter.SetStatusBarMessage(message);
         }
 
-        public void RenderResults(IReadOnlyCollection<object> results)
+        public async void RenderResults(IReadOnlyCollection<object> results)
         {
             resultListView.Items.Clear();
+            var textPartitionKeyPath = await Presenter.LookupPartitionKeyPath();
             foreach (var item in results)
             {
                 var fromObject = JObject.FromObject(item);
@@ -134,9 +130,10 @@ namespace CosmosManager
                     Text = fromObject["id"]?.Value<string>()
                 };
                 listItem.SubItems.Add(subItem);
+
                 subItem = new ListViewSubItem
                 {
-                    Text = fromObject[textPartitionKeyPath.Text]?.Value<string>()
+                    Text = fromObject[textPartitionKeyPath]?.Value<string>()
                 };
                 listItem.SubItems.Add(subItem);
                 resultListView.Items.Add(listItem);
@@ -168,18 +165,18 @@ namespace CosmosManager
         {
             var items = GetCheckedListItems();
             var ids = items.Select(s => s["id"]);
-            var parser = new QueryStatmentParser();
+            var parser = new QueryStatementParser();
             var parts = parser.Parse(Query);
-            MainPresenter.CreateTempQueryTab($"UPDATE @{{['{string.Join("','", ids)}']}}@{Environment.NewLine}FROM {parts.CollectionName}{Environment.NewLine}SET @SET{{ }}SET@");
+            MainPresenter.CreateTempQueryTab($"TRANSACTION{Environment.NewLine}@UPDATE{{'{string.Join("','", ids)}'}}@{Environment.NewLine}@FROM{{ {parts.CollectionName} }}@{Environment.NewLine}SET @SET{{ }}@");
         }
 
         private void selectedToDeleteButton_Click(object sender, EventArgs e)
         {
             var items = GetCheckedListItems();
             var ids = items.Select(s => s["id"]);
-            var parser = new QueryStatmentParser();
+            var parser = new QueryStatementParser();
             var parts = parser.Parse(Query);
-            MainPresenter.CreateTempQueryTab($"DELETE @{{['{string.Join("','", ids)}']}}@{Environment.NewLine}FROM {parts.CollectionName}");
+            MainPresenter.CreateTempQueryTab($"TRANSACTION{Environment.NewLine} DELETE '{string.Join("','", ids)}' {Environment.NewLine} FROM {parts.CollectionName}");
         }
 
         private async void saveQueryButton_Click(object sender, EventArgs e)
@@ -393,13 +390,18 @@ namespace CosmosManager
             var selectedItem = (JObject)resultListView.SelectedItems[0].Tag;
             if (MessageBox.Show(this, $"Are you sure you want to delete document {selectedItem["id"]}", "Delete Document", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
             {
-                var wasDeleted = await Presenter.DeleteDocumentAsync(selectedItem["id"]?.ToString(), selectedItem[textPartitionKeyPath.Text]?.ToString());
+                var wasDeleted = await Presenter.DeleteDocumentAsync(selectedItem);
                 if (wasDeleted)
                 {
                     //remove item from list
                     resultListView.Items.Remove(resultListView.SelectedItems[0]);
                 }
             }
+        }
+
+        public void ShowOutputTab()
+        {
+            tabControlQueryOutput.SelectedIndex = 1;
         }
     }
 }

@@ -24,14 +24,14 @@ namespace CosmosManager.Presenters
 
         private Dictionary<string, (IDocumentClient client, IDocumentStore store)> _clients = new Dictionary<string, (IDocumentClient, IDocumentStore)>();
         private IQueryWindowControl _view;
-        private StatsLogger _logger;
+        private QueryOuputLogger _logger;
         private List<IQueryRunner> _queryRunners = new List<IQueryRunner>();
 
         public QueryWindowPresenter(IQueryWindowControl view, int tabIndexReference)
         {
             _view = view;
             view.Presenter = this;
-            _logger = new StatsLogger(this);
+            _logger = new QueryOuputLogger(this);
             _queryRunners.Add(new SelectQueryRunner(this));
             _queryRunners.Add(new DeleteByIdQueryRunner(this));
             TabIndexReference = tabIndexReference;
@@ -65,12 +65,7 @@ namespace CosmosManager.Presenters
 
         public void AddToStatsLog(string message)
         {
-            _view.Stats = message;
-        }
-
-        public void ToggleStatsPanel(bool collapse)
-        {
-            _view.ToggleStatsPanel(collapse);
+            _view.Stats += message + Environment.NewLine;
         }
 
         public void SetFile(FileInfo fileInfo)
@@ -94,7 +89,6 @@ namespace CosmosManager.Presenters
             //execute th interpretor and run against cosmos and connection
             if (SelectedConnection is Connection && SelectedConnection != null)
             {
-                _view.ToggleStatsPanel(true);
                 _view.SetStatusBarMessage("Executing Query...");
 
                 var documentStore = CreateDocumentClientAndStore();
@@ -120,7 +114,7 @@ namespace CosmosManager.Presenters
         {
             _view.SetStatusBarMessage("Saving Document...");
             var documentStore = CreateDocumentClientAndStore();
-            var parser = new QueryStatmentParser();
+            var parser = new QueryStatementParser();
             var parts = parser.Parse(_view.Query);
 
             try
@@ -136,19 +130,27 @@ namespace CosmosManager.Presenters
                 return false;
             }
         }
+        public Task<string> LookupPartitionKeyPath()
+        {
+            var documentStore = CreateDocumentClientAndStore();
+            var parser = new QueryStatementParser();
+            var parts = parser.Parse(_view.Query);
+            return documentStore.LookupPartitionKeyPath(SelectedConnection.Database, parts.CollectionName);
+        }
 
-
-        public async Task<bool> DeleteDocumentAsync(string documentId, string partitionKey)
+        public async Task<bool> DeleteDocumentAsync(JObject document)
         {
             _view.SetStatusBarMessage("Deleting Document...");
             var documentStore = CreateDocumentClientAndStore();
-            var parser = new QueryStatmentParser();
+            var parser = new QueryStatementParser();
             var parts = parser.Parse(_view.Query);
 
             try
             {
+                var partitionKeyPath = await documentStore.LookupPartitionKeyPath(SelectedConnection.Database, parts.CollectionName);
+                var partionKeyValue = document.SelectToken(partitionKeyPath).ToString();
                 var result = await documentStore.ExecuteAsync(SelectedConnection.Database, parts.CollectionName,
-                       context => context.DeleteAsync(documentId, new Domain.RequestOptions() { PartitionKey = partitionKey }));
+                       context => context.DeleteAsync(document["id"].ToString(), new Domain.RequestOptions() { PartitionKey = partionKeyValue }));
 
                 _view.SetStatusBarMessage("Document Deleted");
                 return result;
@@ -218,6 +220,11 @@ namespace CosmosManager.Presenters
                 return documentStore;
             }
             return _clients[SelectedConnection.EndPointUrl].store;
+        }
+
+        public void ShowOutputTab()
+        {
+            _view.ShowOutputTab();
         }
     }
 }

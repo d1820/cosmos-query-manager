@@ -9,5 +9,9 @@
         string ParseUpdateBody(string query);
 
         string ParseWhere(string query);
+
+        string ParseRollback(string query);
+
+        string ParseTransaction(string query);
     }
 }
