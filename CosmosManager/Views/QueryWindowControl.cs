@@ -134,7 +134,8 @@ namespace CosmosManager
                 listItem.SubItems.Add(subItem);
                 resultListView.Items.Add(listItem);
             }
-            resultCountLabel.Text = $"{results.Count} Documents";
+            resultCountTextbox.Text = $"{results.Count} Documents";
+            resultListToolStrip.Refresh();
         }
 
         private async void exportRecordToolStripMenuItem_Click(object sender, EventArgs e)

@@ -48,7 +48,7 @@
             this.columnSelect = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnPartitionKey = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.resultListToolStrip = new System.Windows.Forms.ToolStrip();
             this.selectedToUpdateButton = new System.Windows.Forms.ToolStripButton();
             this.selectedToDeleteButton = new System.Windows.Forms.ToolStripButton();
             this.textDocument = new System.Windows.Forms.RichTextBox();
@@ -67,8 +67,8 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.saveJsonDialog = new System.Windows.Forms.SaveFileDialog();
             this.saveTempQueryDialog = new System.Windows.Forms.SaveFileDialog();
+            this.resultCountTextbox = new System.Windows.Forms.ToolStripTextBox();
             this.connectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.resultCountLabel = new System.Windows.Forms.ToolStripLabel();
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryResult)).BeginInit();
             this.splitQueryResult.Panel1.SuspendLayout();
             this.splitQueryResult.Panel2.SuspendLayout();
@@ -82,7 +82,7 @@
             this.splitResultView.Panel1.SuspendLayout();
             this.splitResultView.Panel2.SuspendLayout();
             this.splitResultView.SuspendLayout();
-            this.toolStrip1.SuspendLayout();
+            this.resultListToolStrip.SuspendLayout();
             this.toolStrip2.SuspendLayout();
             this.tabOuputPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.connectionBindingSource)).BeginInit();
@@ -273,7 +273,7 @@
             // splitResultView.Panel1
             // 
             this.splitResultView.Panel1.Controls.Add(this.resultListView);
-            this.splitResultView.Panel1.Controls.Add(this.toolStrip1);
+            this.splitResultView.Panel1.Controls.Add(this.resultListToolStrip);
             // 
             // splitResultView.Panel2
             // 
@@ -321,17 +321,18 @@
             this.columnPartitionKey.Text = "PartitionKey";
             this.columnPartitionKey.Width = 166;
             // 
-            // toolStrip1
+            // resultListToolStrip
             // 
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.resultListToolStrip.BackColor = System.Drawing.SystemColors.Control;
+            this.resultListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.selectedToUpdateButton,
             this.selectedToDeleteButton,
-            this.resultCountLabel});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(350, 25);
-            this.toolStrip1.TabIndex = 1;
-            this.toolStrip1.Text = "toolStrip1";
+            this.resultCountTextbox});
+            this.resultListToolStrip.Location = new System.Drawing.Point(0, 0);
+            this.resultListToolStrip.Name = "resultListToolStrip";
+            this.resultListToolStrip.Size = new System.Drawing.Size(350, 25);
+            this.resultListToolStrip.TabIndex = 1;
+            this.resultListToolStrip.Text = "toolStrip1";
             // 
             // selectedToUpdateButton
             // 
@@ -366,6 +367,7 @@
             // 
             // toolStrip2
             // 
+            this.toolStrip2.BackColor = System.Drawing.SystemColors.Control;
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.resultWordWrapButton,
             this.resultFontSizeDecreaseButton,
@@ -495,16 +497,20 @@
             this.saveTempQueryDialog.SupportMultiDottedExtensions = true;
             this.saveTempQueryDialog.Title = "Save New Query";
             // 
+            // resultCountTextbox
+            // 
+            this.resultCountTextbox.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.resultCountTextbox.BackColor = System.Drawing.SystemColors.Control;
+            this.resultCountTextbox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.resultCountTextbox.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.resultCountTextbox.Name = "resultCountTextbox";
+            this.resultCountTextbox.ReadOnly = true;
+            this.resultCountTextbox.Size = new System.Drawing.Size(100, 25);
+            this.resultCountTextbox.TextBoxTextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
             // connectionBindingSource
             // 
             this.connectionBindingSource.DataSource = typeof(CosmosManager.Domain.Connection);
-            // 
-            // resultCountLabel
-            // 
-            this.resultCountLabel.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.resultCountLabel.Name = "resultCountLabel";
-            this.resultCountLabel.Size = new System.Drawing.Size(77, 22);
-            this.resultCountLabel.Text = "0 Documents";
             // 
             // QueryWindowControl
             // 
@@ -529,8 +535,8 @@
             this.splitResultView.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitResultView)).EndInit();
             this.splitResultView.ResumeLayout(false);
-            this.toolStrip1.ResumeLayout(false);
-            this.toolStrip1.PerformLayout();
+            this.resultListToolStrip.ResumeLayout(false);
+            this.resultListToolStrip.PerformLayout();
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
             this.tabOuputPage.ResumeLayout(false);
@@ -555,7 +561,7 @@
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
         private System.Windows.Forms.ToolStripMenuItem saveRecordToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAllResultsToolStripMenuItem;
-        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStrip resultListToolStrip;
         private System.Windows.Forms.ToolStripButton selectedToUpdateButton;
         private System.Windows.Forms.ToolStripButton selectedToDeleteButton;
         private System.Windows.Forms.Button saveQueryButton;
@@ -578,6 +584,6 @@
         private System.Windows.Forms.TabPage tabOuputPage;
         private System.Windows.Forms.RichTextBox textQuery;
         private System.Windows.Forms.RichTextBox textQueryOutput;
-        private System.Windows.Forms.ToolStripLabel resultCountLabel;
+        private System.Windows.Forms.ToolStripTextBox resultCountTextbox;
     }
 }
