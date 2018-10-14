@@ -114,7 +114,7 @@ namespace CosmosManager.QueryRunners
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, new EventId(), "Unable to run DELETE query", ex);
+                logger.Log(LogLevel.Error, new EventId(), $"Unable to run {Constants.QueryKeywords.DELETE} query", ex);
                 return false;
             }
         }

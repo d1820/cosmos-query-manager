@@ -74,6 +74,7 @@
     <Compile Include="Presenters\MainFormPresenter.cs" />
     <Compile Include="Presenters\QueryWindowPresenter.cs" />
     <Compile Include="Interfaces\IQueryRunner.cs" />
+    <Compile Include="QueryRunners\RollbackQueryRunner.cs" />
     <Compile Include="QueryRunners\DeleteByIdQueryRunner.cs" />
     <Compile Include="Domain\QueryParts.cs" />
     <Compile Include="Parsers\QueryStatementParser.cs" />

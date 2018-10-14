@@ -37,6 +37,9 @@ namespace CosmosManager.Presenters
             _queryParser = new QueryStatementParser();
             _queryRunners.Add(new SelectQueryRunner(this));
             _queryRunners.Add(new DeleteByIdQueryRunner(this));
+            //_queryRunners.Add(new DeleteByWhereQueryRunner(this));
+            _queryRunners.Add(new RollbackQueryRunner(this));
+
             TabIndexReference = tabIndexReference;
         }
 
