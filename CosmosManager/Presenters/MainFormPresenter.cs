@@ -222,15 +222,16 @@ namespace CosmosManager.Presenters
 
         private string BytesToSting(long bytes)
         {
-            var suffix = new List<string> { "b", "KB", "MB", "GB", "TB", "PB", "EB" };
-            var index = 0;
-            do
+            string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
+            if (bytes == 0)
             {
-                bytes /= 1024;
-                index++;
+                return "0" + suf[0];
             }
-            while (bytes >= 1024);
-            return string.Format("{0:0.00} {1}", bytes, suffix[index]);
+
+            var newbytes = Math.Abs(bytes);
+            var place = Convert.ToInt32(Math.Floor(Math.Log(newbytes, 1024)));
+            var num = Math.Round(newbytes / Math.Pow(1024, place), 1);
+            return (Math.Sign(bytes) * num).ToString() + suf[place];
         }
     }
 }

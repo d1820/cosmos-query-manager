@@ -8,7 +8,7 @@ namespace CosmosManager.Interfaces
     {
         object[] ConnectionsList { get; set; }
         string Query { get; set; }
-        string Stats { get; set; }
+        string QueryOutput { get; }
         string DocumentText { get; set; }
         QueryWindowPresenter Presenter { set; }
         MainFormPresenter MainPresenter { set; }
@@ -24,5 +24,9 @@ namespace CosmosManager.Interfaces
         void ResetResultsView();
 
         void ShowOutputTab();
+
+        void AppendToQueryOutput(string message);
+
+        void ResetQueryOutput();
     }
 }

@@ -40,7 +40,7 @@ namespace CosmosManager.QueryRunners
         {
             try
             {
-                _presenter.ResetStatsLog();
+                _presenter.ResetQueryOutput();
                 var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsValidQuery())
                 {

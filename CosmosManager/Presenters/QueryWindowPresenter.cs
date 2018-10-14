@@ -58,14 +58,14 @@ namespace CosmosManager.Presenters
             }
         }
 
-        public void ResetStatsLog()
+        public void ResetQueryOutput()
         {
-            _view.Stats = string.Empty;
+            _view.ResetQueryOutput();
         }
 
         public void AddToStatsLog(string message)
         {
-            _view.Stats += message + Environment.NewLine;
+            _view.AppendToQueryOutput(message + Environment.NewLine);
         }
 
         public void SetFile(FileInfo fileInfo)

@@ -54,15 +54,11 @@ namespace CosmosManager
             }
         }
 
-        public string Stats
+        public string QueryOutput
         {
             get
             {
-                return textStats.Text;
-            }
-            set
-            {
-                textStats.Text = value;
+                return textQueryOutput.Text;
             }
         }
 
@@ -80,7 +76,7 @@ namespace CosmosManager
 
         public void ClearStats()
         {
-            textStats.Text = "";
+            textQueryOutput.Text = "";
         }
 
         public void ResetResultsView()
@@ -402,6 +398,34 @@ namespace CosmosManager
         public void ShowOutputTab()
         {
             tabControlQueryOutput.SelectedIndex = 1;
+        }
+
+        public void AppendToQueryOutput(string message)
+        {
+            if (textQueryOutput.InvokeRequired)
+            {
+                textQueryOutput.BeginInvoke((Action)(() =>
+                        {
+                            // Set the colors that will be used.
+                            textQueryOutput.Text += message;
+                        }));
+                return;
+            }
+            textQueryOutput.Text += message;
+        }
+
+        public void ResetQueryOutput()
+        {
+            if (textQueryOutput.InvokeRequired)
+            {
+                textQueryOutput.BeginInvoke((Action)(() =>
+                        {
+                            // Set the colors that will be used.
+                            textQueryOutput.Text = string.Empty;
+                        }));
+                return;
+            }
+            textQueryOutput.Text = string.Empty;
         }
     }
 }

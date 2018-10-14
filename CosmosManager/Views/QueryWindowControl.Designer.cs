@@ -62,7 +62,7 @@
             this.deleteDocumentButton = new System.Windows.Forms.ToolStripButton();
             this.saveExistingDocument = new System.Windows.Forms.ToolStripButton();
             this.tabOuputPage = new System.Windows.Forms.TabPage();
-            this.textStats = new System.Windows.Forms.RichTextBox();
+            this.textQueryOutput = new System.Windows.Forms.RichTextBox();
             this.saveQueryDialog = new System.Windows.Forms.SaveFileDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.saveJsonDialog = new System.Windows.Forms.SaveFileDialog();
@@ -459,7 +459,7 @@
             // 
             // tabOuputPage
             // 
-            this.tabOuputPage.Controls.Add(this.textStats);
+            this.tabOuputPage.Controls.Add(this.textQueryOutput);
             this.tabOuputPage.Location = new System.Drawing.Point(4, 4);
             this.tabOuputPage.Name = "tabOuputPage";
             this.tabOuputPage.Padding = new System.Windows.Forms.Padding(3);
@@ -468,17 +468,17 @@
             this.tabOuputPage.Text = "Output";
             this.tabOuputPage.UseVisualStyleBackColor = true;
             // 
-            // textStats
+            // textQueryOutput
             // 
-            this.textStats.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.textStats.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textStats.Location = new System.Drawing.Point(3, 3);
-            this.textStats.Name = "textStats";
-            this.textStats.ReadOnly = true;
-            this.textStats.Size = new System.Drawing.Size(916, 328);
-            this.textStats.TabIndex = 1;
-            this.textStats.Text = "";
-            this.textStats.WordWrap = false;
+            this.textQueryOutput.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.textQueryOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textQueryOutput.Location = new System.Drawing.Point(3, 3);
+            this.textQueryOutput.Name = "textQueryOutput";
+            this.textQueryOutput.ReadOnly = true;
+            this.textQueryOutput.Size = new System.Drawing.Size(916, 328);
+            this.textQueryOutput.TabIndex = 1;
+            this.textQueryOutput.Text = "";
+            this.textQueryOutput.WordWrap = false;
             // 
             // saveJsonDialog
             // 
@@ -568,6 +568,6 @@
         private System.Windows.Forms.TabPage tabResultsPage;
         private System.Windows.Forms.TabPage tabOuputPage;
         private System.Windows.Forms.RichTextBox textQuery;
-        private System.Windows.Forms.RichTextBox textStats;
+        private System.Windows.Forms.RichTextBox textQueryOutput;
     }
 }

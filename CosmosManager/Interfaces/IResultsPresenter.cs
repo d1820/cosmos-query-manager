@@ -6,7 +6,7 @@ namespace CosmosManager.Interfaces
     {
         void RenderResults(IReadOnlyCollection<object> results);
 
-        void ResetStatsLog();
+        void ResetQueryOutput();
 
         void AddToStatsLog(string message);
 

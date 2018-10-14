@@ -135,7 +135,6 @@
     <EmbeddedResource Include="Views\QueryWindowControl.resx">
       <DependentUpon>QueryWindowControl.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="help.Designer.md" />
     <None Include="help.md">
       <SubType>Form</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
