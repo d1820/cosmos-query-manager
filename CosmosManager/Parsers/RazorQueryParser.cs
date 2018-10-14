@@ -1,4 +1,5 @@
-﻿using CosmosManager.Interfaces;
+﻿using CosmosManager.Domain;
+using CosmosManager.Interfaces;
 using System;
 using System.Text.RegularExpressions;
 
@@ -8,7 +9,7 @@ namespace CosmosManager.Parsers
     {
         public (string queryType, string queryBody) ParseQueryBody(string query)
         {
-            var rgx = new Regex(@"(SELECT|DELETE)[\s\S]*(.*?)(?=FROM)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE})[\s\S]*(.*?)(?={Constants.QueryKeywords.FROM})");
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -17,9 +18,9 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException("Invalid query. Only SELECT statement syntax supported.");
+                throw new FormatException($"Invalid query. Only {Constants.QueryKeywords.SELECT} or {Constants.QueryKeywords.DELETE} statement syntax supported.");
             }
-            var queryTypeRx = new Regex("(SELECT|DELETE)(.*?)");
+            var queryTypeRx = new Regex($"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE})(.*?)");
 
             var queryTypeMatches = queryTypeRx.Matches(matches[0].Value);
             if (queryTypeMatches.Count == 0)
@@ -27,18 +28,18 @@ namespace CosmosManager.Parsers
                 return (string.Empty, string.Empty);
             }
 
-            return (queryTypeMatches[0].Value, matches[0].Value.Replace("SELECT", "").Replace("DELETE", "").Trim());
+            return (queryTypeMatches[0].Value, matches[0].Value.Replace(Constants.QueryKeywords.SELECT, "").Replace(Constants.QueryKeywords.DELETE, "").Trim());
         }
 
         public string ParseFromBody(string query)
         {
-            var rgx = new Regex(@"(FROM)[\s\S]*(.*?)(?=WHERE)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.WHERE})");
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
             {
                 //lets check if its only a FROM and then end
-                rgx = new Regex(@"(FROM)[\s]*(.*)");
+                rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s]*(.*)");
 
                 matches = rgx.Matches(query);
                 if (matches.Count == 0)
@@ -48,7 +49,7 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException("Invalid query. Query FROM statement is not formated correct.");
+                throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.FROM} statement is not formated correct.");
             }
 
             return matches[0].Value;
@@ -62,7 +63,7 @@ namespace CosmosManager.Parsers
 
         public string ParseWhere(string query)
         {
-            var rgx = new Regex(@"(WHERE)[\s\S]*(.*)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*)");
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -71,7 +72,7 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException("Invalid query. Query WHERE statement is not formated correct.");
+                throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.WHERE} statement is not formated correct.");
             }
 
             return matches[0].Value;
@@ -79,7 +80,7 @@ namespace CosmosManager.Parsers
 
         public string ParseRollback(string query)
         {
-            var rgx = new Regex(@"(ROLLBACK)[\s]*(.*?)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.ROLLBACK})[\s]*(.*?)");
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -88,15 +89,15 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException("Invalid query. ROLLBACK statement is not formated correct.");
+                throw new FormatException($"Invalid query. {Constants.QueryKeywords.ROLLBACK} statement is not formated correct.");
             }
 
-            return matches[0].Value.Replace("ROLLBACK", "").Trim();
+            return matches[0].Value.Replace(Constants.QueryKeywords.ROLLBACK, "").Trim();
         }
 
         public string ParseTransaction(string query)
         {
-            var rgx = new Regex(@"(TRANSACTION)[\s\S]*(.*?)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.TRANSACTION})[\s\S]*(.*?)");
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -105,7 +106,7 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException("Invalid query. TRANSACTION statement should be on a line by itself.");
+                throw new FormatException($"Invalid query. {Constants.QueryKeywords.TRANSACTION} statement should be on a line by itself.");
             }
             return $"{DateTime.Now.ToString("yyyyMMdd")}_{Guid.NewGuid()}";
         }

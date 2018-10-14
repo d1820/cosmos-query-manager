@@ -1,5 +1,6 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace CosmosManager.Parsers
 {
@@ -37,24 +38,18 @@ namespace CosmosManager.Parsers
 
         private string CleanQuery(string query)
         {
-            return query.Trim()
-                .Replace(@"\n", " ")
+            var cleanString = query.Trim().Replace(@"\n", " ")
                 .Replace(@"\t", " ")
-                .Replace(@"\r", " ")
-                .Replace("from", "FROM")
-                .Replace("From", "FROM")
-                .Replace("select", "SELECT")
-                .Replace("Select", "SELECT")
-                .Replace("set", "SET")
-                .Replace("Set", "SET")
-                .Replace("rollback", "ROLLBACK")
-                .Replace("Rollback", "ROLLBACK")
-                .Replace("transaction", "TRANSACTION")
-                .Replace("Transaction", "TRANSACTION")
-                .Replace("where", "WHERE")
-                .Replace("Where", "WHERE")
-                .Replace("update", "UPDATE")
-                .Replace("Update", "UPDATE");
+                .Replace(@"\r", " ");
+            cleanString = Regex.Replace(cleanString, "(from)", Constants.QueryKeywords.FROM, RegexOptions.IgnoreCase);
+            cleanString = Regex.Replace(cleanString, "(select)", Constants.QueryKeywords.SELECT, RegexOptions.IgnoreCase);
+            cleanString = Regex.Replace(cleanString, "(set)", Constants.QueryKeywords.SET);
+            cleanString = Regex.Replace(cleanString, "(rollback)", Constants.QueryKeywords.ROLLBACK);
+            cleanString = Regex.Replace(cleanString, "(astransaction)", Constants.QueryKeywords.TRANSACTION);
+            cleanString = Regex.Replace(cleanString, "(where)", Constants.QueryKeywords.WHERE);
+            cleanString = Regex.Replace(cleanString, "(update)", Constants.QueryKeywords.UPDATE);
+
+            return cleanString;
         }
 
         private bool IsRazorQuery(string query)

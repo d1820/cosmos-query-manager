@@ -29,14 +29,11 @@ namespace CosmosManager.QueryRunners
         {
             //this should only work on queries like:  DELETE * FROM Collection WHERE Collection.PartitionKey = 'test'
             var queryParts = _queryParser.Parse(query);
-            return queryParts.QueryType.Equals(Constants.QueryTypes.DELETE, StringComparison.InvariantCultureIgnoreCase)
+            return queryParts.QueryType.Equals(Constants.QueryKeywords.DELETE, StringComparison.InvariantCultureIgnoreCase)
                 && queryParts.QueryBody.Equals("*") && !string.IsNullOrEmpty(queryParts.QueryWhere);
         }
 
-#pragma warning disable RCS1168 // Parameter name differs from base name.
-
         public async Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string queryStatement, bool logStats, ILogger logger)
-#pragma warning restore RCS1168 // Parameter name differs from base name.
         {
             try
             {
@@ -48,7 +45,7 @@ namespace CosmosManager.QueryRunners
                 }
 
                 //get the ids
-                var selectQuery = queryParts.ToRawQuery().Replace(Constants.QueryTypes.DELETE, Constants.QueryTypes.SELECT);
+                var selectQuery = queryParts.ToRawQuery().Replace(Constants.QueryKeywords.DELETE, Constants.QueryKeywords.SELECT);
                 var results = await documentStore.ExecuteAsync(databaseName, queryParts.CollectionName,
                                                                       async (IDocumentExecuteContext context) =>
                                                                      {

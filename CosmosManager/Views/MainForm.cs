@@ -283,5 +283,6 @@ namespace CosmosManager
         {
              Presenter.UpdateTransactionFolderSize();
         }
+
     }
 }

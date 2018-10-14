@@ -163,7 +163,7 @@ namespace CosmosManager
             var ids = items.Select(s => s["id"]);
             var parser = new QueryStatementParser();
             var parts = parser.Parse(Query);
-            MainPresenter.CreateTempQueryTab($"TRANSACTION{Environment.NewLine}@UPDATE{{'{string.Join("','", ids)}'}}@{Environment.NewLine}@FROM{{ {parts.CollectionName} }}@{Environment.NewLine}SET @SET{{ }}@");
+            MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryKeywords.SET} @SET{{ }}@");
         }
 
         private void selectedToDeleteButton_Click(object sender, EventArgs e)
@@ -172,7 +172,7 @@ namespace CosmosManager
             var ids = items.Select(s => s["id"]);
             var parser = new QueryStatementParser();
             var parts = parser.Parse(Query);
-            MainPresenter.CreateTempQueryTab($"TRANSACTION{Environment.NewLine} DELETE '{string.Join("','", ids)}' {Environment.NewLine} FROM {parts.CollectionName}");
+            MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine} {Constants.QueryKeywords.DELETE} '{string.Join("','", ids)}' {Environment.NewLine} {Constants.QueryKeywords.FROM} {parts.CollectionName}");
         }
 
         private async void saveQueryButton_Click(object sender, EventArgs e)

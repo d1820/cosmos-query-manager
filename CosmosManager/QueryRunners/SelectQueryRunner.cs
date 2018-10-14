@@ -22,7 +22,7 @@ namespace CosmosManager.QueryRunners
         public bool CanRun(string query)
         {
             var queryParts = _queryParser.Parse(query);
-            return queryParts.QueryType.Equals(Constants.QueryTypes.SELECT, StringComparison.InvariantCultureIgnoreCase);
+            return queryParts.QueryType.Equals(Constants.QueryKeywords.SELECT, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public async Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string queryStatement, bool logStats, ILogger logger)
@@ -55,7 +55,7 @@ namespace CosmosManager.QueryRunners
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, new EventId(), "Unable to run SELECT query", ex);
+                logger.Log(LogLevel.Error, new EventId(), $"Unable to run {Constants.QueryKeywords.SELECT} query", ex);
                 return false;
             }
         }
