@@ -79,6 +79,8 @@
     <Compile Include="Domain\QueryParts.cs" />
     <Compile Include="Parsers\QueryStatementParser.cs" />
     <Compile Include="QueryRunners\DeleteByWhereQueryRunner.cs" />
+    <Compile Include="Interfaces\ITransactionTask.cs" />
+    <Compile Include="Tasks\TransactionTask.cs" />
     <Compile Include="Views\HelpForm.cs">
       <SubType>Form</SubType>
     </Compile>

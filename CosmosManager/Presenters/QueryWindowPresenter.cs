@@ -3,6 +3,7 @@ using CosmosManager.Interfaces;
 using CosmosManager.Parsers;
 using CosmosManager.QueryRunners;
 using CosmosManager.Stores;
+using CosmosManager.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Logging;
@@ -34,9 +35,10 @@ namespace CosmosManager.Presenters
             _view = view;
             view.Presenter = this;
             _logger = new QueryOuputLogger(this);
+            var transactionTask = new TransactionTask();
             _queryParser = new QueryStatementParser();
             _queryRunners.Add(new SelectQueryRunner(this));
-            _queryRunners.Add(new DeleteByIdQueryRunner(this));
+            _queryRunners.Add(new DeleteByIdQueryRunner(this, transactionTask));
             //_queryRunners.Add(new DeleteByWhereQueryRunner(this));
             _queryRunners.Add(new RollbackQueryRunner(this));
 
@@ -109,7 +111,7 @@ namespace CosmosManager.Presenters
                     {
                         return;
                     }
-                    var didRun = await runner.RunAsync(documentStore, SelectedConnection.Database, _view.Query, true, _logger);
+                    var didRun = await runner.RunAsync(documentStore, SelectedConnection, _view.Query, true, _logger);
                     if (!didRun)
                     {
                         _view.ShowMessage("Unable to execute query. Verify query and try again.", "Query Execution Error");
@@ -170,6 +172,7 @@ namespace CosmosManager.Presenters
                        context => context.DeleteAsync(document["id"].ToString(), new Domain.RequestOptions() { PartitionKey = partionKeyValue }));
 
                 _view.SetStatusBarMessage("Document Deleted");
+                _view.DocumentText = string.Empty;
                 return result;
             }
             catch (Exception ex)

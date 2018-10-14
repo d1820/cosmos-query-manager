@@ -68,6 +68,7 @@
             this.saveJsonDialog = new System.Windows.Forms.SaveFileDialog();
             this.saveTempQueryDialog = new System.Windows.Forms.SaveFileDialog();
             this.connectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.resultCountLabel = new System.Windows.Forms.ToolStripLabel();
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryResult)).BeginInit();
             this.splitQueryResult.Panel1.SuspendLayout();
             this.splitQueryResult.Panel2.SuspendLayout();
@@ -324,7 +325,8 @@
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.selectedToUpdateButton,
-            this.selectedToDeleteButton});
+            this.selectedToDeleteButton,
+            this.resultCountLabel});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(350, 25);
@@ -497,6 +499,13 @@
             // 
             this.connectionBindingSource.DataSource = typeof(CosmosManager.Domain.Connection);
             // 
+            // resultCountLabel
+            // 
+            this.resultCountLabel.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.resultCountLabel.Name = "resultCountLabel";
+            this.resultCountLabel.Size = new System.Drawing.Size(77, 22);
+            this.resultCountLabel.Text = "0 Documents";
+            // 
             // QueryWindowControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -569,5 +578,6 @@
         private System.Windows.Forms.TabPage tabOuputPage;
         private System.Windows.Forms.RichTextBox textQuery;
         private System.Windows.Forms.RichTextBox textQueryOutput;
+        private System.Windows.Forms.ToolStripLabel resultCountLabel;
     }
 }

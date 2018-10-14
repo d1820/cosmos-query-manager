@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -18,11 +19,13 @@ namespace CosmosManager.QueryRunners
         private int MAX_DEGREE_PARALLEL = 5;
         private QueryStatementParser _queryParser;
         private readonly IResultsPresenter _presenter;
+        private readonly ITransactionTask _transactionTask;
 
-        public DeleteByWhereQueryRunner(IResultsPresenter presenter)
+        public DeleteByWhereQueryRunner(IResultsPresenter presenter, ITransactionTask transactionTask)
         {
             _presenter = presenter;
             _queryParser = new QueryStatementParser();
+            _transactionTask = transactionTask;
         }
 
         public bool CanRun(string query)
@@ -33,7 +36,7 @@ namespace CosmosManager.QueryRunners
                 && queryParts.QueryBody.Equals("*") && !string.IsNullOrEmpty(queryParts.QueryWhere);
         }
 
-        public async Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string queryStatement, bool logStats, ILogger logger)
+        public async Task<bool> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
             try
             {
@@ -46,7 +49,7 @@ namespace CosmosManager.QueryRunners
 
                 //get the ids
                 var selectQuery = queryParts.ToRawQuery().Replace(Constants.QueryKeywords.DELETE, Constants.QueryKeywords.SELECT);
-                var results = await documentStore.ExecuteAsync(databaseName, queryParts.CollectionName,
+                var results = await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                                                       async (IDocumentExecuteContext context) =>
                                                                      {
                                                                          var queryOptions = new QueryOptions
@@ -68,22 +71,21 @@ namespace CosmosManager.QueryRunners
                 {
                     logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
                 }
-                foreach (var obj in fromObjects)
+                foreach (JObject obj in fromObjects)
                 {
                     if (obj["id"] != null)
                     {
                         var documentId = obj["id"].ToString();
-                        documents.Add(obj);
                         if (queryParts.IsTransaction)
                         {
-                            var cacheFileName = new FileInfo($"{AppReferences.TransactionCacheDataFolder}/{queryParts.TransactionId}/{documentId.CleanId()}.json");
-                            Directory.CreateDirectory(cacheFileName.Directory.FullName);
-                            using (var sw = new StreamWriter(cacheFileName.FullName))
+                            var backupSuccess = await _transactionTask.Backup(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, obj);
+                            if (!backupSuccess)
                             {
-                                await sw.WriteAsync(JsonConvert.SerializeObject(obj));
+                                logger.LogError($"Unable to backup document {documentId}. Skipping Delete.");
+                                continue;
                             }
                         }
-
+                        documents.Add(obj);
                     }
                 }
 
@@ -91,12 +93,12 @@ namespace CosmosManager.QueryRunners
 
                 //var ids = queryParts.QueryBody.Split(new[] { ',' });
 
-                var partitionKeyPath = await documentStore.LookupPartitionKeyPath(databaseName, queryParts.CollectionName);
+                var partitionKeyPath = await documentStore.LookupPartitionKeyPath(connection.Database, queryParts.CollectionName);
 
-
+                var deleteCount = 0;
                 var actionTransactionCacheBlock = new ActionBlock<dynamic>(async document =>
                                                                        {
-                                                                           await documentStore.ExecuteAsync(databaseName, queryParts.CollectionName,
+                                                                           await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                                                                         async (IDocumentExecuteContext context) =>
                                                                                         {
                                                                                             var jobj = JObject.FromObject(document);
@@ -105,6 +107,7 @@ namespace CosmosManager.QueryRunners
                                                                                             //{
                                                                                             //    PartitionKey = partionKeyValue
                                                                                             //});
+                                                                                            Interlocked.Increment(ref deleteCount);
                                                                                             logger.LogInformation($"Deleted {document.id}");
 
                                                                                         });
@@ -120,6 +123,7 @@ namespace CosmosManager.QueryRunners
                 }
                 actionTransactionCacheBlock.Complete();
                 await actionTransactionCacheBlock.Completion;
+                logger.LogInformation($"Deleted {deleteCount} out of {documents.Count}");
                 _presenter.ShowOutputTab();
                 return true;
             }

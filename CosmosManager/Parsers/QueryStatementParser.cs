@@ -43,11 +43,11 @@ namespace CosmosManager.Parsers
                 .Replace(@"\r", " ");
             cleanString = Regex.Replace(cleanString, "(from)", Constants.QueryKeywords.FROM, RegexOptions.IgnoreCase);
             cleanString = Regex.Replace(cleanString, "(select)", Constants.QueryKeywords.SELECT, RegexOptions.IgnoreCase);
-            cleanString = Regex.Replace(cleanString, "(set)", Constants.QueryKeywords.SET);
-            cleanString = Regex.Replace(cleanString, "(rollback)", Constants.QueryKeywords.ROLLBACK);
-            cleanString = Regex.Replace(cleanString, "(astransaction)", Constants.QueryKeywords.TRANSACTION);
-            cleanString = Regex.Replace(cleanString, "(where)", Constants.QueryKeywords.WHERE);
-            cleanString = Regex.Replace(cleanString, "(update)", Constants.QueryKeywords.UPDATE);
+            cleanString = Regex.Replace(cleanString, "(set)", Constants.QueryKeywords.SET, RegexOptions.IgnoreCase);
+            cleanString = Regex.Replace(cleanString, "(rollback)", Constants.QueryKeywords.ROLLBACK, RegexOptions.IgnoreCase);
+            cleanString = Regex.Replace(cleanString, "(astransaction)", Constants.QueryKeywords.TRANSACTION, RegexOptions.IgnoreCase);
+            cleanString = Regex.Replace(cleanString, "(where)", Constants.QueryKeywords.WHERE, RegexOptions.IgnoreCase);
+            cleanString = Regex.Replace(cleanString, "(update)", Constants.QueryKeywords.UPDATE, RegexOptions.IgnoreCase);
 
             return cleanString;
         }

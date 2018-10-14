@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CosmosManager.Domain;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace CosmosManager.Interfaces
@@ -7,6 +8,6 @@ namespace CosmosManager.Interfaces
     {
         bool CanRun(string query);
 
-        Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string queryStatement, bool logStats, ILogger logger);
+        Task<bool> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger);
     }
 }

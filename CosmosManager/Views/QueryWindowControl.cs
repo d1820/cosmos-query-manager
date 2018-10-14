@@ -18,7 +18,7 @@ namespace CosmosManager
 {
     public partial class QueryWindowControl : UserControl, IQueryWindowControl
     {
-        private QueryOuputLogger _logger;
+        private readonly QueryOuputLogger _logger;
 
         public QueryWindowControl()
         {
@@ -134,6 +134,7 @@ namespace CosmosManager
                 listItem.SubItems.Add(subItem);
                 resultListView.Items.Add(listItem);
             }
+            resultCountLabel.Text = $"{results.Count} Documents";
         }
 
         private async void exportRecordToolStripMenuItem_Click(object sender, EventArgs e)

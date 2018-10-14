@@ -39,7 +39,7 @@ namespace CosmosManager.Parsers
             if (matches.Count == 0)
             {
                 //lets check if its only a FROM and then end
-                rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s]*(.*)");
+                rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)");
 
                 matches = rgx.Matches(query);
                 if (matches.Count == 0)
@@ -63,7 +63,7 @@ namespace CosmosManager.Parsers
 
         public string ParseWhere(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)");
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -80,7 +80,7 @@ namespace CosmosManager.Parsers
 
         public string ParseRollback(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryKeywords.ROLLBACK})[\s]*(.*?)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.ROLLBACK})[\s\S]*(.*?)");
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -108,7 +108,7 @@ namespace CosmosManager.Parsers
             {
                 throw new FormatException($"Invalid query. {Constants.QueryKeywords.TRANSACTION} statement should be on a line by itself.");
             }
-            return $"{DateTime.Now.ToString("yyyyMMdd")}_{Guid.NewGuid()}";
+            return $"{DateTime.Now.ToString("yyyyMMdd_hhmmss")}_{Guid.NewGuid()}";
         }
     }
 

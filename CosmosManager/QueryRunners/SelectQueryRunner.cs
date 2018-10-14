@@ -25,7 +25,7 @@ namespace CosmosManager.QueryRunners
             return queryParts.QueryType.Equals(Constants.QueryKeywords.SELECT, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public async Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string queryStatement, bool logStats, ILogger logger)
+        public async Task<bool> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace CosmosManager.QueryRunners
                 {
                     return false;
                 }
-                var results = await documentStore.ExecuteAsync(databaseName, queryParts.CollectionName,
+                var results = await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                                                        async (IDocumentExecuteContext context) =>
                                                                       {
                                                                           var queryOptions = new QueryOptions

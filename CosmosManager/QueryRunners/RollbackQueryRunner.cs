@@ -31,7 +31,7 @@ namespace CosmosManager.QueryRunners
             return queryParts.IsRollback;
         }
 
-        public async Task<bool> RunAsync(IDocumentStore documentStore, string databaseName, string queryStatement, bool logStats, ILogger logger)
+        public async Task<bool> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace CosmosManager.QueryRunners
                 var actionTransactionCacheBlock = new ActionBlock<string>(async documentId =>
                                                                        {
                                                                            //this handles transaction saving for recovery
-                                                                           await documentStore.ExecuteAsync(databaseName, queryParts.CollectionName,
+                                                                           await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                                                                          async (IDocumentExecuteContext context) =>
                                                                                          {
 
