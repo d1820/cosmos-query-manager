@@ -5,6 +5,11 @@ namespace CosmosManager.Interfaces
     public interface IResultsPresenter
     {
         void RenderResults(IReadOnlyCollection<object> results);
-        void ResetStatsLog();
+
+        void ResetQueryOutput();
+
+        void AddToQueryOutput(string message);
+
+        void ShowOutputTab();
     }
 }

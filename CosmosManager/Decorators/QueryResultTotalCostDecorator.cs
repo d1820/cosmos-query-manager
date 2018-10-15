@@ -16,7 +16,6 @@ namespace CosmosManager.Decorators
             if (result == null)
             {
                 return;
-
             }
             _totalRuCost += result.RequestCharge;
             if (!string.IsNullOrWhiteSpace(result.ActivityId))

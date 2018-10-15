@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Timers;
 using System.Windows.Forms;
 
 namespace CosmosManager.Presenters
@@ -26,19 +27,28 @@ namespace CosmosManager.Presenters
             Color.MediumAquamarine,
             Color.PaleGoldenrod,
         };
-
+        private System.Timers.Timer statusTimer;
         private Dictionary<string, Color> _tabColors = new Dictionary<string, Color>();
 
-        public string AppDataFolder { get; private set; }
-        public string TransactionCacheDataFolder { get; private set; }
-
         public List<Connection> Connections { get; private set; }
+
+
 
         public MainFormPresenter(IMainForm view)
         {
             _view = view;
             _view.Presenter = this;
             InitializeUserAppData();
+
+            statusTimer = new System.Timers.Timer();
+            statusTimer.Elapsed += StatusTimer_Elapsed;
+            statusTimer.Interval = 5000;
+        }
+
+        private void StatusTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            _view.SetStatusBarMessage("Ready");
+            statusTimer.Stop();
         }
 
         public void PopulateTreeView(string rootDir)
@@ -74,9 +84,14 @@ namespace CosmosManager.Presenters
             try
             {
                 Connections = JsonConvert.DeserializeObject<List<Connection>>(jsonString);
+                _tabColors.Clear();
                 _view.SetConnectionsOnExistingTabs();
                 for (var i = 0; i < Connections.Count; i++)
                 {
+                    if (_tabColors.ContainsKey(Connections[i].Name))
+                    {
+                        continue;
+                    }
                     if (i <= _colors.Count - 1)
                     {
                         _tabColors.Add(Connections[i].Name, _colors[i]);
@@ -85,12 +100,12 @@ namespace CosmosManager.Presenters
                     {
                         _tabColors.Add(Connections[i].Name, Color.Transparent);
                     }
-
                 }
+                SetStatusBarMessage("Connections Loaded");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                _view.ShowMessage("Unable to open connections file. Please verify format, and try again", "Error Parsing Connections File");
+                _view.ShowMessage($"Unable to open connections file. Please verify format, and try again. Error: {ex.Message}. Base: {ex.GetBaseException().Message}", "Error Parsing Connections File");
             }
         }
 
@@ -99,10 +114,13 @@ namespace CosmosManager.Presenters
             _view.UpdateNewQueryTabName(newTabName);
         }
 
+
         public void SetStatusBarMessage(string message)
         {
             _view.SetStatusBarMessage(message);
+            statusTimer.Start();
         }
+
 
         public void SaveNewQuery(string fileLocation, TreeNode currentNode)
         {
@@ -118,7 +136,7 @@ namespace CosmosManager.Presenters
 
         public void OpenTransactionCacheFolder()
         {
-            Process.Start(TransactionCacheDataFolder);
+            Process.Start(AppReferences.TransactionCacheDataFolder);
         }
 
         public void UpdateTabHeaderColor()
@@ -133,6 +151,12 @@ namespace CosmosManager.Presenters
                 return _tabColors[connectionName];
             }
             return Color.Transparent;
+        }
+
+        public void UpdateTransactionFolderSize()
+        {
+            var size = CalculateFolderSize(AppReferences.TransactionCacheDataFolder);
+            _view.SetTransactionCacheLabel($"Transaction Cache: {BytesToSting(size)}");
         }
 
         private void GetDirectories(DirectoryInfo[] subDirs, TreeNode nodeToAddTo)
@@ -179,14 +203,15 @@ namespace CosmosManager.Presenters
             var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
             // Combine the base folder with your specific folder....
-            AppDataFolder = Path.Combine(folder, "CosmosManager");
-            Directory.CreateDirectory(AppDataFolder);
+            AppReferences.AppDataFolder = Path.Combine(folder, "CosmosManager");
+            Directory.CreateDirectory(AppReferences.AppDataFolder);
 
-            TransactionCacheDataFolder = Path.Combine(folder, "CosmosManager/TransactionCache");
-            Directory.CreateDirectory(TransactionCacheDataFolder);
+            AppReferences.TransactionCacheDataFolder = Path.Combine(folder, "CosmosManager/TransactionCache");
+            Directory.CreateDirectory(AppReferences.TransactionCacheDataFolder);
 
-            var size = CalculateFolderSize(TransactionCacheDataFolder);
+            var size = CalculateFolderSize(AppReferences.TransactionCacheDataFolder);
             _view.SetTransactionCacheLabel($"Transaction Cache: {BytesToSting(size)}");
+            _view.SetFileWatcherPath(AppReferences.TransactionCacheDataFolder);
 
         }
 
@@ -205,16 +230,16 @@ namespace CosmosManager.Presenters
 
         private string BytesToSting(long bytes)
         {
-            var suffix = new List<string> { "b", "KB", "MB", "GB", "TB", "PB", "EB" };
-            var index = 0;
-            do
+            string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
+            if (bytes == 0)
             {
-                bytes /= 1024;
-                index++;
+                return "0" + suf[0];
             }
-            while (bytes >= 1024);
-            return string.Format("{0:0.00} {1}", bytes, suffix[index]);
-        }
 
+            var newbytes = Math.Abs(bytes);
+            var place = Convert.ToInt32(Math.Floor(Math.Log(newbytes, 1024)));
+            var num = Math.Round(newbytes / Math.Pow(1024, place), 1);
+            return (Math.Sign(bytes) * num).ToString() + suf[place];
+        }
     }
 }

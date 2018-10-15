@@ -6,10 +6,8 @@ namespace CosmosManager.Exceptions
     [ExcludeFromCodeCoverage]
     public class DocumentUpdateException : Exception
     {
-
         public DocumentUpdateException()
         {
-
         }
 
         public DocumentUpdateException(string message) : base(message)

@@ -58,18 +58,30 @@
     <Compile Include="Domain\DocumentQueryParameter.cs" />
     <Compile Include="Domain\QueryOptions.cs" />
     <Compile Include="Domain\RequestOptions.cs" />
-    <Compile Include="Domain\StatsLogger.cs" />
+    <Compile Include="Domain\QueryOuputLogger.cs" />
     <Compile Include="Exceptions\DataStoreException.cs" />
     <Compile Include="Exceptions\DocumentUpdateException.cs" />
     <Compile Include="Extensions\DocumentDBExtensions.cs" />
+    <Compile Include="Extensions\DocumentExtensions.cs" />
     <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Extensions\OptionExtensions.cs" />
     <Compile Include="Interfaces\ICosmosDocument.cs" />
     <Compile Include="Interfaces\IMainForm.cs" />
     <Compile Include="Interfaces\IResultsPresenter.cs" />
+    <Compile Include="Domain\AppReferences.cs" />
+    <Compile Include="Interfaces\IQueryParser.cs" />
+    <Compile Include="Parsers\RazorQueryParser.cs" />
+    <Compile Include="Parsers\StringQueryParser.cs" />
     <Compile Include="Presenters\MainFormPresenter.cs" />
     <Compile Include="Presenters\QueryWindowPresenter.cs" />
     <Compile Include="Interfaces\IQueryRunner.cs" />
+    <Compile Include="QueryRunners\RollbackQueryRunner.cs" />
+    <Compile Include="QueryRunners\DeleteByIdQueryRunner.cs" />
+    <Compile Include="Domain\QueryParts.cs" />
+    <Compile Include="Parsers\QueryStatementParser.cs" />
+    <Compile Include="QueryRunners\DeleteByWhereQueryRunner.cs" />
+    <Compile Include="Interfaces\ITransactionTask.cs" />
+    <Compile Include="Tasks\TransactionTask.cs" />
     <Compile Include="Views\HelpForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -127,7 +139,6 @@
     <EmbeddedResource Include="Views\QueryWindowControl.resx">
       <DependentUpon>QueryWindowControl.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="help.Designer.md" />
     <None Include="help.md">
       <SubType>Form</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -148,6 +159,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="documentdb_54645_jq4_icon.ico" />
+    <None Include="Resources\add_16.png" />
+    <None Include="Resources\script_add.png" />
+    <None Include="Resources\page_delete.gif" />
     <None Include="Resources\gbl_Save.gif" />
     <None Include="Resources\move_waiting_down_alternative.png" />
     <None Include="Resources\776907_document_512x512.png" />
@@ -170,6 +184,10 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>11.0.2</Version>
     </PackageReference>
+    <PackageReference Include="System.Threading.Tasks.Dataflow">
+      <Version>4.9.0</Version>
+    </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

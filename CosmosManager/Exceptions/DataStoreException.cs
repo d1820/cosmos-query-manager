@@ -8,7 +8,6 @@ namespace CosmosManager.Exceptions
     {
         public DataStoreException()
         {
-
         }
 
         public DataStoreException(string message) : base(message)

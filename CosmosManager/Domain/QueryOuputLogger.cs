@@ -1,22 +1,24 @@
-﻿using System;
-using CosmosManager.Interfaces;
+﻿using CosmosManager.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Internal;
 using Newtonsoft.Json;
+using System;
 
 namespace CosmosManager.Domain
 {
-
-    public class StatsLogger : ILogger
+    public class QueryOuputLogger : ILogger
     {
-        private readonly IQueryWindowControl _view;
+        private readonly IResultsPresenter _presenter;
 
-        public StatsLogger(IQueryWindowControl view)
+        public QueryOuputLogger(IResultsPresenter presenter)
         {
-            _view = view;
+            _presenter = presenter;
         }
+
         public IDisposable BeginScope<TState>(TState state) => throw new NotImplementedException();
+
         public bool IsEnabled(LogLevel logLevel) => true;
+
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             if (exception != null)
@@ -29,7 +31,7 @@ namespace CosmosManager.Domain
                     errorMessage = exception != null ? exception.GetBaseException().Message : ""
                 };
 
-                _view.Stats =  JsonConvert.SerializeObject(logObject, Formatting.Indented);
+                _presenter.AddToQueryOutput(JsonConvert.SerializeObject(logObject, Formatting.Indented));
             }
             else
             {
@@ -41,11 +43,9 @@ namespace CosmosManager.Domain
                 {
                     var parts = stat.Value?.ToString().Split(new[] { ',' });
 
-                    _view.Stats += JsonConvert.SerializeObject(parts, Formatting.Indented) + Environment.NewLine;
+                    _presenter.AddToQueryOutput(JsonConvert.SerializeObject(parts, Formatting.Indented));
                 }
             }
-
-            _view.ToggleStatsPanel(false);
         }
     }
 }

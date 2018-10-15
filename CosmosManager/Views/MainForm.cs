@@ -1,13 +1,14 @@
-﻿using CosmosManager.Interfaces;
+﻿using CosmosManager.Domain;
+using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
 using System;
 using System.Drawing;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace CosmosManager
 {
-
     public partial class MainForm : Form, IMainForm
     {
         private TreeNode _contextSelectedNode;
@@ -18,11 +19,18 @@ namespace CosmosManager
         public MainForm()
         {
             InitializeComponent();
+
+
         }
 
         public void ClearFileTreeView()
         {
             fileTreeView.Nodes.Clear();
+        }
+
+        public void SetFileWatcherPath(string path)
+        {
+            fileSystemWatcher1.Path = path;
         }
 
         public void AddFileNode(TreeNode newNode)
@@ -34,7 +42,6 @@ namespace CosmosManager
         {
             foreach (TabPage tab in queryTabControl.TabPages)
             {
-
                 (tab.Tag as QueryWindowPresenter).SetConnections(Presenter.Connections);
             }
         }
@@ -59,7 +66,6 @@ namespace CosmosManager
         {
             var tabName = "New Query *";
             CreateTab(tabName, null, query);
-
         }
 
         public void SetTransactionCacheLabel(string text)
@@ -92,7 +98,6 @@ namespace CosmosManager
 
         private void fileTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-
             if (e.Node.Tag is FileInfo)
             {
                 var fi = (FileInfo)e.Node.Tag;
@@ -112,9 +117,8 @@ namespace CosmosManager
 
         private void queryTabControl_DrawItem(object sender, DrawItemEventArgs e)
         {
-            var tabPage = queryTabControl.TabPages[e.Index];
             var tabRect = queryTabControl.GetTabRect(e.Index);
-
+            var tabPage = queryTabControl.TabPages[e.Index];
             var presenter = tabPage.Tag as QueryWindowPresenter;
             var brushColor = Color.Transparent;
             if (presenter.SelectedConnection != null)
@@ -137,7 +141,6 @@ namespace CosmosManager
             e.Graphics.DrawImage(closeImage, (tabRect.Right - 10), tabRect.Top + (tabRect.Height - closeImage.Height) / 2, 10, 10);
 
             TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font, tabRect, Color.Black, TextFormatFlags.Left);
-
         }
 
         private void queryTabControl_MouseDown(object sender, MouseEventArgs e)
@@ -148,6 +151,7 @@ namespace CosmosManager
             if (closeButton.Contains(e.Location))
             {
                 queryTabControl.TabPages.Remove(queryTabControl.SelectedTab);
+                addQueryButton.Visible = queryTabControl.TabPages.Count > 0;
             }
         }
 
@@ -159,12 +163,6 @@ namespace CosmosManager
             {
                 Presenter.SetupConnections(openFileDialog1.FileName);
             }
-        }
-
-        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var helpForm = new HelpForm();
-            helpForm.Show();
         }
 
         private void createNewQueryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -264,6 +262,33 @@ namespace CosmosManager
             tab.Controls.Add(queryWindow);
             queryTabControl.TabPages.Add(tab);
             queryTabControl.SelectedTab = tab;
+            addQueryButton.Visible = true;
+        }
+
+        private void guideToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var helpForm = new HelpForm();
+            helpForm.Show();
+        }
+
+        private void reportABugToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(@"https://github.com/d1820/cosmos-query-manager/issues");
+        }
+
+        private void fileSystemWatcher1_Created(object sender, FileSystemEventArgs e)
+        {
+            Presenter.UpdateTransactionFolderSize();
+        }
+
+        private void fileSystemWatcher1_Deleted(object sender, FileSystemEventArgs e)
+        {
+            Presenter.UpdateTransactionFolderSize();
+        }
+
+        private void addQueryButton_Click(object sender, EventArgs e)
+        {
+            CreateTempQueryTab("");
         }
     }
 }

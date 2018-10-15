@@ -14,11 +14,11 @@ namespace CosmosManager
 
         private void createButton_Click(object sender, EventArgs e)
         {
-            if(textBoxFileName.Text.Length == 0)
+            if (textBoxFileName.Text.Length == 0)
             {
                 return;
             }
-            var nameParts = textBoxFileName.Text.Split(new [] { '.' });
+            var nameParts = textBoxFileName.Text.Split(new[] { '.' });
             FileName = nameParts[0];
             DialogResult = DialogResult.OK;
         }

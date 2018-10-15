@@ -1,10 +1,11 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-using CosmosManager.Exceptions;
+﻿using CosmosManager.Exceptions;
 using CosmosManager.Interfaces;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace CosmosManager.Stores
 {
@@ -12,11 +13,25 @@ namespace CosmosManager.Stores
     {
         private readonly IDocumentClient _client;
         private Database _cosmosDatabase;
-
+        private Dictionary<string, string> _partionKeys = new Dictionary<string, string>();
 
         public CosmosDocumentStore(IDocumentClient client)
         {
             _client = client;
+        }
+
+        public async Task<string> LookupPartitionKeyPath(string databaseName, string collectionName)
+        {
+            var lookupKey = $"{databaseName}_{collectionName}";
+            if (_partionKeys.ContainsKey(lookupKey))
+            {
+                return _partionKeys[lookupKey];
+            }
+            var collectionInfo = await _client.ReadDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), new Microsoft.Azure.Documents.Client.RequestOptions());
+            var jPath = string.Join(".", collectionInfo.Resource.PartitionKey.Paths);
+            var keyValue = jPath.Replace("/", "");
+            _partionKeys.Add(lookupKey, keyValue);
+            return keyValue;
         }
 
         public async Task<TResult> ExecuteAsync<TResult>(string databaseName, string collectionName, Func<IDocumentExecuteContext, Task<TResult>> action)
@@ -33,7 +48,6 @@ namespace CosmosManager.Stores
 
             await EnsureDataStoreCreated(databaseName, collectionName);
             return await action(new DocumentExecuteContext(databaseName, collectionName, _client));
-
         }
 
         public async Task<TResult> ExecuteAsync<TResult>(string databaseName, string collectionName, Func<IDocumentExecuteContext, TResult> action)
@@ -140,6 +154,5 @@ namespace CosmosManager.Stores
                 }
             }
         }
-
     }
 }

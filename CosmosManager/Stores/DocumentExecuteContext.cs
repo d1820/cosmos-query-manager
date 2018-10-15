@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using CosmosManager.Domain;
+﻿using CosmosManager.Domain;
 using CosmosManager.Exceptions;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace CosmosManager.Stores
 {
@@ -28,14 +28,14 @@ namespace CosmosManager.Stores
 
         public async Task<TResult> QueryById<TResult>(string id, Domain.RequestOptions options = null) where TResult : class
         {
-            if (_databaseName == null) throw new DataStoreException("Connect must be called to query CosmosDB");
+            if (_databaseName == null)
+                throw new DataStoreException("Connect must be called to query CosmosDB");
 
             try
             {
                 var response = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(_databaseName, _collectionName, id), options.ToRequestOptions());
-                //this will noop in the prod build
-                Debug.WriteLine($"RU Charge for {id}: {response.RequestCharge}");
-                if (response.StatusCode != HttpStatusCode.OK) { return null; }
+                if (response.StatusCode != HttpStatusCode.OK)
+                { return null; }
                 return (TResult)(dynamic)response.Resource;
             }
             catch (DocumentClientException e)
@@ -50,19 +50,22 @@ namespace CosmosManager.Stores
 
         public IQueryable<TResult> Query<TResult>(Domain.QueryOptions options = null) where TResult : class
         {
-            if (_databaseName == null) throw new DataStoreException("Connect must be called to query CosmosDB");
+            if (_databaseName == null)
+                throw new DataStoreException("Connect must be called to query CosmosDB");
 
             return _client.CreateDocumentQuery<TResult>(UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName), options.ToFeedOptions());
         }
 
-        public IQueryable<TResult> QueryAsSql<TResult>(string sqlStatement, IEnumerable<DocumentQueryParameter> sqlParameters,Domain. QueryOptions options = null) where TResult : class
+        public IQueryable<TResult> QueryAsSql<TResult>(string sqlStatement, IEnumerable<DocumentQueryParameter> sqlParameters, Domain.QueryOptions options = null) where TResult : class
         {
-            if (sqlParameters == null) throw new ArgumentNullException(nameof(sqlParameters));
+            if (sqlParameters == null)
+                throw new ArgumentNullException(nameof(sqlParameters));
             if (string.IsNullOrWhiteSpace(sqlStatement))
             {
                 throw new ArgumentException("sqlStatement required to QueryAsSql", nameof(sqlStatement));
             }
-            if (_databaseName == null) throw new DataStoreException("Connect must be called to query CosmosDB");
+            if (_databaseName == null)
+                throw new DataStoreException("Connect must be called to query CosmosDB");
             var sqlParameterCollection =
                 new SqlParameterCollection(sqlParameters.Select(s =>
                                                                 {
@@ -83,7 +86,8 @@ namespace CosmosManager.Stores
             {
                 throw new ArgumentException("sqlStatement required to QueryAsSql", nameof(sqlStatement));
             }
-            if (_databaseName == null) throw new DataStoreException("Connect must be called to query CosmosDB");
+            if (_databaseName == null)
+                throw new DataStoreException("Connect must be called to query CosmosDB");
             var querySpec = new SqlQuerySpec(sqlStatement);
             return _client.CreateDocumentQuery<TResult>(UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName), querySpec, queryOptions.ToFeedOptions());
         }
@@ -95,7 +99,8 @@ namespace CosmosManager.Stores
                 throw new ArgumentException("Missing document Id", nameof(id));
             }
 
-            if (_databaseName == null) throw new DataStoreException("Connect must be called to delete from CosmosDB");
+            if (_databaseName == null)
+                throw new DataStoreException("Connect must be called to delete from CosmosDB");
 
             try
             {
@@ -114,8 +119,10 @@ namespace CosmosManager.Stores
 
         public async Task<TEntity> CreateAsync<TEntity>(TEntity entity, Domain.RequestOptions options = null) where TEntity : class
         {
-            if (entity == null) throw new ArgumentNullException(nameof(entity));
-            if (_databaseName == null) throw new DataStoreException("Connect must be called to update CosmosDB");
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            if (_databaseName == null)
+                throw new DataStoreException("Connect must be called to update CosmosDB");
 
             try
             {
@@ -138,8 +145,10 @@ namespace CosmosManager.Stores
 
         public async Task<TEntity> UpdateAsync<TEntity>(TEntity entity, Domain.RequestOptions options = null) where TEntity : class
         {
-            if (entity == null) throw new ArgumentNullException(nameof(entity));
-            if (_databaseName == null) throw new DataStoreException("Connect must be called to update CosmosDB");
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            if (_databaseName == null)
+                throw new DataStoreException("Connect must be called to update CosmosDB");
 
             try
             {
@@ -159,5 +168,6 @@ namespace CosmosManager.Stores
                 throw;
             }
         }
+
     }
 }

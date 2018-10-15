@@ -73,6 +73,16 @@ namespace CosmosManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        public static System.Drawing.Bitmap add_16 {
+            get {
+                object obj = ResourceManager.GetObject("add_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         public static System.Drawing.Bitmap arrow_undo {
             get {
                 object obj = ResourceManager.GetObject("arrow_undo", resourceCulture);
@@ -136,6 +146,16 @@ namespace CosmosManager.Properties {
         public static System.Drawing.Bitmap move_waiting_down_alternative {
             get {
                 object obj = ResourceManager.GetObject("move_waiting_down_alternative", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap page_delete {
+            get {
+                object obj = ResourceManager.GetObject("page_delete", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
