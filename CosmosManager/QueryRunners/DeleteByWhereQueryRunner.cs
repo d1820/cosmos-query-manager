@@ -66,50 +66,47 @@ namespace CosmosManager.QueryRunners
                                                                      });
 
                 var fromObjects = JArray.FromObject(results);
-                var documents = new List<dynamic>();
                 if (queryParts.IsTransaction)
                 {
                     logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
                 }
-                foreach (JObject obj in fromObjects)
-                {
-                    if (obj["id"] != null)
-                    {
-                        var documentId = obj["id"].ToString();
-                        if (queryParts.IsTransaction)
-                        {
-                            var backupSuccess = await _transactionTask.Backup(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, obj);
-                            if (!backupSuccess)
-                            {
-                                logger.LogError($"Unable to backup document {documentId}. Skipping Delete.");
-                                continue;
-                            }
-                        }
-                        documents.Add(obj);
-                    }
-                }
-
-                //var ids = fromObjects.Where(w => w["id"] != null).Cast<string>();
-
-                //var ids = queryParts.QueryBody.Split(new[] { ',' });
-
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(connection.Database, queryParts.CollectionName);
 
                 var deleteCount = 0;
-                var actionTransactionCacheBlock = new ActionBlock<dynamic>(async document =>
+                var actionTransactionCacheBlock = new ActionBlock<JObject>(async document =>
                                                                        {
                                                                            await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                                                                         async (IDocumentExecuteContext context) =>
                                                                                         {
-                                                                                            var jobj = JObject.FromObject(document);
-                                                                                            var partionKeyValue = jobj.SelectToken(partitionKeyPath).ToString();
-                                                                                            //await context.DeleteAsync(document.id, new RequestOptions
-                                                                                            //{
-                                                                                            //    PartitionKey = partionKeyValue
-                                                                                            //});
-                                                                                            Interlocked.Increment(ref deleteCount);
-                                                                                            logger.LogInformation($"Deleted {document.id}");
+                                                                                            var documentId = document["id"].ToString();
 
+                                                                                             if (queryParts.IsTransaction)
+                                                                                                 {
+                                                                                                     var backupSuccess = await _transactionTask.Backup(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, document);
+
+                                                                                                     if (!backupSuccess)
+                                                                                                     {
+                                                                                                         logger.LogError($"Unable to backup document {documentId}. Skipping Delete.");
+                                                                                                         return false;
+                                                                                                     }
+                                                                                                 }
+
+
+                                                                                            var partionKeyValue = document.SelectToken(partitionKeyPath).ToString();
+                                                                                            var deleted = await context.DeleteAsync(documentId.CleanId(), new RequestOptions
+                                                                                            {
+                                                                                                PartitionKey = partionKeyValue
+                                                                                            });
+                                                                                            if (deleted)
+                                                                                            {
+                                                                                                Interlocked.Increment(ref deleteCount);
+                                                                                                logger.LogInformation($"Deleted {documentId}");
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                logger.LogInformation($"Document {documentId} unable to be deleted.");
+                                                                                            }
+                                                                                            return true;
                                                                                         });
                                                                        },
                                                                        new ExecutionDataflowBlockOptions
@@ -117,13 +114,14 @@ namespace CosmosManager.QueryRunners
                                                                            MaxDegreeOfParallelism = MAX_DEGREE_PARALLEL
                                                                        });
 
-                foreach (var doc in documents)
+                foreach (JObject doc in fromObjects)
                 {
                     actionTransactionCacheBlock.Post(doc);
                 }
                 actionTransactionCacheBlock.Complete();
                 await actionTransactionCacheBlock.Completion;
-                logger.LogInformation($"Deleted {deleteCount} out of {documents.Count}");
+                logger.LogInformation($"Deleted {deleteCount} out of {fromObjects.Count}");
+                logger.LogInformation($"To rollback execute: ROLLBACK {queryParts.TransactionId}");
                 _presenter.ShowOutputTab();
                 return true;
             }

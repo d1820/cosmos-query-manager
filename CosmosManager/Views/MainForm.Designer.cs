@@ -38,8 +38,11 @@
             this.openFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewTransactionCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadConnectionFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editConnectionFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.guideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportABugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,9 +58,9 @@
             this.contextTabs = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.duplicateTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
-            this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.editConnectionFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.addQueryButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -67,6 +70,7 @@
             this.contextMenuStrip1.SuspendLayout();
             this.contextTabs.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // openFileDialog1
@@ -104,7 +108,7 @@
             // openFolderToolStripMenuItem
             // 
             this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.openFolderToolStripMenuItem.Text = "Open Folder";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
             // 
@@ -126,6 +130,17 @@
             this.viewTransactionCacheToolStripMenuItem.Text = "View Transaction Cache";
             this.viewTransactionCacheToolStripMenuItem.Click += new System.EventHandler(this.viewTransactionCacheToolStripMenuItem_Click);
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(197, 6);
+            // 
+            // preferencesToolStripMenuItem
+            // 
+            this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
+            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.preferencesToolStripMenuItem.Text = "Preferences";
+            // 
             // connectToolStripMenuItem
             // 
             this.connectToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -143,6 +158,12 @@
             this.loadConnectionFileToolStripMenuItem.Text = "Load Connection File";
             this.loadConnectionFileToolStripMenuItem.Click += new System.EventHandler(this.loadConnectionFileToolStripMenuItem_Click);
             // 
+            // editConnectionFileToolStripMenuItem
+            // 
+            this.editConnectionFileToolStripMenuItem.Name = "editConnectionFileToolStripMenuItem";
+            this.editConnectionFileToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.editConnectionFileToolStripMenuItem.Text = "Edit Connection File";
+            // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -156,14 +177,14 @@
             // guideToolStripMenuItem
             // 
             this.guideToolStripMenuItem.Name = "guideToolStripMenuItem";
-            this.guideToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.guideToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.guideToolStripMenuItem.Text = "Guide";
             this.guideToolStripMenuItem.Click += new System.EventHandler(this.guideToolStripMenuItem_Click);
             // 
             // reportABugToolStripMenuItem
             // 
             this.reportABugToolStripMenuItem.Name = "reportABugToolStripMenuItem";
-            this.reportABugToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.reportABugToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.reportABugToolStripMenuItem.Text = "Report A Bug";
             this.reportABugToolStripMenuItem.Click += new System.EventHandler(this.reportABugToolStripMenuItem_Click);
             // 
@@ -209,6 +230,7 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.panel1);
             this.splitContainer1.Panel2.Controls.Add(this.queryTabControl);
             this.splitContainer1.Size = new System.Drawing.Size(1229, 578);
             this.splitContainer1.SplitterDistance = 175;
@@ -285,22 +307,29 @@
             this.fileSystemWatcher1.Created += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Created);
             this.fileSystemWatcher1.Deleted += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Deleted);
             // 
-            // preferencesToolStripMenuItem
+            // panel1
             // 
-            this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-            this.preferencesToolStripMenuItem.Text = "Preferences";
+            this.panel1.Controls.Add(this.addQueryButton);
+            this.panel1.Location = new System.Drawing.Point(1022, 2);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(27, 17);
+            this.panel1.TabIndex = 2;
             // 
-            // toolStripSeparator1
+            // addQueryButton
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(197, 6);
-            // 
-            // editConnectionFileToolStripMenuItem
-            // 
-            this.editConnectionFileToolStripMenuItem.Name = "editConnectionFileToolStripMenuItem";
-            this.editConnectionFileToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
-            this.editConnectionFileToolStripMenuItem.Text = "Edit Connection File";
+            this.addQueryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.addQueryButton.FlatAppearance.BorderSize = 0;
+            this.addQueryButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.addQueryButton.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.addQueryButton.Image = global::CosmosManager.Properties.Resources.add_16;
+            this.addQueryButton.Location = new System.Drawing.Point(9, 0);
+            this.addQueryButton.Name = "addQueryButton";
+            this.addQueryButton.Size = new System.Drawing.Size(16, 16);
+            this.addQueryButton.TabIndex = 1;
+            this.toolTip1.SetToolTip(this.addQueryButton, "Add Empty Query");
+            this.addQueryButton.UseVisualStyleBackColor = true;
+            this.addQueryButton.Visible = false;
+            this.addQueryButton.Click += new System.EventHandler(this.addQueryButton_Click);
             // 
             // MainForm
             // 
@@ -327,6 +356,7 @@
             this.contextMenuStrip1.ResumeLayout(false);
             this.contextTabs.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -362,6 +392,9 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editConnectionFileToolStripMenuItem;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button addQueryButton;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
 

@@ -39,8 +39,8 @@ namespace CosmosManager.Presenters
             _queryParser = new QueryStatementParser();
             _queryRunners.Add(new SelectQueryRunner(this));
             _queryRunners.Add(new DeleteByIdQueryRunner(this, transactionTask));
-            //_queryRunners.Add(new DeleteByWhereQueryRunner(this));
-            _queryRunners.Add(new RollbackQueryRunner(this));
+            _queryRunners.Add(new DeleteByWhereQueryRunner(this, transactionTask));
+            _queryRunners.Add(new RollbackQueryRunner(this, transactionTask));
 
             TabIndexReference = tabIndexReference;
         }
@@ -140,6 +140,7 @@ namespace CosmosManager.Presenters
             {
                 var result = await documentStore.ExecuteAsync(SelectedConnection.Database, parts.CollectionName, context => context.UpdateAsync(document));
                 _view.SetStatusBarMessage("Document Saved");
+                _view.SetUpdatedResultDocument(result);
                 return result;
             }
             catch (Exception ex)

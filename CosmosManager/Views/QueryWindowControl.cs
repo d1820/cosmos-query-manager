@@ -112,6 +112,12 @@ namespace CosmosManager
             MainPresenter.SetStatusBarMessage(message);
         }
 
+        public void SetUpdatedResultDocument(object document)
+        {
+            var selectedItem = resultListView.SelectedItems[0];
+            selectedItem.Tag = JObject.FromObject(document);
+        }
+
         public async void RenderResults(IReadOnlyCollection<object> results)
         {
             resultListView.Items.Clear();

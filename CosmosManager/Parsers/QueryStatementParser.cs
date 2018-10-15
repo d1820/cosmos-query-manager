@@ -13,15 +13,18 @@ namespace CosmosManager.Parsers
             _orginalQuery = query;
             var cleanQuery = CleanQuery(query);
             //if a raw query then parse that
-            IQueryParser parser;
-            if (!IsRazorQuery(cleanQuery))
-            {
-                parser = new StringQueryParser();
-            }
-            else
-            {
-                parser = new RazorQueryParser();
-            }
+
+            //TODO: REMOVE
+            //IQueryParser parser;
+            //if (!IsRazorQuery(cleanQuery))
+            //{
+            //    parser = new StringQueryParser();
+            //}
+            //else
+            //{
+            //    parser = new RazorQueryParser();
+            //}
+            var parser = new StringQueryParser();
 
             var typeAndBody = parser.ParseQueryBody(cleanQuery);
             return new QueryParts

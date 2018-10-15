@@ -1,4 +1,5 @@
 ﻿using CosmosManager.Presenters;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -28,5 +29,7 @@ namespace CosmosManager.Interfaces
         void AppendToQueryOutput(string message);
 
         void ResetQueryOutput();
+
+         void SetUpdatedResultDocument(object document);
     }
 }

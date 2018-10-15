@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -18,11 +19,13 @@ namespace CosmosManager.QueryRunners
         private int MAX_DEGREE_PARALLEL = 5;
         private QueryStatementParser _queryParser;
         private readonly IResultsPresenter _presenter;
+        private readonly ITransactionTask _transactionTask;
 
-        public RollbackQueryRunner(IResultsPresenter presenter)
+        public RollbackQueryRunner(IResultsPresenter presenter, ITransactionTask transactionTask)
         {
             _presenter = presenter;
             _queryParser = new QueryStatementParser();
+            _transactionTask = transactionTask;
         }
 
         public bool CanRun(string query)
@@ -41,20 +44,23 @@ namespace CosmosManager.QueryRunners
                 {
                     return false;
                 }
+                var collectionName = queryParts.RollbackName.Split(new[] { '_' })[0];
+
                 //get each file from rollback folder if exists
+                var files = _transactionTask.GetRollbackFiles(connection.Name, connection.Database, collectionName, queryParts.RollbackName);
 
-                //load each one as JObject and do an Upset back to cosmos
-               
 
-                var actionTransactionCacheBlock = new ActionBlock<string>(async documentId =>
+                var updateCount = 0;
+                var rollbackBlock = new ActionBlock<JObject>(async document =>
                                                                        {
                                                                            //this handles transaction saving for recovery
-                                                                           await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
+                                                                           await documentStore.ExecuteAsync(connection.Database, collectionName,
                                                                                          async (IDocumentExecuteContext context) =>
                                                                                          {
-
-                                                                                           
-
+                                                                                             var result = await context.UpdateAsync(document);
+                                                                                             Interlocked.Increment(ref updateCount);
+                                                                                             logger.LogInformation($"Restored {document["id"]}");
+                                                                                             return result;
                                                                                          });
                                                                        },
                                                                        new ExecutionDataflowBlockOptions
@@ -62,12 +68,14 @@ namespace CosmosManager.QueryRunners
                                                                            MaxDegreeOfParallelism = MAX_DEGREE_PARALLEL
                                                                        });
 
-                //foreach (var id in ids)
-                //{
-                //    actionTransactionCacheBlock.Post(id);
-                //}
-                //actionTransactionCacheBlock.Complete();
-                //await actionTransactionCacheBlock.Completion;
+                foreach (var file in files)
+                {
+                    var jobj = JObject.Parse(File.ReadAllText(file.FullName));
+                    rollbackBlock.Post(jobj);
+                }
+                rollbackBlock.Complete();
+                await rollbackBlock.Completion;
+                logger.LogInformation($"Rolled back {updateCount} out of {files.Length}");
                 _presenter.ShowOutputTab();
                 return true;
             }

@@ -71,6 +71,7 @@
     <Compile Include="Domain\AppReferences.cs" />
     <Compile Include="Interfaces\IQueryParser.cs" />
     <Compile Include="Parsers\RazorQueryParser.cs" />
+    <Compile Include="Parsers\StringQueryParser.cs" />
     <Compile Include="Presenters\MainFormPresenter.cs" />
     <Compile Include="Presenters\QueryWindowPresenter.cs" />
     <Compile Include="Interfaces\IQueryRunner.cs" />
@@ -158,6 +159,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="documentdb_54645_jq4_icon.ico" />
+    <None Include="Resources\add_16.png" />
+    <None Include="Resources\script_add.png" />
     <None Include="Resources\page_delete.gif" />
     <None Include="Resources\gbl_Save.gif" />
     <None Include="Resources\move_waiting_down_alternative.png" />

@@ -4,6 +4,7 @@ using CosmosManager.Presenters;
 using System;
 using System.Drawing;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace CosmosManager
@@ -116,9 +117,8 @@ namespace CosmosManager
 
         private void queryTabControl_DrawItem(object sender, DrawItemEventArgs e)
         {
-            var tabPage = queryTabControl.TabPages[e.Index];
             var tabRect = queryTabControl.GetTabRect(e.Index);
-
+            var tabPage = queryTabControl.TabPages[e.Index];
             var presenter = tabPage.Tag as QueryWindowPresenter;
             var brushColor = Color.Transparent;
             if (presenter.SelectedConnection != null)
@@ -151,6 +151,7 @@ namespace CosmosManager
             if (closeButton.Contains(e.Location))
             {
                 queryTabControl.TabPages.Remove(queryTabControl.SelectedTab);
+                addQueryButton.Visible = queryTabControl.TabPages.Count > 0;
             }
         }
 
@@ -261,6 +262,7 @@ namespace CosmosManager
             tab.Controls.Add(queryWindow);
             queryTabControl.TabPages.Add(tab);
             queryTabControl.SelectedTab = tab;
+            addQueryButton.Visible = true;
         }
 
         private void guideToolStripMenuItem_Click(object sender, EventArgs e)
@@ -281,8 +283,12 @@ namespace CosmosManager
 
         private void fileSystemWatcher1_Deleted(object sender, FileSystemEventArgs e)
         {
-             Presenter.UpdateTransactionFolderSize();
+            Presenter.UpdateTransactionFolderSize();
         }
 
+        private void addQueryButton_Click(object sender, EventArgs e)
+        {
+            CreateTempQueryTab("");
+        }
     }
 }

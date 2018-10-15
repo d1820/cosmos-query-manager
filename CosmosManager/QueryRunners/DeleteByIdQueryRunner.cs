@@ -82,20 +82,29 @@ namespace CosmosManager.QueryRunners
                                                                                                      if (!backupSuccess)
                                                                                                      {
                                                                                                          logger.LogError($"Unable to backup document {documentId}. Skipping Delete.");
-                                                                                                         return;
+                                                                                                         return false;
                                                                                                      }
                                                                                                  }
-                                                                                                 //await context.DeleteAsync(documentId, new RequestOptions
-                                                                                                 //{
-                                                                                                 //    PartitionKey = partionKeyValue
-                                                                                                 //});
-                                                                                                 Interlocked.Increment(ref deleteCount);
-                                                                                                 logger.LogInformation($"Deleted {documentId}");
+                                                                                                 var deleted = await context.DeleteAsync(documentId.CleanId(), new RequestOptions
+                                                                                                 {
+                                                                                                     PartitionKey = partionKeyValue
+                                                                                                 });
+                                                                                                 if (deleted)
+                                                                                                 {
+                                                                                                     Interlocked.Increment(ref deleteCount);
+                                                                                                     logger.LogInformation($"Deleted {documentId}");
+                                                                                                 }
+                                                                                                 else
+                                                                                                 {
+                                                                                                     logger.LogInformation($"Document {documentId} unable to be deleted.");
+                                                                                                 }
+
                                                                                              }
                                                                                              else
                                                                                              {
                                                                                                  logger.LogInformation($"Document {documentId} not found. Skipping");
                                                                                              }
+                                                                                             return true;
                                                                                          });
                                                                        },
                                                                        new ExecutionDataflowBlockOptions
@@ -109,7 +118,8 @@ namespace CosmosManager.QueryRunners
                 }
                 actionTransactionCacheBlock.Complete();
                 await actionTransactionCacheBlock.Completion;
-                logger.LogInformation($"Deleted {deleteCount} out of {ids.Count()}");
+                logger.LogInformation($"Deleted {deleteCount} out of {ids.Length}");
+                logger.LogInformation($"To rollback execute: ROLLBACK {queryParts.TransactionId}");
                 _presenter.ShowOutputTab();
                 return true;
             }
