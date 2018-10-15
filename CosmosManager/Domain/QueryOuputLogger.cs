@@ -31,7 +31,7 @@ namespace CosmosManager.Domain
                     errorMessage = exception != null ? exception.GetBaseException().Message : ""
                 };
 
-                _presenter.AddToStatsLog(JsonConvert.SerializeObject(logObject, Formatting.Indented));
+                _presenter.AddToQueryOutput(JsonConvert.SerializeObject(logObject, Formatting.Indented));
             }
             else
             {
@@ -43,7 +43,7 @@ namespace CosmosManager.Domain
                 {
                     var parts = stat.Value?.ToString().Split(new[] { ',' });
 
-                    _presenter.AddToStatsLog(JsonConvert.SerializeObject(parts, Formatting.Indented));
+                    _presenter.AddToQueryOutput(JsonConvert.SerializeObject(parts, Formatting.Indented));
                 }
             }
         }

@@ -8,7 +8,7 @@ namespace CosmosManager.Interfaces
 
         void ResetQueryOutput();
 
-        void AddToStatsLog(string message);
+        void AddToQueryOutput(string message);
 
         void ShowOutputTab();
     }

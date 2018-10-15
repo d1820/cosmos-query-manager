@@ -71,7 +71,7 @@ namespace CosmosManager.Presenters
             _view.ResetQueryOutput();
         }
 
-        public void AddToStatsLog(string message)
+        public void AddToQueryOutput(string message)
         {
             _view.AppendToQueryOutput(message + Environment.NewLine);
         }
