@@ -13,5 +13,7 @@
         string ParseRollback(string query);
 
         string ParseTransaction(string query);
+
+        string ParseIntoBody(string query);
     }
 }

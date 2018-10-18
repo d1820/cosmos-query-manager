@@ -35,7 +35,8 @@ namespace CosmosManager.Parsers
                 QueryUpdateBody = parser.ParseUpdateBody(cleanQuery).Trim(),
                 QueryWhere = parser.ParseWhere(cleanQuery).Trim(),
                 RollbackName = parser.ParseRollback(cleanQuery).Trim(),
-                TransactionId = parser.ParseTransaction(cleanQuery).Trim()
+                TransactionId = parser.ParseTransaction(cleanQuery).Trim(),
+                QueryInto = parser.ParseIntoBody(cleanQuery).Trim()
             };
         }
 
@@ -51,6 +52,8 @@ namespace CosmosManager.Parsers
             cleanString = Regex.Replace(cleanString, "(astransaction)", Constants.QueryKeywords.TRANSACTION, RegexOptions.IgnoreCase);
             cleanString = Regex.Replace(cleanString, "(where)", Constants.QueryKeywords.WHERE, RegexOptions.IgnoreCase);
             cleanString = Regex.Replace(cleanString, "(update)", Constants.QueryKeywords.UPDATE, RegexOptions.IgnoreCase);
+            cleanString = Regex.Replace(cleanString, "(insert)", Constants.QueryKeywords.INSERT, RegexOptions.IgnoreCase);
+            cleanString = Regex.Replace(cleanString, "(into)", Constants.QueryKeywords.INTO, RegexOptions.IgnoreCase);
 
             return cleanString;
         }

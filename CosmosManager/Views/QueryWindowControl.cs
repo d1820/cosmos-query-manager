@@ -107,7 +107,7 @@ namespace CosmosManager
             return MessageBox.Show(message, title, buttons, icon);
         }
 
-        public void SetStatusBarMessage(string message)
+        public void SetStatusBarMessage(string message, bool ignoreClearTimer = false)
         {
             MainPresenter.SetStatusBarMessage(message);
         }

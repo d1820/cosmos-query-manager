@@ -115,10 +115,13 @@ namespace CosmosManager.Presenters
         }
 
 
-        public void SetStatusBarMessage(string message)
+        public void SetStatusBarMessage(string message, bool ignoreClearTimer = false)
         {
             _view.SetStatusBarMessage(message);
-            statusTimer.Start();
+            if (!ignoreClearTimer)
+            {
+                statusTimer.Start();
+            }
         }
 
 

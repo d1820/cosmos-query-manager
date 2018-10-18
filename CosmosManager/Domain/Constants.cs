@@ -18,6 +18,8 @@ namespace CosmosManager.Domain
             public const string WHERE = "WHERE";
             public const string SET = "SET";
             public const string ROLLBACK = "ROLLBACK";
+            public const string INSERT = "INSERT";
+            public const string INTO = "INTO";
         }
     }
 }

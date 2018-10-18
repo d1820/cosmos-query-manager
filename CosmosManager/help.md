@@ -40,8 +40,8 @@ Market_20181014_060441_02632bc6-17c3-4bd8-a97b-268b2d4dac55
 ```
 
 ### DELETES
-Deletes can be done in 2 way: 
-* By providing a list of documentIds that need to be deleted for a given collection. 
+Deletes can be done in 2 way:
+* By providing a list of documentIds that need to be deleted for a given collection.
 * By deleting all that fulfill a WHERE clause statement
 
 Deletes do not use transactions by default and the proper SQL transaction syntax must be used to invoke a transaction.
@@ -69,6 +69,47 @@ If transactions are used on a query the output will return the TransactionId and
 #### SQL/Cosmos syntax
 ```
 ROLLBACK Market_20181014_060441_02632bc6-17c3-4bd8-a97b-268b2d4dac55
+```
+
+
+### INSERTS
+Two types of inserts can be preformed. Single record or and array of records. All insert data must be valid JSON and be able to properly be parsed.
+
+#### SQL/Cosmos syntax
+#### Single Document
+```
+INSERT
+{
+    "id": "one",
+    "PartitionKey": "TestKey",
+    "LastModifiedOn": "0001-01-01T00:00:00-07:00",
+    "LastModifiedBy": null,
+    "CreatedOn": "2018-02-28T16:35:11.1404236-07:00",
+    "CreatedBy": null
+}
+INTO Market
+```
+
+#### Multiple Documents
+```
+INSERT
+[{
+    "id": "one",
+    "PartitionKey": "TestKey",
+    "LastModifiedOn": "0001-01-01T00:00:00-07:00",
+    "LastModifiedBy": null,
+    "CreatedOn": "2018-02-28T16:35:11.1404236-07:00",
+    "CreatedBy": null
+},
+{
+    "id": "two",
+    "PartitionKey": "TestKey",
+    "LastModifiedOn": "0001-01-01T00:00:00-07:00",
+    "LastModifiedBy": null,
+    "CreatedOn": "2018-02-28T16:35:11.1404236-07:00",
+    "CreatedBy": null
+}]
+INTO Market
 ```
 
 ## Supported Applications

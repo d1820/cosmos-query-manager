@@ -20,7 +20,7 @@ namespace CosmosManager.Interfaces
 
         void RenderResults(IReadOnlyCollection<object> results);
 
-        void SetStatusBarMessage(string message);
+        void SetStatusBarMessage(string message, bool ignoreClearTimer = false);
 
         void ResetResultsView();
 

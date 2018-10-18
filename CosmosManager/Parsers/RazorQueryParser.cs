@@ -114,5 +114,7 @@ namespace CosmosManager.Parsers
             }
             return $"{DateTime.Now.ToString("yyyyMMdd")}_{Guid.NewGuid()}";
         }
+
+        public string ParseIntoBody(string query) => throw new NotImplementedException();
     }
 }

@@ -7,6 +7,8 @@ namespace CosmosManager.Domain
         public string QueryType { get; set; }
         public string QueryBody { get; set; }
         public string QueryFrom { get; set; }
+        public string QueryInto { get; set; }
+
         public string QueryUpdateBody { get; set; }
         public string QueryWhere { get; set; }
 
@@ -40,9 +42,18 @@ namespace CosmosManager.Domain
         {
             get
             {
-                if (QueryFrom != null && !string.IsNullOrWhiteSpace(QueryFrom))
+                if (!string.IsNullOrWhiteSpace(QueryFrom))
                 {
                     var colName = QueryFrom.Split(new[] { ' ' }).LastOrDefault();
+                    if (!string.IsNullOrEmpty(colName))
+                    {
+                        return colName;
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(QueryInto))
+                {
+                    var colName = QueryInto.Split(new[] { ' ' }).LastOrDefault();
                     if (!string.IsNullOrEmpty(colName))
                     {
                         return colName;
@@ -57,6 +68,13 @@ namespace CosmosManager.Domain
             return !string.IsNullOrEmpty(QueryType) &&
                 !string.IsNullOrEmpty(QueryBody) &&
                 !string.IsNullOrEmpty(QueryFrom);
+        }
+
+        public bool IsValidInsertQuery()
+        {
+            return !string.IsNullOrEmpty(QueryType) &&
+                !string.IsNullOrEmpty(QueryBody) &&
+                !string.IsNullOrEmpty(QueryInto);
         }
 
         public string ToRawQuery()

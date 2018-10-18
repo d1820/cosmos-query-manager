@@ -41,6 +41,7 @@ namespace CosmosManager.Presenters
             _queryRunners.Add(new DeleteByIdQueryRunner(this, transactionTask));
             _queryRunners.Add(new DeleteByWhereQueryRunner(this, transactionTask));
             _queryRunners.Add(new RollbackQueryRunner(this, transactionTask));
+            _queryRunners.Add(new InsertQueryRunner(this));
 
             TabIndexReference = tabIndexReference;
         }
@@ -97,7 +98,7 @@ namespace CosmosManager.Presenters
             //execute th interpretor and run against cosmos and connection
             if (SelectedConnection is Connection && SelectedConnection != null)
             {
-                _view.SetStatusBarMessage("Executing Query...");
+                _view.SetStatusBarMessage("Executing Query...", true);
 
                 var documentStore = CreateDocumentClientAndStore();
 
@@ -115,13 +116,15 @@ namespace CosmosManager.Presenters
                     if (!didRun)
                     {
                         _view.ShowMessage("Unable to execute query. Verify query and try again.", "Query Execution Error");
+                        ShowOutputTab();
                     }
                 }
                 else
                 {
                     _logger.LogError("Unable to find a query processor for query type");
+                    ShowOutputTab();
                 }
-                _view.SetStatusBarMessage("");
+                _view.SetStatusBarMessage("", false);
             }
             else
             {

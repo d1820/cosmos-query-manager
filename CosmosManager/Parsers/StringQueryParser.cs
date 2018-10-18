@@ -9,9 +9,24 @@ namespace CosmosManager.Parsers
     {
         public (string queryType, string queryBody) ParseQueryBody(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE})[\s\S]*(.*?)(?={Constants.QueryKeywords.FROM})");
 
-            var matches = rgx.Matches(query);
+            var rgxInsert = new Regex($@"({Constants.QueryKeywords.INSERT})[\s\S]*(.*?)(?={Constants.QueryKeywords.INTO})");
+            var matches = rgxInsert.Matches(query);
+            Regex queryTypeRgx;
+            if (matches.Count == 1)
+            {
+                queryTypeRgx = new Regex($"({Constants.QueryKeywords.INSERT})(.*?)");
+                var insertBodyMatches = queryTypeRgx.Matches(matches[0].Value);
+                if (insertBodyMatches.Count == 0)
+                {
+                    return (string.Empty, string.Empty);
+                }
+                return (insertBodyMatches[0].Value, matches[0].Value.Replace(Constants.QueryKeywords.INSERT, "").Trim());
+            }
+
+
+            var rgx = new Regex($@"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE})[\s\S]*(.*?)(?={Constants.QueryKeywords.FROM})");
+            matches = rgx.Matches(query);
             if (matches.Count == 0)
             {
                 return (string.Empty, string.Empty);
@@ -20,15 +35,32 @@ namespace CosmosManager.Parsers
             {
                 throw new FormatException($"Invalid query. Only {Constants.QueryKeywords.SELECT} or {Constants.QueryKeywords.DELETE} statement syntax supported.");
             }
-            var queryTypeRx = new Regex($"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE})(.*?)");
+            queryTypeRgx = new Regex($"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE})(.*?)");
 
-            var queryTypeMatches = queryTypeRx.Matches(matches[0].Value);
+            var queryTypeMatches = queryTypeRgx.Matches(matches[0].Value);
             if (queryTypeMatches.Count == 0)
             {
                 return (string.Empty, string.Empty);
             }
 
             return (queryTypeMatches[0].Value, matches[0].Value.Replace(Constants.QueryKeywords.SELECT, "").Replace(Constants.QueryKeywords.DELETE, "").Trim());
+        }
+
+        public string ParseIntoBody(string query)
+        {
+            var rgx = new Regex($@"({Constants.QueryKeywords.INTO})[\s\S]*(.*?)");
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 0)
+            {
+                return string.Empty;
+            }
+            if (matches.Count > 1)
+            {
+                throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.INTO} statement is not formated correct.");
+            }
+
+            return matches[0].Value;
         }
 
         public string ParseFromBody(string query)
@@ -97,7 +129,7 @@ namespace CosmosManager.Parsers
 
         public string ParseTransaction(string query)
         {
-            var fromBody = ParseFromBody(query).Replace(Constants.QueryKeywords.FROM,"").Trim();
+            var fromBody = ParseFromBody(query).Replace(Constants.QueryKeywords.FROM, "").Trim();
             var rgx = new Regex($@"({Constants.QueryKeywords.TRANSACTION})[\s\S]*(.*?)");
 
             var matches = rgx.Matches(query);
