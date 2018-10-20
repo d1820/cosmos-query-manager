@@ -60,26 +60,36 @@ namespace CosmosManager.Parsers
 
         public string ParseFromBody(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?=({Constants.QueryKeywords.WHERE}|{Constants.QueryKeywords.REPLACE}|{Constants.QueryKeywords.SET}))");
+            //|{Constants.QueryKeywords.REPLACE}|{Constants.QueryKeywords.SET}
+            var rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.WHERE})");
 
             var matches = rgx.Matches(query);
-            if (matches.Count == 0)
+            if (matches.Count == 1)
             {
-                //lets check if its only a FROM and then end
-                rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)");
+                return matches[0].Value;
+            }
 
-                matches = rgx.Matches(query);
-                if (matches.Count == 0)
-                {
-                    return string.Empty;
-                }
+            //its not a WHERE check then look for only SET/REPLACE
+            rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.REPLACE}|{Constants.QueryKeywords.SET})");
+            matches = rgx.Matches(query);
+            if (matches.Count == 1)
+            {
+                return matches[0].Value;
+            }
+            //lets check if its only a FROM and then end
+            rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s]*(.*?)");
+
+            matches = rgx.Matches(query);
+            if (matches.Count == 1)
+            {
+                return matches[0].Value;
             }
             if (matches.Count > 1)
             {
                 throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.FROM} statement is not formatted correct.");
             }
 
-            return matches[0].Value;
+            return string.Empty;
         }
 
         public (string updateType, string updateBody) ParseUpdateBody(string query)
@@ -88,22 +98,26 @@ namespace CosmosManager.Parsers
             var rgx = new Regex($@"({Constants.QueryKeywords.SET})[\s\S]*(.*?)");
 
             var matches = rgx.Matches(query);
-            if (matches.Count == 0)
+            if (matches.Count == 1)
             {
-                rgx = new Regex($@"({Constants.QueryKeywords.REPLACE})[\s\S]*(.*?)");
-                matches = rgx.Matches(query);
-                if (matches.Count == 0)
-                {
-                    return (string.Empty, string.Empty);
-                }
-                updateType = Constants.QueryKeywords.REPLACE;
+                return (updateType, matches[0].Value.Replace(Constants.QueryKeywords.SET, ""));
             }
+
+            rgx = new Regex($@"({Constants.QueryKeywords.REPLACE})[\s\S]*(.*?)");
+            matches = rgx.Matches(query);
+
+            if (matches.Count == 1)
+            {
+                return (updateType, matches[0].Value.Replace(Constants.QueryKeywords.REPLACE, ""));
+            }
+
+            updateType = Constants.QueryKeywords.REPLACE;
             if (matches.Count > 1)
             {
                 throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.SET}/{Constants.QueryKeywords.REPLACE} statement is not formatted correct.");
             }
 
-            return (updateType, matches[0].Value.Replace(Constants.QueryKeywords.SET, "").Replace(Constants.QueryKeywords.REPLACE, ""));
+            return (string.Empty, string.Empty);
         }
 
         public string ParseWhere(string query)
@@ -111,22 +125,25 @@ namespace CosmosManager.Parsers
             var rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)(?={Constants.QueryKeywords.SET})");
 
             var matches = rgx.Matches(query);
-            if (matches.Count == 0)
+            if (matches.Count == 1)
             {
-                //lets check if its only a FROM and then end
-                rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)");
-                matches = rgx.Matches(query);
+                return matches[0].Value;
             }
-            if (matches.Count == 0)
+
+            //lets check if its only a FROM and then end
+            rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)");
+            matches = rgx.Matches(query);
+            if (matches.Count == 1)
             {
-                return string.Empty;
+                return matches[0].Value;
             }
+
             if (matches.Count > 1)
             {
                 throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.WHERE} statement is not formatted correct.");
             }
 
-            return matches[0].Value;
+            return string.Empty;
         }
 
         public string ParseRollback(string query)

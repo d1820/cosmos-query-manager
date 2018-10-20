@@ -31,7 +31,10 @@ namespace CosmosManager.QueryRunners
         public bool CanRun(string query)
         {
             var queryParts = _queryParser.Parse(query);
-            return queryParts.QueryType.Equals(Constants.QueryKeywords.UPDATE, StringComparison.InvariantCultureIgnoreCase) && !queryParts.QueryUpdateBody.Equals("*");
+            return queryParts.QueryType.Equals(Constants.QueryKeywords.UPDATE, StringComparison.InvariantCultureIgnoreCase)
+                && !queryParts.QueryBody.Equals("*")
+                && !string.IsNullOrEmpty(queryParts.QueryUpdateBody)
+                && !string.IsNullOrEmpty(queryParts.QueryUpdateType);
         }
 
         public async Task<bool> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
@@ -43,6 +46,7 @@ namespace CosmosManager.QueryRunners
 
                 if (!queryParts.IsValidQuery())
                 {
+                    logger.LogError("Invalid Query. Aborting Update.");
                     return false;
                 }
 
@@ -128,13 +132,14 @@ namespace CosmosManager.QueryRunners
                                                                                              var partialDoc = JObject.Parse(queryParts.QueryUpdateBody);
                                                                                              //ensure the partial update is not trying to update id or the partition key
                                                                                              var pToken = partialDoc.SelectToken(partitionKeyPath);
-                                                                                             var idToken = partialDoc.SelectToken("id");
-                                                                                             if(pToken != null || idToken != null)
+                                                                                             var idToken = partialDoc.SelectToken(Constants.DocumentFields.ID);
+                                                                                             if (pToken != null || idToken != null)
                                                                                              {
                                                                                                  logger.LogError($"Updates are not allowed on ids or existing partition keys of a document. Skipping updated for document {documentId}.");
                                                                                                  return false;
                                                                                              }
-                                                                                             jDoc.Merge(partialDoc, new JsonMergeSettings{
+                                                                                             jDoc.Merge(partialDoc, new JsonMergeSettings
+                                                                                             {
                                                                                                  MergeArrayHandling = MergeArrayHandling.Merge,
                                                                                                  MergeNullValueHandling = MergeNullValueHandling.Merge
                                                                                              });

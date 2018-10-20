@@ -89,5 +89,17 @@ namespace CosmosManager.Domain
 
             return baseString;
         }
+
+         public string ToRawSelectQuery()
+        {
+            //order of the parts matters for consistency
+            var baseString = $"{Constants.QueryKeywords.SELECT} {QueryBody} {QueryFrom}";
+            if (!string.IsNullOrEmpty(QueryWhere))
+            {
+                baseString += $" {QueryWhere}";
+            }
+
+            return baseString;
+        }
     }
 }

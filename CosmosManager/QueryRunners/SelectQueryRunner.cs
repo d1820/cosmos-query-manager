@@ -33,6 +33,7 @@ namespace CosmosManager.QueryRunners
                 var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsValidQuery())
                 {
+                    logger.LogError("Invalid Query. Aborting Select.");
                     return false;
                 }
                 var results = await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,

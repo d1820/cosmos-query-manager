@@ -11,14 +11,14 @@ using System.Threading.Tasks.Dataflow;
 
 namespace CosmosManager.QueryRunners
 {
-    public class DeleteByWhereQueryRunner : IQueryRunner
+    public class UpdateByWhereQueryRunner : IQueryRunner
     {
         private int MAX_DEGREE_PARALLEL = 5;
         private QueryStatementParser _queryParser;
         private readonly IResultsPresenter _presenter;
         private readonly ITransactionTask _transactionTask;
 
-        public DeleteByWhereQueryRunner(IResultsPresenter presenter, ITransactionTask transactionTask)
+        public UpdateByWhereQueryRunner(IResultsPresenter presenter, ITransactionTask transactionTask)
         {
             _presenter = presenter;
             _queryParser = new QueryStatementParser();
@@ -27,10 +27,12 @@ namespace CosmosManager.QueryRunners
 
         public bool CanRun(string query)
         {
-            //this should only work on queries like:  DELETE * FROM Collection WHERE Collection.PartitionKey = 'test'
             var queryParts = _queryParser.Parse(query);
-            return queryParts.QueryType.Equals(Constants.QueryKeywords.DELETE, StringComparison.InvariantCultureIgnoreCase)
-                && queryParts.QueryBody.Equals("*") && !string.IsNullOrEmpty(queryParts.QueryWhere);
+            return queryParts.QueryType.Equals(Constants.QueryKeywords.UPDATE, StringComparison.InvariantCultureIgnoreCase)
+                && queryParts.QueryBody.Equals("*")
+                && !string.IsNullOrEmpty(queryParts.QueryUpdateType)
+                && !string.IsNullOrEmpty(queryParts.QueryUpdateBody)
+                && !string.IsNullOrEmpty(queryParts.QueryWhere);
         }
 
         public async Task<bool> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
@@ -41,10 +43,16 @@ namespace CosmosManager.QueryRunners
                 var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsValidQuery())
                 {
-                    logger.LogError("Invalid Query. Aborting Delete.");
+                    logger.LogError("Invalid Query. Aborting Update.");
                     return false;
                 }
 
+
+                if (queryParts.IsReplaceUpdateQuery())
+                {
+                    logger.LogError($"Full document updating not supported in SELECT/WHERE queries. To update those documents use an update by documentId query. Skipping Update.");
+                    return false;
+                }
                 //get the ids
                 var selectQuery = queryParts.ToRawSelectQuery();
                 var results = await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
@@ -72,7 +80,7 @@ namespace CosmosManager.QueryRunners
                 }
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(connection.Database, queryParts.CollectionName);
 
-                var deleteCount = 0;
+                var updateCount = 0;
                 var actionTransactionCacheBlock = new ActionBlock<JObject>(async document =>
                                                                        {
                                                                            await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
@@ -85,24 +93,43 @@ namespace CosmosManager.QueryRunners
                                                                                                 var backupResult = await _transactionTask.BackupAsync(context, connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, null, document);
                                                                                                 if (!backupResult.isSuccess)
                                                                                                 {
-                                                                                                    logger.LogError($"Unable to backup document {documentId}. Skipping Delete.");
+                                                                                                    logger.LogError($"Unable to backup document {documentId}. Skipping Update.");
                                                                                                     return false;
                                                                                                 }
                                                                                             }
 
+
+
                                                                                             var partionKeyValue = document.SelectToken(partitionKeyPath).ToString();
-                                                                                            var deleted = await context.DeleteAsync(documentId.CleanId(), new RequestOptions
+
+                                                                                            var partialDoc = JObject.Parse(queryParts.QueryUpdateBody);
+                                                                                            //ensure the partial update is not trying to update id or the partition key
+                                                                                            var pToken = partialDoc.SelectToken(partitionKeyPath);
+                                                                                            var idToken = partialDoc.SelectToken(Constants.DocumentFields.ID);
+                                                                                            if (pToken != null || idToken != null)
+                                                                                            {
+                                                                                                logger.LogError($"Updates are not allowed on ids or existing partition keys of a document. Skipping updated for document {documentId}.");
+                                                                                                return false;
+                                                                                            }
+                                                                                            document.Merge(partialDoc, new JsonMergeSettings
+                                                                                            {
+                                                                                                MergeArrayHandling = MergeArrayHandling.Merge,
+                                                                                                MergeNullValueHandling = MergeNullValueHandling.Merge
+                                                                                            });
+
+                                                                                            //save
+                                                                                            var updatedDoc = await context.UpdateAsync(document, new RequestOptions
                                                                                             {
                                                                                                 PartitionKey = partionKeyValue
                                                                                             });
-                                                                                            if (deleted)
+                                                                                            if (updatedDoc != null)
                                                                                             {
-                                                                                                Interlocked.Increment(ref deleteCount);
-                                                                                                logger.LogInformation($"Deleted {documentId}");
+                                                                                                Interlocked.Increment(ref updateCount);
+                                                                                                logger.LogInformation($"Updated {documentId}");
                                                                                             }
                                                                                             else
                                                                                             {
-                                                                                                logger.LogInformation($"Document {documentId} unable to be deleted.");
+                                                                                                logger.LogInformation($"Document {documentId} unable to be updated.");
                                                                                             }
                                                                                             return true;
                                                                                         });
@@ -118,7 +145,7 @@ namespace CosmosManager.QueryRunners
                 }
                 actionTransactionCacheBlock.Complete();
                 await actionTransactionCacheBlock.Completion;
-                logger.LogInformation($"Deleted {deleteCount} out of {fromObjects.Count}");
+                logger.LogInformation($"Updated {updateCount} out of {fromObjects.Count}");
                 if (queryParts.IsTransaction)
                 {
                     logger.LogInformation($"To rollback execute: ROLLBACK {queryParts.TransactionId}");

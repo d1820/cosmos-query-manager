@@ -129,7 +129,7 @@ namespace CosmosManager
                 listItem.Tag = fromObject;
                 var subItem = new ListViewSubItem
                 {
-                    Text = fromObject["id"]?.Value<string>()
+                    Text = fromObject[Constants.DocumentFields.ID]?.Value<string>()
                 };
                 listItem.SubItems.Add(subItem);
 
@@ -168,7 +168,7 @@ namespace CosmosManager
         private void selectedToUpdateButton_Click(object sender, EventArgs e)
         {
             var items = GetCheckedListItems();
-            var ids = items.Select(s => s["id"]);
+            var ids = items.Select(s => s[Constants.DocumentFields.ID]);
             var parser = new QueryStatementParser();
             var parts = parser.Parse(Query);
             MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryKeywords.SET} @SET{{ }}@");
@@ -177,7 +177,7 @@ namespace CosmosManager
         private void selectedToDeleteButton_Click(object sender, EventArgs e)
         {
             var items = GetCheckedListItems();
-            var ids = items.Select(s => s["id"]);
+            var ids = items.Select(s => s[Constants.DocumentFields.ID]);
             var parser = new QueryStatementParser();
             var parts = parser.Parse(Query);
             MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine} {Constants.QueryKeywords.DELETE} '{string.Join("','", ids)}' {Environment.NewLine} {Constants.QueryKeywords.FROM} {parts.CollectionName}");
@@ -392,7 +392,7 @@ namespace CosmosManager
         private async void deleteDocumentButton_Click(object sender, EventArgs e)
         {
             var selectedItem = (JObject)resultListView.SelectedItems[0].Tag;
-            if (MessageBox.Show(this, $"Are you sure you want to delete document {selectedItem["id"]}", "Delete Document", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            if (MessageBox.Show(this, $"Are you sure you want to delete document {selectedItem[Constants.DocumentFields.ID]}", "Delete Document", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
             {
                 var wasDeleted = await Presenter.DeleteDocumentAsync(selectedItem);
                 if (wasDeleted)

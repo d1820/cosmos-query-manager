@@ -59,7 +59,7 @@ namespace CosmosManager.QueryRunners
                                                                                          {
                                                                                              var result = await context.UpdateAsync(document);
                                                                                              Interlocked.Increment(ref updateCount);
-                                                                                             logger.LogInformation($"Restored {document["id"]}");
+                                                                                             logger.LogInformation($"Restored {document[Constants.DocumentFields.ID]}");
                                                                                              return result;
                                                                                          });
                                                                        },

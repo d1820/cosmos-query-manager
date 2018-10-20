@@ -7,7 +7,10 @@ namespace CosmosManager.Domain
             public const int COSMOSDB = 99;
             public const int REQUEST_RESPONSE = 100;
         }
-
+        public static class DocumentFields
+        {
+            public const string ID = "id";
+        }
         public static class QueryKeywords
         {
             public const string SELECT = "SELECT";

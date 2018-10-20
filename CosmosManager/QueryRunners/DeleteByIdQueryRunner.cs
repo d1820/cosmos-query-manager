@@ -42,6 +42,7 @@ namespace CosmosManager.QueryRunners
                 var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsValidQuery())
                 {
+                    logger.LogError("Invalid Query. Aborting Delete.");
                     return false;
                 }
 

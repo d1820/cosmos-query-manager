@@ -22,7 +22,7 @@ namespace CosmosManager.Tasks
         public async Task<bool> BackuQueryAsync(string connectionName, string databaseName, string collectionName, string transactionId, string query)
         {
             var formattedConnectionName = Regex.Replace(connectionName, @"(\s)", "_");
-            var cacheFileName = new FileInfo($"{AppReferences.TransactionCacheDataFolder}/{formattedConnectionName}/{databaseName}/{collectionName}/{transactionId}/query.json");
+            var cacheFileName = new FileInfo($"{AppReferences.TransactionCacheDataFolder}/{formattedConnectionName}/{databaseName}/{collectionName}/{transactionId}/query.csql");
             Directory.CreateDirectory(cacheFileName.Directory.FullName);
             using (var sw = new StreamWriter(cacheFileName.FullName))
             {
@@ -55,7 +55,7 @@ namespace CosmosManager.Tasks
                 return (false, null);
             }
             var formattedConnectionName = Regex.Replace(connectionName, @"(\s)", "_");
-            var cacheFileName = new FileInfo($"{AppReferences.TransactionCacheDataFolder}/{formattedConnectionName}/{databaseName}/{collectionName}/{transactionId}/{cosmosDocument["id"].ToString().CleanId()}.json");
+            var cacheFileName = new FileInfo($"{AppReferences.TransactionCacheDataFolder}/{formattedConnectionName}/{databaseName}/{collectionName}/{transactionId}/{cosmosDocument[Constants.DocumentFields.ID].ToString().CleanId()}.json");
             Directory.CreateDirectory(cacheFileName.Directory.FullName);
             using (var sw = new StreamWriter(cacheFileName.FullName))
             {

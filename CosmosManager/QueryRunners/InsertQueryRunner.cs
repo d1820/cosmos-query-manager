@@ -64,7 +64,7 @@ namespace CosmosManager.QueryRunners
                                         });
                 foreach (var newDoc in newDocs)
                 {
-                    logger.LogInformation($"Document {newDoc["id"]} created.");
+                    logger.LogInformation($"Document {newDoc[Constants.DocumentFields.ID]} created.");
                 }
 
                 _presenter.ShowOutputTab();

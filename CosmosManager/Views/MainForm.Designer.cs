@@ -52,25 +52,25 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.fileTreeView = new System.Windows.Forms.TreeView();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.addQueryButton = new System.Windows.Forms.Button();
             this.queryTabControl = new System.Windows.Forms.TabControl();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.createNewQueryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextTabs = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.duplicateTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.addQueryButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.contextTabs.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // openFileDialog1
@@ -163,6 +163,7 @@
             this.editConnectionFileToolStripMenuItem.Name = "editConnectionFileToolStripMenuItem";
             this.editConnectionFileToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.editConnectionFileToolStripMenuItem.Text = "Edit Connection File";
+            this.editConnectionFileToolStripMenuItem.Visible = false;
             // 
             // helpToolStripMenuItem
             // 
@@ -257,6 +258,30 @@
             this.imageList1.Images.SetKeyName(0, "Folder");
             this.imageList1.Images.SetKeyName(1, "File");
             // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.addQueryButton);
+            this.panel1.Location = new System.Drawing.Point(1022, 2);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(27, 17);
+            this.panel1.TabIndex = 2;
+            // 
+            // addQueryButton
+            // 
+            this.addQueryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.addQueryButton.FlatAppearance.BorderSize = 0;
+            this.addQueryButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.addQueryButton.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.addQueryButton.Image = global::CosmosManager.Properties.Resources.add_16;
+            this.addQueryButton.Location = new System.Drawing.Point(9, 0);
+            this.addQueryButton.Name = "addQueryButton";
+            this.addQueryButton.Size = new System.Drawing.Size(16, 16);
+            this.addQueryButton.TabIndex = 1;
+            this.toolTip1.SetToolTip(this.addQueryButton, "Add Empty Query");
+            this.addQueryButton.UseVisualStyleBackColor = true;
+            this.addQueryButton.Visible = false;
+            this.addQueryButton.Click += new System.EventHandler(this.addQueryButton_Click);
+            // 
             // queryTabControl
             // 
             this.queryTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -307,30 +332,6 @@
             this.fileSystemWatcher1.Created += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Created);
             this.fileSystemWatcher1.Deleted += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Deleted);
             // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.addQueryButton);
-            this.panel1.Location = new System.Drawing.Point(1022, 2);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(27, 17);
-            this.panel1.TabIndex = 2;
-            // 
-            // addQueryButton
-            // 
-            this.addQueryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.addQueryButton.FlatAppearance.BorderSize = 0;
-            this.addQueryButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.addQueryButton.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.addQueryButton.Image = global::CosmosManager.Properties.Resources.add_16;
-            this.addQueryButton.Location = new System.Drawing.Point(9, 0);
-            this.addQueryButton.Name = "addQueryButton";
-            this.addQueryButton.Size = new System.Drawing.Size(16, 16);
-            this.addQueryButton.TabIndex = 1;
-            this.toolTip1.SetToolTip(this.addQueryButton, "Add Empty Query");
-            this.addQueryButton.UseVisualStyleBackColor = true;
-            this.addQueryButton.Visible = false;
-            this.addQueryButton.Click += new System.EventHandler(this.addQueryButton_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -353,10 +354,10 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
             this.contextTabs.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
-            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

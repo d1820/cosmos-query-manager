@@ -43,6 +43,8 @@ namespace CosmosManager.Presenters
             _queryRunners.Add(new RollbackQueryRunner(this, transactionTask));
             _queryRunners.Add(new InsertQueryRunner(this));
             _queryRunners.Add(new UpdateByIdQueryRunner(this, transactionTask));
+            _queryRunners.Add(new UpdateByWhereQueryRunner(this, transactionTask));
+
 
             TabIndexReference = tabIndexReference;
         }
@@ -174,7 +176,7 @@ namespace CosmosManager.Presenters
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(SelectedConnection.Database, parts.CollectionName);
                 var partionKeyValue = document.SelectToken(partitionKeyPath).ToString();
                 var result = await documentStore.ExecuteAsync(SelectedConnection.Database, parts.CollectionName,
-                       context => context.DeleteAsync(document["id"].ToString(), new Domain.RequestOptions() { PartitionKey = partionKeyValue }));
+                       context => context.DeleteAsync(document[Constants.DocumentFields.ID].ToString(), new Domain.RequestOptions() { PartitionKey = partionKeyValue }));
 
                 _view.SetStatusBarMessage("Document Deleted");
                 _view.DocumentText = string.Empty;
