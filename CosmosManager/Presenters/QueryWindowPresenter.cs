@@ -253,5 +253,15 @@ namespace CosmosManager.Presenters
         {
             _view.ShowOutputTab();
         }
+
+        public string Beautify(string data)
+        {
+            if (string.IsNullOrEmpty(data))
+            {
+                return data;
+            }
+            var obj = JObject.Parse(data);
+            return JsonConvert.SerializeObject(obj, Formatting.Indented);
+        }
     }
 }

@@ -23,6 +23,14 @@ namespace CosmosManager
 
         }
 
+        protected override void WndProc(ref Message m)
+        {
+            // Suppress the WM_UPDATEUISTATE message
+            if (m.Msg == 0x128)
+                return;
+            base.WndProc(ref m);
+        }
+
         public void ClearFileTreeView()
         {
             fileTreeView.Nodes.Clear();
@@ -286,7 +294,8 @@ namespace CosmosManager
 
         private void newQueryTabToolStripMenuItem_Click(object sender, EventArgs e)
         {
-             CreateTempQueryTab("");
+            CreateTempQueryTab("");
         }
+
     }
 }

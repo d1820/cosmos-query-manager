@@ -236,6 +236,7 @@
             // 
             // fileTreeView
             // 
+            this.fileTreeView.CausesValidation = false;
             this.fileTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fileTreeView.ImageIndex = 0;
             this.fileTreeView.ImageList = this.imageList1;
@@ -244,6 +245,7 @@
             this.fileTreeView.SelectedImageIndex = 0;
             this.fileTreeView.Size = new System.Drawing.Size(175, 578);
             this.fileTreeView.TabIndex = 0;
+            this.fileTreeView.TabStop = false;
             this.fileTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.fileTreeView_NodeMouseClick);
             this.fileTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.fileTreeView_NodeMouseDoubleClick);
             this.fileTreeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.fileTreeView_MouseUp);

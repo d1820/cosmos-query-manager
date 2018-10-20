@@ -13,9 +13,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.ListViewItem;
+using CosmosManager.Extensions;
 
 namespace CosmosManager
 {
+
+
     public partial class QueryWindowControl : UserControl, IQueryWindowControl
     {
         private readonly QueryOuputLogger _logger;
@@ -23,6 +26,8 @@ namespace CosmosManager
         public QueryWindowControl()
         {
             InitializeComponent();
+
+            resultListView.DoubleBuffered(true);
 
             //look for a connections string file
             selectConnections.Items.Add("Load Connection File");
@@ -32,13 +37,14 @@ namespace CosmosManager
         {
             get
             {
-                return selectConnections.Items.Cast<object>().ToArray();
+                return selectConnections.ComboBox.Items.Cast<object>().ToArray();
             }
             set
             {
-                selectConnections.Items.Clear();
-                selectConnections.Items.AddRange(value);
-                selectConnections.SelectedIndex = 0;
+                selectConnections.ComboBox.Items.Clear();
+                selectConnections.ComboBox.DisplayMember = "Name";
+                selectConnections.ComboBox.Items.AddRange(value);
+                selectConnections.ComboBox.SelectedIndex = 0;
             }
         }
 
@@ -107,8 +113,11 @@ namespace CosmosManager
             {
                 Presenter.SelectedConnection = (Connection)selectConnections.SelectedItem;
                 MainPresenter.UpdateTabHeaderColor();
+                return;
             }
+            Presenter.SelectedConnection = null;
         }
+
 
         public DialogResult ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
         {
@@ -450,6 +459,16 @@ namespace CosmosManager
                 return;
             }
             textQueryOutput.Text = string.Empty;
+        }
+
+        private void beautifyResultDocumentButton_Click(object sender, EventArgs e)
+        {
+            textDocument.Text = Presenter.Beautify(textDocument.Text);
+        }
+
+        private void beautifyQueryButton_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

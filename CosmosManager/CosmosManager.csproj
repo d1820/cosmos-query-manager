@@ -76,6 +76,7 @@
     <Compile Include="Domain\QueryOuputLogger.cs" />
     <Compile Include="Exceptions\DataStoreException.cs" />
     <Compile Include="Exceptions\DocumentUpdateException.cs" />
+    <Compile Include="Extensions\ControlExtensions.cs" />
     <Compile Include="Extensions\DocumentDBExtensions.cs" />
     <Compile Include="Extensions\DocumentExtensions.cs" />
     <Compile Include="Extensions\LoggerExtensions.cs" />
@@ -177,6 +178,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CosmosQueryEditorNew.ico" />
+    <None Include="Resources\arrow_more.gif" />
+    <None Include="Resources\app-json-icon %281%29.png" />
+    <None Include="Resources\app-json-icon.png" />
     <None Include="Resources\refresh--page-icon-32662 %281%29.png" />
     <None Include="Resources\documents_delete.png" />
     <None Include="Resources\add_16.png" />
