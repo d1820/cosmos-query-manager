@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 namespace CosmosManager.Parsers
 {
     [Obsolete()]
-    public class RazorQueryParser : IQueryParser
+    public class RazorQueryParser
     {
         public (string queryType, string queryBody) ParseQueryBody(string query)
         {
@@ -18,7 +18,7 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException("Invalid query. Query Type statement is not formated correct. Please use @SELECT{ }@ or @UPDATE{ }@ or @DELETE{ }@ wrapping statement syntax.");
+                throw new FormatException("Invalid query. Query Type statement is not formatted correct. Please use @SELECT{ }@ or @UPDATE{ }@ or @DELETE{ }@ wrapping statement syntax.");
             }
             var queryTypeRx = new Regex("(SELECT|UPDATE|DELETE)(.*?)");
 
@@ -42,7 +42,7 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException("Invalid query. Query FROM statement is not formated correct. Please use @FROM{ }@ wrapping statement syntax.");
+                throw new FormatException("Invalid query. Query FROM statement is not formatted correct. Please use @FROM{ }@ wrapping statement syntax.");
             }
 
             return matches[0].Value.Replace("@FROM{", " FROM ").Replace("}@", " ");
@@ -59,7 +59,7 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException("Invalid query. Query SET statement is not formated correct. Please use @SET{ }@ wrapping statement syntax.");
+                throw new FormatException("Invalid query. Query SET statement is not formatted correct. Please use @SET{ }@ wrapping statement syntax.");
             }
 
             return matches[0].Value.Replace("@SET{", "").Replace("}@", " ");
@@ -76,7 +76,7 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException("Invalid query. Query WHERE statement is not formated correct. Please use @WHERE{ }@ wrapping statement syntax.");
+                throw new FormatException("Invalid query. Query WHERE statement is not formatted correct. Please use @WHERE{ }@ wrapping statement syntax.");
             }
 
             return matches[0].Value.Replace("@WHERE{", " WHERE ").Replace("}@", " ");
@@ -93,7 +93,7 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException("Invalid query. ROLLBACK statement is not formated correct.");
+                throw new FormatException("Invalid query. ROLLBACK statement is not formatted correct.");
             }
 
             return matches[0].Value.Replace("@ROLLBACK", "").Trim();

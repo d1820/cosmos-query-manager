@@ -20,6 +20,7 @@ namespace CosmosManager.Domain
             public const string ROLLBACK = "ROLLBACK";
             public const string INSERT = "INSERT";
             public const string INTO = "INTO";
+            public const string REPLACE = "REPLACE";
         }
     }
 }

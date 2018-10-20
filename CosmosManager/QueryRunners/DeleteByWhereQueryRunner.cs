@@ -3,11 +3,8 @@ using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using CosmosManager.Parsers;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -69,6 +66,8 @@ namespace CosmosManager.QueryRunners
                 if (queryParts.IsTransaction)
                 {
                     logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
+                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, _queryParser.OrginalQuery);
+
                 }
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(connection.Database, queryParts.CollectionName);
 
@@ -80,17 +79,15 @@ namespace CosmosManager.QueryRunners
                                                                                         {
                                                                                             var documentId = document["id"].ToString();
 
-                                                                                             if (queryParts.IsTransaction)
-                                                                                                 {
-                                                                                                     var backupSuccess = await _transactionTask.Backup(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, document);
-
-                                                                                                     if (!backupSuccess)
-                                                                                                     {
-                                                                                                         logger.LogError($"Unable to backup document {documentId}. Skipping Delete.");
-                                                                                                         return false;
-                                                                                                     }
-                                                                                                 }
-
+                                                                                            if (queryParts.IsTransaction)
+                                                                                            {
+                                                                                                var backupResult = await _transactionTask.BackupAsync(context, connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, null, document);
+                                                                                                if (!backupResult.isSuccess)
+                                                                                                {
+                                                                                                    logger.LogError($"Unable to backup document {documentId}. Skipping Delete.");
+                                                                                                    return false;
+                                                                                                }
+                                                                                            }
 
                                                                                             var partionKeyValue = document.SelectToken(partitionKeyPath).ToString();
                                                                                             var deleted = await context.DeleteAsync(documentId.CleanId(), new RequestOptions
@@ -121,7 +118,10 @@ namespace CosmosManager.QueryRunners
                 actionTransactionCacheBlock.Complete();
                 await actionTransactionCacheBlock.Completion;
                 logger.LogInformation($"Deleted {deleteCount} out of {fromObjects.Count}");
-                logger.LogInformation($"To rollback execute: ROLLBACK {queryParts.TransactionId}");
+                if (queryParts.IsTransaction)
+                {
+                    logger.LogInformation($"To rollback execute: ROLLBACK {queryParts.TransactionId}");
+                }
                 _presenter.ShowOutputTab();
                 return true;
             }

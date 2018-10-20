@@ -1,38 +1,27 @@
 ﻿using CosmosManager.Domain;
-using CosmosManager.Interfaces;
 using System.Text.RegularExpressions;
 
 namespace CosmosManager.Parsers
 {
     public class QueryStatementParser
     {
-        private string _orginalQuery;
+        public string OrginalQuery { get; private set; }
 
         public QueryParts Parse(string query)
         {
-            _orginalQuery = query;
+            OrginalQuery = query;
             var cleanQuery = CleanQuery(query);
-            //if a raw query then parse that
-
-            //TODO: REMOVE
-            //IQueryParser parser;
-            //if (!IsRazorQuery(cleanQuery))
-            //{
-            //    parser = new StringQueryParser();
-            //}
-            //else
-            //{
-            //    parser = new RazorQueryParser();
-            //}
             var parser = new StringQueryParser();
 
             var typeAndBody = parser.ParseQueryBody(cleanQuery);
+            var updateTypeAndBody = parser.ParseUpdateBody(cleanQuery);
             return new QueryParts
             {
                 QueryBody = typeAndBody.queryBody.Trim(),
                 QueryType = typeAndBody.queryType.Trim(),
                 QueryFrom = parser.ParseFromBody(cleanQuery).Trim(),
-                QueryUpdateBody = parser.ParseUpdateBody(cleanQuery).Trim(),
+                QueryUpdateBody = updateTypeAndBody.updateBody.Trim(),
+                QueryUpdateType = updateTypeAndBody.updateType.Trim(),
                 QueryWhere = parser.ParseWhere(cleanQuery).Trim(),
                 RollbackName = parser.ParseRollback(cleanQuery).Trim(),
                 TransactionId = parser.ParseTransaction(cleanQuery).Trim(),
@@ -56,11 +45,6 @@ namespace CosmosManager.Parsers
             cleanString = Regex.Replace(cleanString, "(into)", Constants.QueryKeywords.INTO, RegexOptions.IgnoreCase);
 
             return cleanString;
-        }
-
-        private bool IsRazorQuery(string query)
-        {
-            return query.IndexOf("}@") > -1;
         }
     }
 }

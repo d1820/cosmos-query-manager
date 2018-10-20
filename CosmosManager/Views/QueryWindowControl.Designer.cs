@@ -51,6 +51,7 @@
             this.resultListToolStrip = new System.Windows.Forms.ToolStrip();
             this.selectedToUpdateButton = new System.Windows.Forms.ToolStripButton();
             this.selectedToDeleteButton = new System.Windows.Forms.ToolStripButton();
+            this.resultCountTextbox = new System.Windows.Forms.ToolStripTextBox();
             this.textDocument = new System.Windows.Forms.RichTextBox();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.resultWordWrapButton = new System.Windows.Forms.ToolStripButton();
@@ -67,7 +68,6 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.saveJsonDialog = new System.Windows.Forms.SaveFileDialog();
             this.saveTempQueryDialog = new System.Windows.Forms.SaveFileDialog();
-            this.resultCountTextbox = new System.Windows.Forms.ToolStripTextBox();
             this.connectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryResult)).BeginInit();
             this.splitQueryResult.Panel1.SuspendLayout();
@@ -343,7 +343,6 @@
             this.selectedToUpdateButton.Size = new System.Drawing.Size(23, 22);
             this.selectedToUpdateButton.Text = "Selected to Update Query";
             this.selectedToUpdateButton.ToolTipText = "Selected to Update Query";
-            this.selectedToUpdateButton.Visible = false;
             this.selectedToUpdateButton.Click += new System.EventHandler(this.selectedToUpdateButton_Click);
             // 
             // selectedToDeleteButton
@@ -355,6 +354,17 @@
             this.selectedToDeleteButton.Size = new System.Drawing.Size(23, 22);
             this.selectedToDeleteButton.Text = "Selected to Delete Query";
             this.selectedToDeleteButton.Click += new System.EventHandler(this.selectedToDeleteButton_Click);
+            // 
+            // resultCountTextbox
+            // 
+            this.resultCountTextbox.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.resultCountTextbox.BackColor = System.Drawing.SystemColors.Control;
+            this.resultCountTextbox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.resultCountTextbox.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.resultCountTextbox.Name = "resultCountTextbox";
+            this.resultCountTextbox.ReadOnly = true;
+            this.resultCountTextbox.Size = new System.Drawing.Size(100, 25);
+            this.resultCountTextbox.TextBoxTextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // textDocument
             // 
@@ -496,17 +506,6 @@
             this.saveTempQueryDialog.Filter = "Cosmos Script|*.csql";
             this.saveTempQueryDialog.SupportMultiDottedExtensions = true;
             this.saveTempQueryDialog.Title = "Save New Query";
-            // 
-            // resultCountTextbox
-            // 
-            this.resultCountTextbox.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.resultCountTextbox.BackColor = System.Drawing.SystemColors.Control;
-            this.resultCountTextbox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.resultCountTextbox.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.resultCountTextbox.Name = "resultCountTextbox";
-            this.resultCountTextbox.ReadOnly = true;
-            this.resultCountTextbox.Size = new System.Drawing.Size(100, 25);
-            this.resultCountTextbox.TextBoxTextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // connectionBindingSource
             // 

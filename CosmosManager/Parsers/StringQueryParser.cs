@@ -12,20 +12,13 @@ namespace CosmosManager.Parsers
 
             var rgxInsert = new Regex($@"({Constants.QueryKeywords.INSERT})[\s\S]*(.*?)(?={Constants.QueryKeywords.INTO})");
             var matches = rgxInsert.Matches(query);
-            Regex queryTypeRgx;
             if (matches.Count == 1)
             {
-                queryTypeRgx = new Regex($"({Constants.QueryKeywords.INSERT})(.*?)");
-                var insertBodyMatches = queryTypeRgx.Matches(matches[0].Value);
-                if (insertBodyMatches.Count == 0)
-                {
-                    return (string.Empty, string.Empty);
-                }
-                return (insertBodyMatches[0].Value, matches[0].Value.Replace(Constants.QueryKeywords.INSERT, "").Trim());
+                return (Constants.QueryKeywords.INSERT, matches[0].Value.Replace(Constants.QueryKeywords.INSERT, "").Trim());
             }
 
 
-            var rgx = new Regex($@"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE})[\s\S]*(.*?)(?={Constants.QueryKeywords.FROM})");
+            var rgx = new Regex($@"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE}|{Constants.QueryKeywords.UPDATE})[\s\S]*(.*?)(?={Constants.QueryKeywords.FROM})");
             matches = rgx.Matches(query);
             if (matches.Count == 0)
             {
@@ -33,9 +26,9 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException($"Invalid query. Only {Constants.QueryKeywords.SELECT} or {Constants.QueryKeywords.DELETE} statement syntax supported.");
+                throw new FormatException($"Invalid query. Only {Constants.QueryKeywords.SELECT}, {Constants.QueryKeywords.DELETE}, {Constants.QueryKeywords.INSERT}, {Constants.QueryKeywords.UPDATE} statement syntax supported.");
             }
-            queryTypeRgx = new Regex($"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE})(.*?)");
+            var queryTypeRgx = new Regex($"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE}|{Constants.QueryKeywords.UPDATE})(.*?)");
 
             var queryTypeMatches = queryTypeRgx.Matches(matches[0].Value);
             if (queryTypeMatches.Count == 0)
@@ -43,7 +36,9 @@ namespace CosmosManager.Parsers
                 return (string.Empty, string.Empty);
             }
 
-            return (queryTypeMatches[0].Value, matches[0].Value.Replace(Constants.QueryKeywords.SELECT, "").Replace(Constants.QueryKeywords.DELETE, "").Trim());
+            return (queryTypeMatches[0].Value, matches[0].Value.Replace(Constants.QueryKeywords.SELECT, "")
+                .Replace(Constants.QueryKeywords.UPDATE, "")
+                .Replace(Constants.QueryKeywords.DELETE, "").Trim());
         }
 
         public string ParseIntoBody(string query)
@@ -57,7 +52,7 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.INTO} statement is not formated correct.");
+                throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.INTO} statement is not formatted correct.");
             }
 
             return matches[0].Value;
@@ -65,7 +60,7 @@ namespace CosmosManager.Parsers
 
         public string ParseFromBody(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.WHERE})");
+            var rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?=({Constants.QueryKeywords.WHERE}|{Constants.QueryKeywords.REPLACE}|{Constants.QueryKeywords.SET}))");
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -81,30 +76,54 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.FROM} statement is not formated correct.");
+                throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.FROM} statement is not formatted correct.");
             }
 
             return matches[0].Value;
         }
 
-        public string ParseUpdateBody(string query)
+        public (string updateType, string updateBody) ParseUpdateBody(string query)
         {
-            // throw new NotSupportedException("Update statements are not supported with standard SQL syntax. Please use Razor formating.");
-            return string.Empty;
+            var updateType = Constants.QueryKeywords.SET;
+            var rgx = new Regex($@"({Constants.QueryKeywords.SET})[\s\S]*(.*?)");
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 0)
+            {
+                rgx = new Regex($@"({Constants.QueryKeywords.REPLACE})[\s\S]*(.*?)");
+                matches = rgx.Matches(query);
+                if (matches.Count == 0)
+                {
+                    return (string.Empty, string.Empty);
+                }
+                updateType = Constants.QueryKeywords.REPLACE;
+            }
+            if (matches.Count > 1)
+            {
+                throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.SET}/{Constants.QueryKeywords.REPLACE} statement is not formatted correct.");
+            }
+
+            return (updateType, matches[0].Value.Replace(Constants.QueryKeywords.SET, "").Replace(Constants.QueryKeywords.REPLACE, ""));
         }
 
         public string ParseWhere(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)(?={Constants.QueryKeywords.SET})");
 
             var matches = rgx.Matches(query);
+            if (matches.Count == 0)
+            {
+                //lets check if its only a FROM and then end
+                rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)");
+                matches = rgx.Matches(query);
+            }
             if (matches.Count == 0)
             {
                 return string.Empty;
             }
             if (matches.Count > 1)
             {
-                throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.WHERE} statement is not formated correct.");
+                throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.WHERE} statement is not formatted correct.");
             }
 
             return matches[0].Value;
@@ -121,7 +140,7 @@ namespace CosmosManager.Parsers
             }
             if (matches.Count > 1)
             {
-                throw new FormatException($"Invalid query. {Constants.QueryKeywords.ROLLBACK} statement is not formated correct.");
+                throw new FormatException($"Invalid query. {Constants.QueryKeywords.ROLLBACK} statement is not formatted correct.");
             }
 
             return matches[0].Value.Replace(Constants.QueryKeywords.ROLLBACK, "").Trim();

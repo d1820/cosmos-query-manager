@@ -35,13 +35,14 @@ namespace CosmosManager.Presenters
             _view = view;
             view.Presenter = this;
             _logger = new QueryOuputLogger(this);
-            var transactionTask = new TransactionTask();
+            var transactionTask = new TransactionTask(_logger);
             _queryParser = new QueryStatementParser();
             _queryRunners.Add(new SelectQueryRunner(this));
             _queryRunners.Add(new DeleteByIdQueryRunner(this, transactionTask));
             _queryRunners.Add(new DeleteByWhereQueryRunner(this, transactionTask));
             _queryRunners.Add(new RollbackQueryRunner(this, transactionTask));
             _queryRunners.Add(new InsertQueryRunner(this));
+            _queryRunners.Add(new UpdateByIdQueryRunner(this, transactionTask));
 
             TabIndexReference = tabIndexReference;
         }
