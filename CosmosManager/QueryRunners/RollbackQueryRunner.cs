@@ -52,7 +52,7 @@ namespace CosmosManager.QueryRunners
                 {
                     logger.LogInformation($"No files found for {queryParts.RollbackName}. Aborting Rollback.");
                     _presenter.ShowOutputTab();
-                    return;
+                    return false;
                 }
 
                 var updateCount = 0;

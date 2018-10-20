@@ -7,7 +7,7 @@
     <ProjectGuid>{9F9A2550-C280-49E1-B953-53AAA624FED6}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>CosmosManager</RootNamespace>
-    <AssemblyName>CosmosManager1.0.0</AssemblyName>
+    <AssemblyName>CosmosManager2018</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
