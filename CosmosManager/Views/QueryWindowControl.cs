@@ -90,7 +90,15 @@ namespace CosmosManager
 
         private async void runQueryButton_Click_1(object sender, EventArgs e)
         {
-            Presenter.Run();
+            try
+            {
+                runQueryButton.Enabled = false;
+                await Presenter.RunAsync();
+            }
+            finally
+            {
+                runQueryButton.Enabled = true;
+            }
         }
 
         private void selectConnections_SelectedValueChanged(object sender, EventArgs e)
@@ -168,15 +176,23 @@ namespace CosmosManager
         private void selectedToUpdateButton_Click(object sender, EventArgs e)
         {
             var items = GetCheckedListItems();
+            if (!items.Any())
+            {
+                return;
+            }
             var ids = items.Select(s => s[Constants.DocumentFields.ID]);
             var parser = new QueryStatementParser();
             var parts = parser.Parse(Query);
-            MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryKeywords.SET} @SET{{ }}@");
+            MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryKeywords.SET} {{{Environment.NewLine}{Environment.NewLine}}}");
         }
 
         private void selectedToDeleteButton_Click(object sender, EventArgs e)
         {
             var items = GetCheckedListItems();
+            if (!items.Any())
+            {
+                return;
+            }
             var ids = items.Select(s => s[Constants.DocumentFields.ID]);
             var parser = new QueryStatementParser();
             var parts = parser.Parse(Query);

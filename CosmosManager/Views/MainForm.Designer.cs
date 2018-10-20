@@ -52,10 +52,9 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.fileTreeView = new System.Windows.Forms.TreeView();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.addQueryButton = new System.Windows.Forms.Button();
             this.queryTabControl = new System.Windows.Forms.TabControl();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.newQueryTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createNewQueryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextTabs = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.duplicateTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -67,7 +66,6 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.contextTabs.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
@@ -231,7 +229,6 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.panel1);
             this.splitContainer1.Panel2.Controls.Add(this.queryTabControl);
             this.splitContainer1.Size = new System.Drawing.Size(1229, 578);
             this.splitContainer1.SplitterDistance = 175;
@@ -258,30 +255,6 @@
             this.imageList1.Images.SetKeyName(0, "Folder");
             this.imageList1.Images.SetKeyName(1, "File");
             // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.addQueryButton);
-            this.panel1.Location = new System.Drawing.Point(1022, 2);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(27, 17);
-            this.panel1.TabIndex = 2;
-            // 
-            // addQueryButton
-            // 
-            this.addQueryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.addQueryButton.FlatAppearance.BorderSize = 0;
-            this.addQueryButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.addQueryButton.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.addQueryButton.Image = global::CosmosManager.Properties.Resources.add_16;
-            this.addQueryButton.Location = new System.Drawing.Point(9, 0);
-            this.addQueryButton.Name = "addQueryButton";
-            this.addQueryButton.Size = new System.Drawing.Size(16, 16);
-            this.addQueryButton.TabIndex = 1;
-            this.toolTip1.SetToolTip(this.addQueryButton, "Add Empty Query");
-            this.addQueryButton.UseVisualStyleBackColor = true;
-            this.addQueryButton.Visible = false;
-            this.addQueryButton.Click += new System.EventHandler(this.addQueryButton_Click);
-            // 
             // queryTabControl
             // 
             this.queryTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -298,15 +271,23 @@
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newQueryTabToolStripMenuItem,
             this.createNewQueryToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(171, 26);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(169, 48);
+            // 
+            // newQueryTabToolStripMenuItem
+            // 
+            this.newQueryTabToolStripMenuItem.Name = "newQueryTabToolStripMenuItem";
+            this.newQueryTabToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.newQueryTabToolStripMenuItem.Text = "New Query Tab";
+            this.newQueryTabToolStripMenuItem.Click += new System.EventHandler(this.newQueryTabToolStripMenuItem_Click);
             // 
             // createNewQueryToolStripMenuItem
             // 
             this.createNewQueryToolStripMenuItem.Name = "createNewQueryToolStripMenuItem";
-            this.createNewQueryToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
-            this.createNewQueryToolStripMenuItem.Text = "Create New Query";
+            this.createNewQueryToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.createNewQueryToolStripMenuItem.Text = "Create New Script";
             this.createNewQueryToolStripMenuItem.Click += new System.EventHandler(this.createNewQueryToolStripMenuItem_Click);
             // 
             // contextTabs
@@ -354,7 +335,6 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
             this.contextTabs.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
@@ -393,9 +373,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editConnectionFileToolStripMenuItem;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button addQueryButton;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ToolStripMenuItem newQueryTabToolStripMenuItem;
     }
 }
 

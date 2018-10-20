@@ -63,16 +63,6 @@ namespace CosmosManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap _776907_document_512x512 {
-            get {
-                object obj = ResourceManager.GetObject("776907_document_512x512", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         public static System.Drawing.Bitmap add_16 {
             get {
                 object obj = ResourceManager.GetObject("add_16", resourceCulture);
@@ -103,9 +93,9 @@ namespace CosmosManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap file_document_sync_synchronization_reload_refresh_update_128 {
+        public static System.Drawing.Bitmap documents_delete {
             get {
-                object obj = ResourceManager.GetObject("file_document_sync_synchronization_reload_refresh_update-128", resourceCulture);
+                object obj = ResourceManager.GetObject("documents_delete", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -156,6 +146,16 @@ namespace CosmosManager.Properties {
         public static System.Drawing.Bitmap page_delete {
             get {
                 object obj = ResourceManager.GetObject("page_delete", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap refresh__page_icon_32662__1_ {
+            get {
+                object obj = ResourceManager.GetObject("refresh--page-icon-32662 (1)", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -151,7 +151,6 @@ namespace CosmosManager
             if (closeButton.Contains(e.Location))
             {
                 queryTabControl.TabPages.Remove(queryTabControl.SelectedTab);
-                addQueryButton.Visible = queryTabControl.TabPages.Count > 0;
             }
         }
 
@@ -262,7 +261,6 @@ namespace CosmosManager
             tab.Controls.Add(queryWindow);
             queryTabControl.TabPages.Add(tab);
             queryTabControl.SelectedTab = tab;
-            addQueryButton.Visible = true;
         }
 
         private void guideToolStripMenuItem_Click(object sender, EventArgs e)
@@ -286,9 +284,9 @@ namespace CosmosManager
             Presenter.UpdateTransactionFolderSize();
         }
 
-        private void addQueryButton_Click(object sender, EventArgs e)
+        private void newQueryTabToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CreateTempQueryTab("");
+             CreateTempQueryTab("");
         }
     }
 }

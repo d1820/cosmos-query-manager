@@ -95,7 +95,7 @@ namespace CosmosManager.Presenters
             _view.Query = query;
         }
 
-        public async void Run()
+        public async Task RunAsync()
         {
             _view.ResetResultsView();
             //execute th interpretor and run against cosmos and connection
