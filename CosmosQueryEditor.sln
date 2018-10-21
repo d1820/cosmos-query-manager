@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		CosmosQueryEditor.ico = CosmosQueryEditor.ico
+		CreateRelease.bat = CreateRelease.bat
 		README.md = README.md
 		runsettings.runsettings = runsettings.runsettings
 	EndProjectSection
@@ -19,26 +20,36 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Debug|x64.ActiveCfg = Debug|x64
 		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Debug|x64.Build.0 = Debug|x64
+		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Debug|x86.ActiveCfg = Debug|x86
+		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Debug|x86.Build.0 = Debug|x86
 		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Release|x64.ActiveCfg = Release|x64
 		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Release|x64.Build.0 = Release|x64
+		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Release|x86.ActiveCfg = Release|x86
+		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Release|x86.Build.0 = Release|x86
 		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Debug|x64.Build.0 = Debug|Any CPU
+		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Debug|x86.Build.0 = Debug|Any CPU
 		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Release|x64.ActiveCfg = Release|Any CPU
 		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Release|x64.Build.0 = Release|Any CPU
+		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Release|x86.ActiveCfg = Release|Any CPU
+		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
