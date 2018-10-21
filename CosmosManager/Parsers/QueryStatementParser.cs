@@ -1,4 +1,5 @@
 ﻿using CosmosManager.Domain;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace CosmosManager.Parsers
@@ -29,21 +30,31 @@ namespace CosmosManager.Parsers
             };
         }
 
-        private string CleanQuery(string query)
+        public string CleanQuery(string query)
         {
-            var cleanString = query.Trim().Replace(@"\n", " ")
+            var cleanString = query.Replace(@"\n", " ")
                 .Replace(@"\t", " ")
-                .Replace(@"\r", " ");
-            cleanString = Regex.Replace(cleanString, "(from)", Constants.QueryKeywords.FROM, RegexOptions.IgnoreCase);
-            cleanString = Regex.Replace(cleanString, "(select)", Constants.QueryKeywords.SELECT, RegexOptions.IgnoreCase);
-            cleanString = Regex.Replace(cleanString, "(set)", Constants.QueryKeywords.SET, RegexOptions.IgnoreCase);
-            cleanString = Regex.Replace(cleanString, "(rollback)", Constants.QueryKeywords.ROLLBACK, RegexOptions.IgnoreCase);
-            cleanString = Regex.Replace(cleanString, "(astransaction)", Constants.QueryKeywords.TRANSACTION, RegexOptions.IgnoreCase);
-            cleanString = Regex.Replace(cleanString, "(where)", Constants.QueryKeywords.WHERE, RegexOptions.IgnoreCase);
-            cleanString = Regex.Replace(cleanString, "(update)", Constants.QueryKeywords.UPDATE, RegexOptions.IgnoreCase);
-            cleanString = Regex.Replace(cleanString, "(insert)", Constants.QueryKeywords.INSERT, RegexOptions.IgnoreCase);
-            cleanString = Regex.Replace(cleanString, "(into)", Constants.QueryKeywords.INTO, RegexOptions.IgnoreCase);
+                .Replace(@"\r", " ")
+                .Trim();
 
+            var keyWords = new List<KeyValuePair<string, string>> {
+                new KeyValuePair<string, string>("from", Constants.QueryKeywords.FROM),
+                new KeyValuePair<string, string>("select", Constants.QueryKeywords.SELECT),
+                new KeyValuePair<string, string>("set", Constants.QueryKeywords.SET),
+                new KeyValuePair<string, string>("replace", Constants.QueryKeywords.REPLACE),
+                new KeyValuePair<string, string>("rollback", Constants.QueryKeywords.ROLLBACK),
+                new KeyValuePair<string, string>("astransaction", Constants.QueryKeywords.TRANSACTION),
+                new KeyValuePair<string, string>("where", Constants.QueryKeywords.WHERE),
+                new KeyValuePair<string, string>("update", Constants.QueryKeywords.UPDATE),
+                new KeyValuePair<string, string>("insert", Constants.QueryKeywords.INSERT),
+                new KeyValuePair<string, string>("into", Constants.QueryKeywords.INTO)
+            };
+
+            foreach (var word in keyWords)
+            {
+                var pattern = $@"(?!\B[""\'][^""\']*){word.Key}(?![^""\']*[""\']\B)";
+                cleanString = Regex.Replace(cleanString, pattern, word.Value, RegexOptions.IgnoreCase);
+            }
             return cleanString;
         }
     }
