@@ -468,7 +468,7 @@ namespace CosmosManager
 
         private void beautifyQueryButton_Click(object sender, EventArgs e)
         {
-
+            textQuery.Text = Presenter.BeautifyQuery(textQuery.Text);
         }
     }
 }

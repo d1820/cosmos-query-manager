@@ -64,9 +64,16 @@ namespace CosmosManager.Domain
                 !string.IsNullOrEmpty(QueryBody) &&
                 !string.IsNullOrEmpty(QueryFrom);
 
+        public bool IsUpdateQuery() => !string.IsNullOrEmpty(QueryType) &&
+                QueryType == Constants.QueryKeywords.UPDATE &&
+                !string.IsNullOrEmpty(QueryBody) &&
+                !string.IsNullOrEmpty(QueryFrom);
+
         public bool IsValidInsertQuery() => !string.IsNullOrEmpty(QueryType) &&
                 !string.IsNullOrEmpty(QueryBody) &&
                 !string.IsNullOrEmpty(QueryInto);
+
+        public bool HasWhereClause() => !string.IsNullOrEmpty(QueryWhere);
 
         public string ToRawQuery()
         {
@@ -90,7 +97,7 @@ namespace CosmosManager.Domain
             return baseString;
         }
 
-         public string ToRawSelectQuery()
+        public string ToRawSelectQuery()
         {
             //order of the parts matters for consistency
             var baseString = $"{Constants.QueryKeywords.SELECT} {QueryBody} {QueryFrom}";

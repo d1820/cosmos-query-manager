@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CosmosManager.Presenters
@@ -262,6 +263,61 @@ namespace CosmosManager.Presenters
             }
             var obj = JObject.Parse(data);
             return JsonConvert.SerializeObject(obj, Formatting.Indented);
+        }
+
+        public string BeautifyQuery(string query)
+        {
+            try
+            {
+                var queryParts = _queryParser.Parse(query);
+                var sql = new StringBuilder();
+                if (queryParts.IsTransaction)
+                {
+                    sql.AppendLine(Constants.QueryKeywords.TRANSACTION);
+                }
+                if (queryParts.IsValidInsertQuery())
+                {
+                    sql.AppendLine(queryParts.QueryType);
+                    sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryBody), Formatting.Indented));
+                    sql.AppendLine(queryParts.QueryInto);
+                    return sql.ToString();
+                }
+
+                if (queryParts.IsRollback)
+                {
+                    sql.AppendLine($"ROLLBACK {queryParts.RollbackName}");
+                    return sql.ToString();
+                }
+
+                if (queryParts.IsValidQuery())
+                {
+                    if (queryParts.IsUpdateQuery())
+                    {
+                        sql.AppendLine($"{queryParts.QueryType} {queryParts.QueryBody}");
+                        sql.AppendLine($"{queryParts.QueryFrom}");
+                        if (queryParts.HasWhereClause())
+                        {
+                            sql.AppendLine(queryParts.QueryWhere);
+                        }
+                        sql.AppendLine(queryParts.QueryUpdateType);
+                        sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
+                        return sql.ToString();
+                    }
+                    sql.AppendLine($"{queryParts.QueryType} {queryParts.QueryBody}");
+                    sql.AppendLine($"{queryParts.QueryFrom}");
+                    if (queryParts.HasWhereClause())
+                    {
+                        sql.AppendLine(queryParts.QueryWhere);
+                    }
+                    return sql.ToString();
+
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            return query;
         }
     }
 }

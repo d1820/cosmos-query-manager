@@ -77,7 +77,7 @@ namespace CosmosManager.Parsers
                 return matches[0].Value;
             }
             //lets check if its only a FROM and then end
-            rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s]*(.*?)");
+            rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)");
 
             matches = rgx.Matches(query);
             if (matches.Count == 1)
@@ -94,13 +94,12 @@ namespace CosmosManager.Parsers
 
         public (string updateType, string updateBody) ParseUpdateBody(string query)
         {
-            var updateType = Constants.QueryKeywords.SET;
             var rgx = new Regex($@"({Constants.QueryKeywords.SET})[\s\S]*(.*?)");
 
             var matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
-                return (updateType, matches[0].Value.Replace(Constants.QueryKeywords.SET, ""));
+                return (Constants.QueryKeywords.SET, matches[0].Value.Replace(Constants.QueryKeywords.SET, ""));
             }
 
             rgx = new Regex($@"({Constants.QueryKeywords.REPLACE})[\s\S]*(.*?)");
@@ -108,10 +107,10 @@ namespace CosmosManager.Parsers
 
             if (matches.Count == 1)
             {
-                return (updateType, matches[0].Value.Replace(Constants.QueryKeywords.REPLACE, ""));
+                return (Constants.QueryKeywords.REPLACE, matches[0].Value.Replace(Constants.QueryKeywords.REPLACE, ""));
             }
 
-            updateType = Constants.QueryKeywords.REPLACE;
+
             if (matches.Count > 1)
             {
                 throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.SET}/{Constants.QueryKeywords.REPLACE} statement is not formatted correct.");
