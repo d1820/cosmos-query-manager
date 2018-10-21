@@ -40,11 +40,11 @@ Market_20181014_060441_02632bc6-17c3-4bd8-a97b-268b2d4dac55
 ```
 
 ### DELETES
-Deletes can be done in 2 way: 
-* By providing a list of documentIds that need to be deleted for a given collection. 
+Deletes can be done in 2 way:
+* By providing a list of documentIds that need to be deleted for a given collection.
 * By deleting all that fulfill a WHERE clause statement
 
-Deletes do not use transactions by default and the proper SQL transaction syntax must be used to invoke a transaction.
+**Note:** Deletes do not use transactions by default and the proper SQL transaction syntax must be used to invoke a transaction.
 
 #### SQL/Cosmos syntax
 
@@ -71,5 +71,122 @@ If transactions are used on a query the output will return the TransactionId and
 ROLLBACK Market_20181014_060441_02632bc6-17c3-4bd8-a97b-268b2d4dac55
 ```
 
+
+### INSERTS
+Two types of inserts can be preformed. Single record or and array of records. All insert data must be valid JSON and be able to properly be parsed.
+
+#### SQL/Cosmos syntax
+#### Single Document
+```
+INSERT
+{
+    "id": "one",
+    "PartitionKey": "TestKey",
+    "LastModifiedOn": "0001-01-01T00:00:00-07:00",
+    "LastModifiedBy": null,
+    "CreatedOn": "2018-02-28T16:35:11.1404236-07:00",
+    "CreatedBy": null
+}
+INTO Market
+```
+
+#### Multiple Documents
+```
+INSERT
+[{
+    "id": "one",
+    "PartitionKey": "TestKey",
+    "LastModifiedOn": "0001-01-01T00:00:00-07:00",
+    "LastModifiedBy": null,
+    "CreatedOn": "2018-02-28T16:35:11.1404236-07:00",
+    "CreatedBy": null
+},
+{
+    "id": "two",
+    "PartitionKey": "TestKey",
+    "LastModifiedOn": "0001-01-01T00:00:00-07:00",
+    "LastModifiedBy": null,
+    "CreatedOn": "2018-02-28T16:35:11.1404236-07:00",
+    "CreatedBy": null
+}]
+INTO Market
+```
+
+### Updates
+Updates can be done in 2 way:
+* By providing a list of documentIds that need to be updated for a given collection.
+* By updating all that fulfill a WHERE clause statement
+
+#### Updating an entire document
+To update an entire document the Id of the document must be provided in the update statement. 
+When doing a full document replace only **one** document can be updated at a time.
+
+
+##### SQL/Cosmos syntax
+```
+ASTransaction
+UPDATE '14e42d8c-7583-432f-8dd0-d80e699ef41f'
+from Marketplace
+REPLACE {
+    "id": "14e42d8c-7583-432f-8dd0-d80e699ef41f",
+    "PartitionKey": "List",
+    "Name": {
+        "Key": "NewNameKey",
+        "Text": "New Name"
+    }
+}
+```
+
+#### Updating a portion of a document
+To update a part of the document the SET keyword is used. 
+This does an explicit merge of the new structure to the existing documents structure. 
+This means:
+- Properties provided in the SET that do not exist in the document currently will be added to the document. 
+- Properties in the SET that have a **NULL** value will be added to the existing document as a **NULL** value property
+- If an array of items is included in the SET will be merged to existing item in the document. 
+This is based on the index of the array item. So items in the SET **MUST** be in the same order as the current document else data may get corrupt or out of sync.
+
+
+**Note:** When doing a partial update any attempt to change the "id" or "PartitionKey" of the document will throw an error.
+
+##### SQL/Cosmos syntax
+**ORIGINAL**
+```
+{
+    "Name": {
+        "Key": "FirstNameKey",
+        "Text": "First Name"
+    }
+}
+```
+
+**QUERY**
+```
+ASTransaction
+UPDATE '14e42d8c-7583-432f-8dd0-d80e699ef41f'
+from Marketplace
+SET {
+    "Name": {
+        "Key": "NewNameKey",
+        "Text": "New Name"
+    },
+    "Address": null
+}
+```
+
+**MERGED RESULT**
+```
+{
+    "Name": {
+        "Key": "NewNameKey",
+        "Text": "New Name"
+    }
+    "Address" :null
+}
+```
+
+**Note:** Updates do not use transactions by default and the proper SQL transaction syntax must be used to invoke a transaction.
+
+
 ## Supported Applications
-- Cosmos Emulator Required Version 1.17.x
+- Cosmos Emulator Required Version 1.17.x. This requirement is due to the coupling of DocumentDB Nuget packages to the emulator installed locally. If you do not use the emulator this is not a requirement of using the application.

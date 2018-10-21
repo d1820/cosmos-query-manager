@@ -13,9 +13,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.ListViewItem;
+using CosmosManager.Extensions;
 
 namespace CosmosManager
 {
+
+
     public partial class QueryWindowControl : UserControl, IQueryWindowControl
     {
         private readonly QueryOuputLogger _logger;
@@ -23,6 +26,8 @@ namespace CosmosManager
         public QueryWindowControl()
         {
             InitializeComponent();
+
+            resultListView.DoubleBuffered(true);
 
             //look for a connections string file
             selectConnections.Items.Add("Load Connection File");
@@ -32,13 +37,14 @@ namespace CosmosManager
         {
             get
             {
-                return selectConnections.Items.Cast<object>().ToArray();
+                return selectConnections.ComboBox.Items.Cast<object>().ToArray();
             }
             set
             {
-                selectConnections.Items.Clear();
-                selectConnections.Items.AddRange(value);
-                selectConnections.SelectedIndex = 0;
+                selectConnections.ComboBox.Items.Clear();
+                selectConnections.ComboBox.DisplayMember = "Name";
+                selectConnections.ComboBox.Items.AddRange(value);
+                selectConnections.ComboBox.SelectedIndex = 0;
             }
         }
 
@@ -90,7 +96,15 @@ namespace CosmosManager
 
         private async void runQueryButton_Click_1(object sender, EventArgs e)
         {
-            Presenter.Run();
+            try
+            {
+                runQueryButton.Enabled = false;
+                await Presenter.RunAsync();
+            }
+            finally
+            {
+                runQueryButton.Enabled = true;
+            }
         }
 
         private void selectConnections_SelectedValueChanged(object sender, EventArgs e)
@@ -99,15 +113,18 @@ namespace CosmosManager
             {
                 Presenter.SelectedConnection = (Connection)selectConnections.SelectedItem;
                 MainPresenter.UpdateTabHeaderColor();
+                return;
             }
+            Presenter.SelectedConnection = null;
         }
+
 
         public DialogResult ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
         {
             return MessageBox.Show(message, title, buttons, icon);
         }
 
-        public void SetStatusBarMessage(string message)
+        public void SetStatusBarMessage(string message, bool ignoreClearTimer = false)
         {
             MainPresenter.SetStatusBarMessage(message);
         }
@@ -129,7 +146,7 @@ namespace CosmosManager
                 listItem.Tag = fromObject;
                 var subItem = new ListViewSubItem
                 {
-                    Text = fromObject["id"]?.Value<string>()
+                    Text = fromObject[Constants.DocumentFields.ID]?.Value<string>()
                 };
                 listItem.SubItems.Add(subItem);
 
@@ -168,16 +185,24 @@ namespace CosmosManager
         private void selectedToUpdateButton_Click(object sender, EventArgs e)
         {
             var items = GetCheckedListItems();
-            var ids = items.Select(s => s["id"]);
+            if (!items.Any())
+            {
+                return;
+            }
+            var ids = items.Select(s => s[Constants.DocumentFields.ID]);
             var parser = new QueryStatementParser();
             var parts = parser.Parse(Query);
-            MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryKeywords.SET} @SET{{ }}@");
+            MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryKeywords.SET} {{{Environment.NewLine}{Environment.NewLine}}}");
         }
 
         private void selectedToDeleteButton_Click(object sender, EventArgs e)
         {
             var items = GetCheckedListItems();
-            var ids = items.Select(s => s["id"]);
+            if (!items.Any())
+            {
+                return;
+            }
+            var ids = items.Select(s => s[Constants.DocumentFields.ID]);
             var parser = new QueryStatementParser();
             var parts = parser.Parse(Query);
             MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine} {Constants.QueryKeywords.DELETE} '{string.Join("','", ids)}' {Environment.NewLine} {Constants.QueryKeywords.FROM} {parts.CollectionName}");
@@ -392,7 +417,7 @@ namespace CosmosManager
         private async void deleteDocumentButton_Click(object sender, EventArgs e)
         {
             var selectedItem = (JObject)resultListView.SelectedItems[0].Tag;
-            if (MessageBox.Show(this, $"Are you sure you want to delete document {selectedItem["id"]}", "Delete Document", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            if (MessageBox.Show(this, $"Are you sure you want to delete document {selectedItem[Constants.DocumentFields.ID]}", "Delete Document", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
             {
                 var wasDeleted = await Presenter.DeleteDocumentAsync(selectedItem);
                 if (wasDeleted)
@@ -434,6 +459,16 @@ namespace CosmosManager
                 return;
             }
             textQueryOutput.Text = string.Empty;
+        }
+
+        private void beautifyResultDocumentButton_Click(object sender, EventArgs e)
+        {
+            textDocument.Text = Presenter.Beautify(textDocument.Text);
+        }
+
+        private void beautifyQueryButton_Click(object sender, EventArgs e)
+        {
+            textQuery.Text = Presenter.BeautifyQuery(textQuery.Text);
         }
     }
 }

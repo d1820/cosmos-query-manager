@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CosmosManager.Presenters
@@ -35,12 +36,16 @@ namespace CosmosManager.Presenters
             _view = view;
             view.Presenter = this;
             _logger = new QueryOuputLogger(this);
-            var transactionTask = new TransactionTask();
+            var transactionTask = new TransactionTask(_logger);
             _queryParser = new QueryStatementParser();
             _queryRunners.Add(new SelectQueryRunner(this));
             _queryRunners.Add(new DeleteByIdQueryRunner(this, transactionTask));
             _queryRunners.Add(new DeleteByWhereQueryRunner(this, transactionTask));
             _queryRunners.Add(new RollbackQueryRunner(this, transactionTask));
+            _queryRunners.Add(new InsertQueryRunner(this));
+            _queryRunners.Add(new UpdateByIdQueryRunner(this, transactionTask));
+            _queryRunners.Add(new UpdateByWhereQueryRunner(this, transactionTask));
+
 
             TabIndexReference = tabIndexReference;
         }
@@ -91,13 +96,13 @@ namespace CosmosManager.Presenters
             _view.Query = query;
         }
 
-        public async void Run()
+        public async Task RunAsync()
         {
             _view.ResetResultsView();
             //execute th interpretor and run against cosmos and connection
             if (SelectedConnection is Connection && SelectedConnection != null)
             {
-                _view.SetStatusBarMessage("Executing Query...");
+                _view.SetStatusBarMessage("Executing Query...", true);
 
                 var documentStore = CreateDocumentClientAndStore();
 
@@ -115,13 +120,15 @@ namespace CosmosManager.Presenters
                     if (!didRun)
                     {
                         _view.ShowMessage("Unable to execute query. Verify query and try again.", "Query Execution Error");
+                        ShowOutputTab();
                     }
                 }
                 else
                 {
                     _logger.LogError("Unable to find a query processor for query type");
+                    ShowOutputTab();
                 }
-                _view.SetStatusBarMessage("");
+                _view.SetStatusBarMessage("", false);
             }
             else
             {
@@ -170,7 +177,7 @@ namespace CosmosManager.Presenters
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(SelectedConnection.Database, parts.CollectionName);
                 var partionKeyValue = document.SelectToken(partitionKeyPath).ToString();
                 var result = await documentStore.ExecuteAsync(SelectedConnection.Database, parts.CollectionName,
-                       context => context.DeleteAsync(document["id"].ToString(), new Domain.RequestOptions() { PartitionKey = partionKeyValue }));
+                       context => context.DeleteAsync(document[Constants.DocumentFields.ID].ToString(), new Domain.RequestOptions() { PartitionKey = partionKeyValue }));
 
                 _view.SetStatusBarMessage("Document Deleted");
                 _view.DocumentText = string.Empty;
@@ -246,6 +253,71 @@ namespace CosmosManager.Presenters
         public void ShowOutputTab()
         {
             _view.ShowOutputTab();
+        }
+
+        public string Beautify(string data)
+        {
+            if (string.IsNullOrEmpty(data))
+            {
+                return data;
+            }
+            var obj = JObject.Parse(data);
+            return JsonConvert.SerializeObject(obj, Formatting.Indented);
+        }
+
+        public string BeautifyQuery(string query)
+        {
+            try
+            {
+                var queryParts = _queryParser.Parse(query);
+                var sql = new StringBuilder();
+                if (queryParts.IsTransaction)
+                {
+                    sql.AppendLine(Constants.QueryKeywords.TRANSACTION);
+                }
+                if (queryParts.IsValidInsertQuery())
+                {
+                    sql.AppendLine(queryParts.QueryType);
+                    sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryBody), Formatting.Indented));
+                    sql.AppendLine(queryParts.QueryInto);
+                    return sql.ToString();
+                }
+
+                if (queryParts.IsRollback)
+                {
+                    sql.AppendLine($"ROLLBACK {queryParts.RollbackName}");
+                    return sql.ToString();
+                }
+
+                if (queryParts.IsValidQuery())
+                {
+                    if (queryParts.IsUpdateQuery())
+                    {
+                        sql.AppendLine($"{queryParts.QueryType} {queryParts.QueryBody}");
+                        sql.AppendLine($"{queryParts.QueryFrom}");
+                        if (queryParts.HasWhereClause())
+                        {
+                            sql.AppendLine(queryParts.QueryWhere);
+                        }
+                        sql.AppendLine(queryParts.QueryUpdateType);
+                        sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
+                        return sql.ToString();
+                    }
+                    sql.AppendLine($"{queryParts.QueryType} {queryParts.QueryBody}");
+                    sql.AppendLine($"{queryParts.QueryFrom}");
+                    if (queryParts.HasWhereClause())
+                    {
+                        sql.AppendLine(queryParts.QueryWhere);
+                    }
+                    return sql.ToString();
+
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            return query;
         }
     }
 }

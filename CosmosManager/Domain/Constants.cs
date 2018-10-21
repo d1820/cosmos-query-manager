@@ -7,7 +7,10 @@ namespace CosmosManager.Domain
             public const int COSMOSDB = 99;
             public const int REQUEST_RESPONSE = 100;
         }
-
+        public static class DocumentFields
+        {
+            public const string ID = "id";
+        }
         public static class QueryKeywords
         {
             public const string SELECT = "SELECT";
@@ -18,6 +21,9 @@ namespace CosmosManager.Domain
             public const string WHERE = "WHERE";
             public const string SET = "SET";
             public const string ROLLBACK = "ROLLBACK";
+            public const string INSERT = "INSERT";
+            public const string INTO = "INTO";
+            public const string REPLACE = "REPLACE";
         }
     }
 }

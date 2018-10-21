@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosManager", "CosmosManager\CosmosManager.csproj", "{9F9A2550-C280-49E1-B953-53AAA624FED6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosManager.Tests.Unit", "CosmosManager.Tests.Unit\CosmosManager.Tests.Unit.csproj", "{F6640B5D-14F0-4128-BD79-26C6C3EFC612}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,6 +24,10 @@ Global
 		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F9A2550-C280-49E1-B953-53AAA624FED6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6640B5D-14F0-4128-BD79-26C6C3EFC612}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6640B5D-14F0-4128-BD79-26C6C3EFC612}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6640B5D-14F0-4128-BD79-26C6C3EFC612}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6640B5D-14F0-4128-BD79-26C6C3EFC612}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -42,6 +42,7 @@ namespace CosmosManager.QueryRunners
                 var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsValidQuery())
                 {
+                    logger.LogError("Invalid Query. Aborting Delete.");
                     return false;
                 }
 
@@ -50,6 +51,7 @@ namespace CosmosManager.QueryRunners
                 if (queryParts.IsTransaction)
                 {
                     logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
+                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, _queryParser.OrginalQuery);
 
                 }
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(connection.Database, queryParts.CollectionName);
@@ -61,30 +63,33 @@ namespace CosmosManager.QueryRunners
                                                                            await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                                                                          async (IDocumentExecuteContext context) =>
                                                                                          {
-                                                                                             var queryOptions = new QueryOptions
+
+                                                                                             if (queryParts.IsTransaction)
+                                                                                             {
+                                                                                                 var backupResult = await _transactionTask.BackupAsync(context, connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, documentId);
+                                                                                                 if (!backupResult.isSuccess)
+                                                                                                 {
+                                                                                                     logger.LogError($"Unable to backup document {documentId}. Skipping Delete.");
+                                                                                                     return false;
+                                                                                                 }
+                                                                                             }
+
+
+                                                                                             var queryToFindOptions = new QueryOptions
                                                                                              {
                                                                                                  PopulateQueryMetrics = false,
                                                                                                  EnableCrossPartitionQuery = true,
                                                                                                  MaxItemCount = 1,
                                                                                              };
-                                                                                             var query = context.QueryAsSql<object>($"SELECT * FROM {queryParts.CollectionName} WHERE {queryParts.CollectionName}.id = {documentId}", queryOptions);
-                                                                                             var doc = (await query.ConvertAndLogRequestUnits(false, logger)).FirstOrDefault();
+                                                                                             //we have to query to find the partitionKey value so we can do the delete
+                                                                                             var queryToFind = context.QueryAsSql<object>($"SELECT {queryParts.CollectionName}.{partitionKeyPath} FROM {queryParts.CollectionName} WHERE {queryParts.CollectionName}.id = '{documentId.CleanId()}'", queryToFindOptions);
+                                                                                             var partitionKeyResult = (await queryToFind.ConvertAndLogRequestUnits(false, logger)).FirstOrDefault();
 
-                                                                                             //save doc to file
-                                                                                             if (doc != null)
+                                                                                             if (partitionKeyResult != null)
                                                                                              {
-                                                                                                 var jobj = JObject.FromObject(doc);
+                                                                                                 var jobj = JObject.FromObject(partitionKeyResult);
                                                                                                  var partionKeyValue = jobj.SelectToken(partitionKeyPath).ToString();
-                                                                                                 if (queryParts.IsTransaction)
-                                                                                                 {
-                                                                                                     var backupSuccess = await _transactionTask.Backup(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, jobj);
 
-                                                                                                     if (!backupSuccess)
-                                                                                                     {
-                                                                                                         logger.LogError($"Unable to backup document {documentId}. Skipping Delete.");
-                                                                                                         return false;
-                                                                                                     }
-                                                                                                 }
                                                                                                  var deleted = await context.DeleteAsync(documentId.CleanId(), new RequestOptions
                                                                                                  {
                                                                                                      PartitionKey = partionKeyValue
@@ -119,7 +124,10 @@ namespace CosmosManager.QueryRunners
                 actionTransactionCacheBlock.Complete();
                 await actionTransactionCacheBlock.Completion;
                 logger.LogInformation($"Deleted {deleteCount} out of {ids.Length}");
-                logger.LogInformation($"To rollback execute: ROLLBACK {queryParts.TransactionId}");
+                if (queryParts.IsTransaction)
+                {
+                    logger.LogInformation($"To rollback execute: ROLLBACK {queryParts.TransactionId}");
+                }
                 _presenter.ShowOutputTab();
                 return true;
             }

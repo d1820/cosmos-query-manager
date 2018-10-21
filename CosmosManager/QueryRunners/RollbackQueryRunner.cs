@@ -48,7 +48,12 @@ namespace CosmosManager.QueryRunners
 
                 //get each file from rollback folder if exists
                 var files = _transactionTask.GetRollbackFiles(connection.Name, connection.Database, collectionName, queryParts.RollbackName);
-
+                if (files.Length == 0)
+                {
+                    logger.LogInformation($"No files found for {queryParts.RollbackName}. Aborting Rollback.");
+                    _presenter.ShowOutputTab();
+                    return false;
+                }
 
                 var updateCount = 0;
                 var rollbackBlock = new ActionBlock<JObject>(async document =>
@@ -59,7 +64,7 @@ namespace CosmosManager.QueryRunners
                                                                                          {
                                                                                              var result = await context.UpdateAsync(document);
                                                                                              Interlocked.Increment(ref updateCount);
-                                                                                             logger.LogInformation($"Restored {document["id"]}");
+                                                                                             logger.LogInformation($"Restored {document[Constants.DocumentFields.ID]}");
                                                                                              return result;
                                                                                          });
                                                                        },
