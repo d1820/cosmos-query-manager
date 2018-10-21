@@ -21,7 +21,7 @@ namespace CosmosManager
 
     public partial class QueryWindowControl : UserControl, IQueryWindowControl
     {
-        private readonly QueryOuputLogger _logger;
+        //private readonly QueryOuputLogger _logger;
 
         public QueryWindowControl()
         {
@@ -223,7 +223,7 @@ namespace CosmosManager
             await Presenter.SaveQueryAsync();
         }
 
-        private async void resultListView_SelectedIndexChanged(object sender, EventArgs e)
+        private void resultListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (resultListView.SelectedItems.Count == 0)
             {
