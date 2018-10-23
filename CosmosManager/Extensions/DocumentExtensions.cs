@@ -8,7 +8,7 @@
             {
                 return documentId;
             }
-            return documentId.Replace("'","");
+            return documentId.Replace("'", "");
         }
     }
 }

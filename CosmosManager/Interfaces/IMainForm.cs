@@ -1,5 +1,4 @@
-﻿using CosmosManager.Presenters;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace CosmosManager.Interfaces
 {
@@ -7,7 +6,7 @@ namespace CosmosManager.Interfaces
     {
         void SetStatusBarMessage(string message);
 
-        MainFormPresenter Presenter { set; }
+        IMainFormPresenter Presenter { set; }
 
         void ClearFileTreeView();
 

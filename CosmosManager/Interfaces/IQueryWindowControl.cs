@@ -1,6 +1,4 @@
-﻿using CosmosManager.Presenters;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace CosmosManager.Interfaces
@@ -11,8 +9,8 @@ namespace CosmosManager.Interfaces
         string Query { get; set; }
         string QueryOutput { get; }
         string DocumentText { get; set; }
-        QueryWindowPresenter Presenter { set; }
-        MainFormPresenter MainPresenter { set; }
+        IQueryWindowPresenter Presenter { set; }
+        IMainFormPresenter MainPresenter { set; }
 
         void ClearStats();
 
@@ -30,6 +28,6 @@ namespace CosmosManager.Interfaces
 
         void ResetQueryOutput();
 
-         void SetUpdatedResultDocument(object document);
+        void SetUpdatedResultDocument(object document);
     }
 }

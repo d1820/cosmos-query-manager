@@ -1,12 +1,10 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
-using CosmosManager.Parsers;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,14 +15,12 @@ namespace CosmosManager.QueryRunners
     public class DeleteByIdQueryRunner : IQueryRunner
     {
         private int MAX_DEGREE_PARALLEL = 5;
-        private QueryStatementParser _queryParser;
-        private readonly IResultsPresenter _presenter;
+        private IQueryStatementParser _queryParser;
         private readonly ITransactionTask _transactionTask;
 
-        public DeleteByIdQueryRunner(IResultsPresenter presenter, ITransactionTask transactionTask)
+        public DeleteByIdQueryRunner(ITransactionTask transactionTask, IQueryStatementParser queryStatementParser)
         {
-            _presenter = presenter;
-            _queryParser = new QueryStatementParser();
+            _queryParser = queryStatementParser;
             _transactionTask = transactionTask;
         }
 
@@ -34,16 +30,15 @@ namespace CosmosManager.QueryRunners
             return queryParts.QueryType.Equals(Constants.QueryKeywords.DELETE, StringComparison.InvariantCultureIgnoreCase) && !queryParts.QueryBody.Equals("*");
         }
 
-        public async Task<bool> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
             try
             {
-                _presenter.ResetQueryOutput();
                 var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsValidQuery())
                 {
                     logger.LogError("Invalid Query. Aborting Delete.");
-                    return false;
+                    return (false, null);
                 }
 
                 var ids = queryParts.QueryBody.Split(new[] { ',' });
@@ -52,7 +47,6 @@ namespace CosmosManager.QueryRunners
                 {
                     logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
                     await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, _queryParser.OrginalQuery);
-
                 }
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(connection.Database, queryParts.CollectionName);
 
@@ -63,7 +57,6 @@ namespace CosmosManager.QueryRunners
                                                                            await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                                                                          async (IDocumentExecuteContext context) =>
                                                                                          {
-
                                                                                              if (queryParts.IsTransaction)
                                                                                              {
                                                                                                  var backupResult = await _transactionTask.BackupAsync(context, connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, documentId);
@@ -73,7 +66,6 @@ namespace CosmosManager.QueryRunners
                                                                                                      return false;
                                                                                                  }
                                                                                              }
-
 
                                                                                              var queryToFindOptions = new QueryOptions
                                                                                              {
@@ -103,7 +95,6 @@ namespace CosmosManager.QueryRunners
                                                                                                  {
                                                                                                      logger.LogInformation($"Document {documentId} unable to be deleted.");
                                                                                                  }
-
                                                                                              }
                                                                                              else
                                                                                              {
@@ -128,13 +119,12 @@ namespace CosmosManager.QueryRunners
                 {
                     logger.LogInformation($"To rollback execute: ROLLBACK {queryParts.TransactionId}");
                 }
-                _presenter.ShowOutputTab();
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, new EventId(), $"Unable to run {Constants.QueryKeywords.DELETE} query", ex);
-                return false;
+                return (false, null);
             }
         }
     }

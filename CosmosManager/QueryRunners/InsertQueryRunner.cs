@@ -1,29 +1,22 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
-using CosmosManager.Parsers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
 namespace CosmosManager.QueryRunners
 {
     public class InsertQueryRunner : IQueryRunner
     {
-        private QueryStatementParser _queryParser;
-        private readonly IResultsPresenter _presenter;
+        private IQueryStatementParser _queryParser;
 
-        public InsertQueryRunner(IResultsPresenter presenter)
+        public InsertQueryRunner(IQueryStatementParser queryStatementParser)
         {
-            _presenter = presenter;
-            _queryParser = new QueryStatementParser();
+            _queryParser = queryStatementParser;
         }
 
         public bool CanRun(string query)
@@ -32,15 +25,14 @@ namespace CosmosManager.QueryRunners
             return queryParts.IsValidInsertQuery();
         }
 
-        public async Task<bool> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
             try
             {
-                _presenter.ResetQueryOutput();
                 var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsValidInsertQuery())
                 {
-                    return false;
+                    return (false, null);
                 }
 
                 var jsonDocument = JsonConvert.DeserializeObject<dynamic>(queryParts.QueryBody);
@@ -66,14 +58,12 @@ namespace CosmosManager.QueryRunners
                 {
                     logger.LogInformation($"Document {newDoc[Constants.DocumentFields.ID]} created.");
                 }
-
-                _presenter.ShowOutputTab();
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, new EventId(), $"Unable to run {Constants.QueryKeywords.INSERT} query", ex);
-                return false;
+                return (false, null);
             }
         }
     }

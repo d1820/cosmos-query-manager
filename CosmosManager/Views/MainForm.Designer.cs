@@ -35,6 +35,8 @@
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newFileQueryTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.openFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewTransactionCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,6 +62,7 @@
             this.duplicateTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.tabBackgroundPanel = new System.Windows.Forms.Panel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -69,20 +72,21 @@
             this.contextMenuStrip1.SuspendLayout();
             this.contextTabs.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
+            this.tabBackgroundPanel.SuspendLayout();
             this.SuspendLayout();
-            // 
+            //
             // openFileDialog1
-            // 
+            //
             this.openFileDialog1.DefaultExt = "json";
             this.openFileDialog1.FileName = "openFileDialog1";
             this.openFileDialog1.SupportMultiDottedExtensions = true;
-            // 
+            //
             // folderBrowserDialog1
-            // 
+            //
             this.folderBrowserDialog1.ShowNewFolderButton = false;
-            // 
+            //
             // menuStrip1
-            // 
+            //
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
@@ -93,25 +97,39 @@
             this.menuStrip1.Size = new System.Drawing.Size(1229, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
-            // 
+            //
             // fileToolStripMenuItem
-            // 
+            //
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newFileQueryTabToolStripMenuItem,
+            this.toolStripSeparator2,
             this.openFolderToolStripMenuItem});
             this.fileToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlText;
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
-            // 
+            //
+            // newFileQueryTabToolStripMenuItem
+            //
+            this.newFileQueryTabToolStripMenuItem.Name = "newFileQueryTabToolStripMenuItem";
+            this.newFileQueryTabToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.newFileQueryTabToolStripMenuItem.Text = "New Query Tab";
+            this.newFileQueryTabToolStripMenuItem.Click += new System.EventHandler(this.newFileQueryTabToolStripMenuItem_Click);
+            //
+            // toolStripSeparator2
+            //
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(153, 6);
+            //
             // openFolderToolStripMenuItem
-            // 
+            //
             this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.openFolderToolStripMenuItem.Text = "Open Folder";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
-            // 
+            //
             // editToolStripMenuItem
-            // 
+            //
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.viewTransactionCacheToolStripMenuItem,
             this.toolStripSeparator1,
@@ -120,27 +138,27 @@
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
-            // 
+            //
             // viewTransactionCacheToolStripMenuItem
-            // 
+            //
             this.viewTransactionCacheToolStripMenuItem.Name = "viewTransactionCacheToolStripMenuItem";
             this.viewTransactionCacheToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.viewTransactionCacheToolStripMenuItem.Text = "View Transaction Cache";
             this.viewTransactionCacheToolStripMenuItem.Click += new System.EventHandler(this.viewTransactionCacheToolStripMenuItem_Click);
-            // 
+            //
             // toolStripSeparator1
-            // 
+            //
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(197, 6);
-            // 
+            //
             // preferencesToolStripMenuItem
-            // 
+            //
             this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
             this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.preferencesToolStripMenuItem.Text = "Preferences";
-            // 
+            //
             // connectToolStripMenuItem
-            // 
+            //
             this.connectToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadConnectionFileToolStripMenuItem,
             this.editConnectionFileToolStripMenuItem});
@@ -148,23 +166,23 @@
             this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
             this.connectToolStripMenuItem.Size = new System.Drawing.Size(64, 20);
             this.connectToolStripMenuItem.Text = "Connect";
-            // 
+            //
             // loadConnectionFileToolStripMenuItem
-            // 
+            //
             this.loadConnectionFileToolStripMenuItem.Name = "loadConnectionFileToolStripMenuItem";
             this.loadConnectionFileToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.loadConnectionFileToolStripMenuItem.Text = "Load Connection File";
             this.loadConnectionFileToolStripMenuItem.Click += new System.EventHandler(this.loadConnectionFileToolStripMenuItem_Click);
-            // 
+            //
             // editConnectionFileToolStripMenuItem
-            // 
+            //
             this.editConnectionFileToolStripMenuItem.Name = "editConnectionFileToolStripMenuItem";
             this.editConnectionFileToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.editConnectionFileToolStripMenuItem.Text = "Edit Connection File";
             this.editConnectionFileToolStripMenuItem.Visible = false;
-            // 
+            //
             // helpToolStripMenuItem
-            // 
+            //
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.guideToolStripMenuItem,
             this.reportABugToolStripMenuItem});
@@ -172,23 +190,23 @@
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "Help";
-            // 
+            //
             // guideToolStripMenuItem
-            // 
+            //
             this.guideToolStripMenuItem.Name = "guideToolStripMenuItem";
             this.guideToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.guideToolStripMenuItem.Text = "Guide";
             this.guideToolStripMenuItem.Click += new System.EventHandler(this.guideToolStripMenuItem_Click);
-            // 
+            //
             // reportABugToolStripMenuItem
-            // 
+            //
             this.reportABugToolStripMenuItem.Name = "reportABugToolStripMenuItem";
             this.reportABugToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.reportABugToolStripMenuItem.Text = "Report A Bug";
             this.reportABugToolStripMenuItem.Click += new System.EventHandler(this.reportABugToolStripMenuItem_Click);
-            // 
+            //
             // statusStrip1
-            // 
+            //
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.appStatusLabel,
             this.transactionCacheSizeLabel});
@@ -197,17 +215,17 @@
             this.statusStrip1.Size = new System.Drawing.Size(1229, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
-            // 
+            //
             // appStatusLabel
-            // 
+            //
             this.appStatusLabel.BackColor = System.Drawing.SystemColors.Control;
             this.appStatusLabel.ForeColor = System.Drawing.SystemColors.ControlText;
             this.appStatusLabel.Name = "appStatusLabel";
             this.appStatusLabel.Size = new System.Drawing.Size(39, 17);
             this.appStatusLabel.Text = "Ready";
-            // 
+            //
             // transactionCacheSizeLabel
-            // 
+            //
             this.transactionCacheSizeLabel.BackColor = System.Drawing.SystemColors.Control;
             this.transactionCacheSizeLabel.ForeColor = System.Drawing.SystemColors.ControlText;
             this.transactionCacheSizeLabel.Name = "transactionCacheSizeLabel";
@@ -216,26 +234,26 @@
             this.transactionCacheSizeLabel.Text = "Transaction Cache";
             this.transactionCacheSizeLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.transactionCacheSizeLabel.DoubleClick += new System.EventHandler(this.transactionCacheSizeLabel_DoubleClick);
-            // 
+            //
             // splitContainer1
-            // 
+            //
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 24);
             this.splitContainer1.Name = "splitContainer1";
-            // 
+            //
             // splitContainer1.Panel1
-            // 
+            //
             this.splitContainer1.Panel1.Controls.Add(this.fileTreeView);
-            // 
+            //
             // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.Controls.Add(this.queryTabControl);
+            //
+            this.splitContainer1.Panel2.Controls.Add(this.tabBackgroundPanel);
             this.splitContainer1.Size = new System.Drawing.Size(1229, 578);
             this.splitContainer1.SplitterDistance = 175;
             this.splitContainer1.TabIndex = 2;
-            // 
+            //
             // fileTreeView
-            // 
+            //
             this.fileTreeView.CausesValidation = false;
             this.fileTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fileTreeView.ImageIndex = 0;
@@ -249,16 +267,16 @@
             this.fileTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.fileTreeView_NodeMouseClick);
             this.fileTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.fileTreeView_NodeMouseDoubleClick);
             this.fileTreeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.fileTreeView_MouseUp);
-            // 
+            //
             // imageList1
-            // 
+            //
             this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
             this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
             this.imageList1.Images.SetKeyName(0, "Folder");
             this.imageList1.Images.SetKeyName(1, "File");
-            // 
+            //
             // queryTabControl
-            // 
+            //
             this.queryTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.queryTabControl.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
             this.queryTabControl.Location = new System.Drawing.Point(0, 0);
@@ -269,54 +287,65 @@
             this.queryTabControl.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.queryTabControl_DrawItem);
             this.queryTabControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this.queryTabControl_MouseDown);
             this.queryTabControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.queryTabControl_MouseUp);
-            // 
+            //
             // contextMenuStrip1
-            // 
+            //
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newQueryTabToolStripMenuItem,
             this.createNewQueryToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(169, 48);
-            // 
+            //
             // newQueryTabToolStripMenuItem
-            // 
+            //
             this.newQueryTabToolStripMenuItem.Name = "newQueryTabToolStripMenuItem";
             this.newQueryTabToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.newQueryTabToolStripMenuItem.Text = "New Query Tab";
             this.newQueryTabToolStripMenuItem.Click += new System.EventHandler(this.newQueryTabToolStripMenuItem_Click);
-            // 
+            //
             // createNewQueryToolStripMenuItem
-            // 
+            //
             this.createNewQueryToolStripMenuItem.Name = "createNewQueryToolStripMenuItem";
             this.createNewQueryToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.createNewQueryToolStripMenuItem.Text = "Create New Script";
             this.createNewQueryToolStripMenuItem.Click += new System.EventHandler(this.createNewQueryToolStripMenuItem_Click);
-            // 
+            //
             // contextTabs
-            // 
+            //
             this.contextTabs.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.duplicateTabToolStripMenuItem});
             this.contextTabs.Name = "contextTabs";
             this.contextTabs.Size = new System.Drawing.Size(148, 26);
-            // 
+            //
             // duplicateTabToolStripMenuItem
-            // 
+            //
             this.duplicateTabToolStripMenuItem.Name = "duplicateTabToolStripMenuItem";
             this.duplicateTabToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.duplicateTabToolStripMenuItem.Text = "Duplicate Tab";
             this.duplicateTabToolStripMenuItem.Click += new System.EventHandler(this.duplicateTabToolStripMenuItem_Click);
-            // 
+            //
             // fileSystemWatcher1
-            // 
+            //
             this.fileSystemWatcher1.EnableRaisingEvents = true;
             this.fileSystemWatcher1.IncludeSubdirectories = true;
             this.fileSystemWatcher1.NotifyFilter = ((System.IO.NotifyFilters)((System.IO.NotifyFilters.FileName | System.IO.NotifyFilters.DirectoryName)));
             this.fileSystemWatcher1.SynchronizingObject = this;
             this.fileSystemWatcher1.Created += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Created);
             this.fileSystemWatcher1.Deleted += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Deleted);
-            // 
+            //
+            // tabBackgroundPanel
+            //
+            this.tabBackgroundPanel.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.tabBackgroundPanel.Controls.Add(this.queryTabControl);
+            this.tabBackgroundPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabBackgroundPanel.Location = new System.Drawing.Point(0, 0);
+            this.tabBackgroundPanel.Name = "tabBackgroundPanel";
+            this.tabBackgroundPanel.Size = new System.Drawing.Size(1050, 578);
+            this.tabBackgroundPanel.TabIndex = 1;
+            this.tabBackgroundPanel.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tabBackgroundPanel_MouseDoubleClick);
+            //
             // MainForm
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
@@ -340,6 +369,7 @@
             this.contextMenuStrip1.ResumeLayout(false);
             this.contextTabs.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
+            this.tabBackgroundPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -377,6 +407,9 @@
         private System.Windows.Forms.ToolStripMenuItem editConnectionFileToolStripMenuItem;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.ToolStripMenuItem newQueryTabToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newFileQueryTabToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.Panel tabBackgroundPanel;
     }
 }
 

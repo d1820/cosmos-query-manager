@@ -1,8 +1,7 @@
 ﻿using CosmosManager.Controls;
 using CosmosManager.Domain;
+using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
-using CosmosManager.Parsers;
-using CosmosManager.Presenters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -13,12 +12,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.ListViewItem;
-using CosmosManager.Extensions;
 
 namespace CosmosManager
 {
-
-
     public partial class QueryWindowControl : UserControl, IQueryWindowControl
     {
         //private readonly QueryOuputLogger _logger;
@@ -91,8 +87,8 @@ namespace CosmosManager
             textDocument.Clear();
         }
 
-        public QueryWindowPresenter Presenter { private get; set; }
-        public MainFormPresenter MainPresenter { private get; set; }
+        public IQueryWindowPresenter Presenter { private get; set; }
+        public IMainFormPresenter MainPresenter { private get; set; }
 
         private async void runQueryButton_Click_1(object sender, EventArgs e)
         {
@@ -117,7 +113,6 @@ namespace CosmosManager
             }
             Presenter.SelectedConnection = null;
         }
-
 
         public DialogResult ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
         {
@@ -190,7 +185,7 @@ namespace CosmosManager
                 return;
             }
             var ids = items.Select(s => s[Constants.DocumentFields.ID]);
-            var parser = new QueryStatementParser();
+            var parser = AppReferences.Container.GetInstance<IQueryStatementParser>();
             var parts = parser.Parse(Query);
             MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryKeywords.SET} {{{Environment.NewLine}{Environment.NewLine}}}");
         }
@@ -203,7 +198,7 @@ namespace CosmosManager
                 return;
             }
             var ids = items.Select(s => s[Constants.DocumentFields.ID]);
-            var parser = new QueryStatementParser();
+            var parser = AppReferences.Container.GetInstance<IQueryStatementParser>();
             var parts = parser.Parse(Query);
             MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine} {Constants.QueryKeywords.DELETE} '{string.Join("','", ids)}' {Environment.NewLine} {Constants.QueryKeywords.FROM} {parts.CollectionName}");
         }

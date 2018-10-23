@@ -1,11 +1,5 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using CosmosManager.Parsers;
-using CosmosManager.QueryRunners;
-using CosmosManager.Stores;
-using CosmosManager.Tasks;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -18,36 +12,38 @@ using System.Threading.Tasks;
 
 namespace CosmosManager.Presenters
 {
-    public class QueryWindowPresenter : IResultsPresenter
+    public class QueryWindowPresenter : IQueryWindowPresenter
     {
         private List<Connection> _currentConnections;
         public Connection SelectedConnection { get; set; }
         public FileInfo CurrentFileInfo { get; private set; }
-        public int TabIndexReference { get; }
+        public int TabIndexReference { get; private set; }
 
-        private Dictionary<string, (IDocumentClient client, IDocumentStore store)> _clients = new Dictionary<string, (IDocumentClient, IDocumentStore)>();
         private IQueryWindowControl _view;
-        private QueryOuputLogger _logger;
-        private readonly QueryStatementParser _queryParser;
-        private List<IQueryRunner> _queryRunners = new List<IQueryRunner>();
+        private IQueryWindowPresenterLogger _logger;
+        private readonly IQueryStatementParser _queryParser;
+        private IEnumerable<IQueryRunner> _queryRunners = new List<IQueryRunner>();
+        private dynamic _context;
+        private readonly IClientConnectionManager _clientConnectionManager;
 
-        public QueryWindowPresenter(IQueryWindowControl view, int tabIndexReference)
+        public QueryWindowPresenter(IClientConnectionManager clientConnectionManager,
+                                    IQueryStatementParser queryStatementParser,
+                                    IQueryWindowPresenterLogger logger,
+                                    IEnumerable<IQueryRunner> queryRunners)
         {
-            _view = view;
-            view.Presenter = this;
-            _logger = new QueryOuputLogger(this);
-            var transactionTask = new TransactionTask(_logger);
-            _queryParser = new QueryStatementParser();
-            _queryRunners.Add(new SelectQueryRunner(this));
-            _queryRunners.Add(new DeleteByIdQueryRunner(this, transactionTask));
-            _queryRunners.Add(new DeleteByWhereQueryRunner(this, transactionTask));
-            _queryRunners.Add(new RollbackQueryRunner(this, transactionTask));
-            _queryRunners.Add(new InsertQueryRunner(this));
-            _queryRunners.Add(new UpdateByIdQueryRunner(this, transactionTask));
-            _queryRunners.Add(new UpdateByWhereQueryRunner(this, transactionTask));
+            _logger = logger;
+            _logger.SetPresenter(this);
+            _queryParser = queryStatementParser;
+            _queryRunners = queryRunners;
+            _clientConnectionManager = clientConnectionManager;
+        }
 
-
-            TabIndexReference = tabIndexReference;
+        public void InitializePresenter(dynamic context)
+        {
+            _context = context;
+            _view = (IQueryWindowControl)context.QueryWindowControl;
+            _view.Presenter = this;
+            TabIndexReference = (int)context.TabIndexReference;
         }
 
         public string CurrentTabQuery
@@ -63,7 +59,7 @@ namespace CosmosManager.Presenters
             _currentConnections = connections;
             if (connections != null)
             {
-                _clients.Clear();
+                _clientConnectionManager.Clear();
                 var c = new List<object>();
                 c.Add("Select Connection");
                 c.AddRange(connections.ToArray());
@@ -104,7 +100,7 @@ namespace CosmosManager.Presenters
             {
                 _view.SetStatusBarMessage("Executing Query...", true);
 
-                var documentStore = CreateDocumentClientAndStore();
+                var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
 
                 var runner = _queryRunners.FirstOrDefault(f => f.CanRun(_view.Query));
                 if (runner != null)
@@ -116,10 +112,19 @@ namespace CosmosManager.Presenters
                     {
                         return;
                     }
-                    var didRun = await runner.RunAsync(documentStore, SelectedConnection, _view.Query, true, _logger);
-                    if (!didRun)
+                    ResetQueryOutput();
+                    var response = await runner.RunAsync(documentStore, SelectedConnection, _view.Query, true, _logger);
+                    if (!response.success)
                     {
                         _view.ShowMessage("Unable to execute query. Verify query and try again.", "Query Execution Error");
+                        ShowOutputTab();
+                    }
+                    else if (response.results != null)
+                    {
+                        RenderResults(response.results);
+                    }
+                    else
+                    {
                         ShowOutputTab();
                     }
                 }
@@ -139,9 +144,9 @@ namespace CosmosManager.Presenters
         public async Task<object> SaveDocumentAsync(object document)
         {
             _view.SetStatusBarMessage("Saving Document...");
-            var documentStore = CreateDocumentClientAndStore();
-            var parser = new QueryStatementParser();
-            var parts = parser.Parse(_view.Query);
+            var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
+
+            var parts = _queryParser.Parse(_view.Query);
 
             try
             {
@@ -157,20 +162,19 @@ namespace CosmosManager.Presenters
                 return false;
             }
         }
+
         public Task<string> LookupPartitionKeyPath()
         {
-            var documentStore = CreateDocumentClientAndStore();
-            var parser = new QueryStatementParser();
-            var parts = parser.Parse(_view.Query);
+            var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
+            var parts = _queryParser.Parse(_view.Query);
             return documentStore.LookupPartitionKeyPath(SelectedConnection.Database, parts.CollectionName);
         }
 
         public async Task<bool> DeleteDocumentAsync(JObject document)
         {
             _view.SetStatusBarMessage("Deleting Document...");
-            var documentStore = CreateDocumentClientAndStore();
-            var parser = new QueryStatementParser();
-            var parts = parser.Parse(_view.Query);
+            var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
+            var parts = _queryParser.Parse(_view.Query);
 
             try
             {
@@ -189,9 +193,7 @@ namespace CosmosManager.Presenters
                 _view.ShowMessage(ex.Message, "Document Delete Error", icon: System.Windows.Forms.MessageBoxIcon.Error);
                 return false;
             }
-
         }
-
 
         public async Task SaveQueryAsync()
         {
@@ -236,18 +238,6 @@ namespace CosmosManager.Presenters
         public void RenderResults(IReadOnlyCollection<object> results)
         {
             _view.RenderResults(results);
-        }
-
-        private IDocumentStore CreateDocumentClientAndStore()
-        {
-            if (!_clients.ContainsKey(SelectedConnection.EndPointUrl))
-            {
-                var client = new DocumentClient(new Uri(SelectedConnection.EndPointUrl), SelectedConnection.ConnectionKey);
-                var documentStore = new CosmosDocumentStore(client);
-                _clients.Add(SelectedConnection.EndPointUrl, (client, documentStore));
-                return documentStore;
-            }
-            return _clients[SelectedConnection.EndPointUrl].store;
         }
 
         public void ShowOutputTab()
@@ -310,12 +300,10 @@ namespace CosmosManager.Presenters
                         sql.AppendLine(queryParts.QueryWhere);
                     }
                     return sql.ToString();
-
                 }
             }
             catch (Exception)
             {
-
             }
             return query;
         }

@@ -1,22 +1,20 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
-using CosmosManager.Parsers;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CosmosManager.QueryRunners
 {
     public class SelectQueryRunner : IQueryRunner
     {
-        private readonly IResultsPresenter _presenter;
-        private readonly QueryStatementParser _queryParser;
+        private readonly IQueryStatementParser _queryParser;
 
-        public SelectQueryRunner(IResultsPresenter presenter)
+        public SelectQueryRunner(IQueryStatementParser queryStatementParser)
         {
-            _presenter = presenter;
-            _queryParser = new QueryStatementParser();
+            _queryParser = queryStatementParser;
         }
 
         public bool CanRun(string query)
@@ -25,16 +23,15 @@ namespace CosmosManager.QueryRunners
             return queryParts.QueryType.Equals(Constants.QueryKeywords.SELECT, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public async Task<bool> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
             try
             {
-                _presenter.ResetQueryOutput();
                 var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsValidQuery())
                 {
                     logger.LogError("Invalid Query. Aborting Select.");
-                    return false;
+                    return (false, null);
                 }
                 var results = await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                                                        async (IDocumentExecuteContext context) =>
@@ -51,13 +48,12 @@ namespace CosmosManager.QueryRunners
                                                                           var query = context.QueryAsSql<object>(queryParts.ToRawQuery(), queryOptions);
                                                                           return await query.ConvertAndLogRequestUnits(logStats, logger);
                                                                       });
-                _presenter.RenderResults(results);
-                return true;
+                return (true, results);
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, new EventId(), $"Unable to run {Constants.QueryKeywords.SELECT} query", ex);
-                return false;
+                return (false, null);
             }
         }
     }

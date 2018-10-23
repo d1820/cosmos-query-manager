@@ -6,14 +6,9 @@ using System;
 
 namespace CosmosManager.Domain
 {
-    public class QueryOuputLogger : ILogger
+    public class QueryOuputLogger : IQueryWindowPresenterLogger
     {
-        private readonly IResultsPresenter _presenter;
-
-        public QueryOuputLogger(IResultsPresenter presenter)
-        {
-            _presenter = presenter;
-        }
+        private IQueryWindowPresenter _presenter;
 
         public IDisposable BeginScope<TState>(TState state) => throw new NotImplementedException();
 
@@ -46,6 +41,11 @@ namespace CosmosManager.Domain
                     _presenter.AddToQueryOutput(JsonConvert.SerializeObject(parts, Formatting.Indented));
                 }
             }
+        }
+
+        public void SetPresenter(IQueryWindowPresenter presenter)
+        {
+            _presenter = presenter;
         }
     }
 }

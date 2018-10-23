@@ -1,32 +1,39 @@
 ﻿using CosmosManager.Domain;
+using CosmosManager.Interfaces;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace CosmosManager.Parsers
 {
-    public class QueryStatementParser
+    public class QueryStatementParser : IQueryStatementParser
     {
+        private readonly IQueryParser _queryParser;
+
+        public QueryStatementParser(IQueryParser queryParser)
+        {
+            _queryParser = queryParser;
+        }
+
         public string OrginalQuery { get; private set; }
 
         public QueryParts Parse(string query)
         {
             OrginalQuery = query;
             var cleanQuery = CleanQuery(query);
-            var parser = new StringQueryParser();
 
-            var typeAndBody = parser.ParseQueryBody(cleanQuery);
-            var updateTypeAndBody = parser.ParseUpdateBody(cleanQuery);
+            var typeAndBody = _queryParser.ParseQueryBody(cleanQuery);
+            var updateTypeAndBody = _queryParser.ParseUpdateBody(cleanQuery);
             return new QueryParts
             {
                 QueryBody = typeAndBody.queryBody.Trim(),
                 QueryType = typeAndBody.queryType.Trim(),
-                QueryFrom = parser.ParseFromBody(cleanQuery).Trim(),
+                QueryFrom = _queryParser.ParseFromBody(cleanQuery).Trim(),
                 QueryUpdateBody = updateTypeAndBody.updateBody.Trim(),
                 QueryUpdateType = updateTypeAndBody.updateType.Trim(),
-                QueryWhere = parser.ParseWhere(cleanQuery).Trim(),
-                RollbackName = parser.ParseRollback(cleanQuery).Trim(),
-                TransactionId = parser.ParseTransaction(cleanQuery).Trim(),
-                QueryInto = parser.ParseIntoBody(cleanQuery).Trim()
+                QueryWhere = _queryParser.ParseWhere(cleanQuery).Trim(),
+                RollbackName = _queryParser.ParseRollback(cleanQuery).Trim(),
+                TransactionId = _queryParser.ParseTransaction(cleanQuery).Trim(),
+                QueryInto = _queryParser.ParseIntoBody(cleanQuery).Trim()
             };
         }
 
