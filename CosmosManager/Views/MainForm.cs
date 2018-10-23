@@ -1,6 +1,7 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
+using CosmosManager.Views;
 using System;
 using System.Drawing;
 using System.IO;
@@ -321,6 +322,11 @@ namespace CosmosManager
             {
                 CreateTempQueryTab("");
             }
+        }
+
+        private void aboutCosmosManagerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _formManager.ShowModalForm<AboutCosmosManager>();
         }
     }
 }

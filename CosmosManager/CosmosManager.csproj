@@ -167,6 +167,12 @@
     <Compile Include="QueryRunners\DeleteByWhereQueryRunner.cs" />
     <Compile Include="Interfaces\ITransactionTask.cs" />
     <Compile Include="Tasks\TransactionTask.cs" />
+    <Compile Include="Views\AboutCosmosManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\AboutCosmosManager.Designer.cs">
+      <DependentUpon>AboutCosmosManager.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\HelpForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -202,6 +208,9 @@
     <Compile Include="Stores\CosmosDocumentStore.cs" />
     <Compile Include="Stores\DocumentExecuteContext.cs" />
     <Compile Include="Stores\StoredProcedureExecuteContext.cs" />
+    <EmbeddedResource Include="Views\AboutCosmosManager.resx">
+      <DependentUpon>AboutCosmosManager.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\HelpForm.resx">
       <DependentUpon>HelpForm.cs</DependentUpon>
     </EmbeddedResource>

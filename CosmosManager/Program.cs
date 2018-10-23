@@ -4,6 +4,7 @@ using CosmosManager.Managers;
 using CosmosManager.Parsers;
 using CosmosManager.Presenters;
 using CosmosManager.Tasks;
+using CosmosManager.Views;
 using Microsoft.Extensions.Logging;
 using SimpleInjector;
 using SimpleInjector.Diagnostics;
@@ -53,7 +54,8 @@ namespace CosmosManager
             container.Register<IMainForm, MainForm>(Lifestyle.Singleton);
             container.Register<HelpForm>();
             container.Register<NewFileForm>();
-            SuppressRegistrations(new List<Type> { typeof(HelpForm), typeof(NewFileForm) }, container, "Forms Controlled By Manager");
+            container.Register<AboutCosmosManager>();
+            SuppressRegistrations(new List<Type> { typeof(HelpForm), typeof(AboutCosmosManager), typeof(NewFileForm) }, container, "Forms Controlled By Manager");
 
             // Optionally verify the container.
             container.Verify();
