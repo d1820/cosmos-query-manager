@@ -1,5 +1,4 @@
 ﻿using CosmosManager.Domain;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -7,15 +6,6 @@ using System.Threading.Tasks;
 
 namespace CosmosManager.Interfaces
 {
-    public interface IQueryWindowPresenterLogger : ILogger
-    {
-        void SetPresenter(IQueryWindowPresenter presenter);
-    }
-
-    public interface IPresenter
-    {
-        void InitializePresenter(dynamic context);
-    }
 
     public interface IQueryWindowPresenter : IPresenter
     {
