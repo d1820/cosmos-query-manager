@@ -420,42 +420,6 @@ namespace CosmosManager
             e.DrawDefault = true;
         }
 
-        //        private void HideCheckbox(ListView lvw, ListViewItem item)
-        //        {
-        //            var lviItem = new LVITEM();
-        //            lviItem.iItem = item.Index;
-        //            lviItem.mask = LVIF_STATE;
-        //            lviItem.stateMask = LVIS_STATEIMAGEMASK;
-        //            lviItem.state = 0;
-        //            SendMessage(lvw.Handle, LVM_SETITEM, IntPtr.Zero, ref lviItem);
-        //        }
-
-        //        private const int LVIF_STATE = 0x8;
-        //        private const int LVIS_STATEIMAGEMASK = 0xF000;
-        //        private const int LVM_FIRST = 0x1000;
-        //        private const int LVM_SETITEM = LVM_FIRST + 76;
-
-        //        // suppress warnings for interop
-        //#pragma warning disable 0649
-        //        private struct LVITEM
-        //        {
-        //            public int mask;
-        //            public int iItem;
-        //            public int iSubItem;
-        //            public int state;
-        //            public int stateMask;
-        //            [MarshalAs(UnmanagedType.LPTStr)]
-        //            public String lpszText;
-        //            public int cchTextMax;
-        //            public int iImage;
-        //            public IntPtr iParam;
-        //        }
-        //#pragma warning restore 0649
-
-        //        [DllImport("user32.dll")]
-        //        private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, ref LVITEM lParam);
-
-
         private void resultListView_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
             e.DrawDefault = true;
