@@ -1,8 +1,7 @@
 ﻿using CosmosManager.Controls;
 using CosmosManager.Domain;
+using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
-using CosmosManager.Parsers;
-using CosmosManager.Presenters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -10,19 +9,15 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.ListViewItem;
-using CosmosManager.Extensions;
 
 namespace CosmosManager
 {
-
-
     public partial class QueryWindowControl : UserControl, IQueryWindowControl
     {
-        //private readonly QueryOuputLogger _logger;
-
         public QueryWindowControl()
         {
             InitializeComponent();
@@ -91,8 +86,8 @@ namespace CosmosManager
             textDocument.Clear();
         }
 
-        public QueryWindowPresenter Presenter { private get; set; }
-        public MainFormPresenter MainPresenter { private get; set; }
+        public IQueryWindowPresenter Presenter { private get; set; }
+        public IMainFormPresenter MainPresenter { private get; set; }
 
         private async void runQueryButton_Click_1(object sender, EventArgs e)
         {
@@ -118,7 +113,6 @@ namespace CosmosManager
             Presenter.SelectedConnection = null;
         }
 
-
         public DialogResult ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
         {
             return MessageBox.Show(message, title, buttons, icon);
@@ -132,18 +126,35 @@ namespace CosmosManager
         public void SetUpdatedResultDocument(object document)
         {
             var selectedItem = resultListView.SelectedItems[0];
-            selectedItem.Tag = JObject.FromObject(document);
+            ((DocumentResult)selectedItem.Tag).Document = JObject.FromObject(document);
         }
 
-        public async void RenderResults(IReadOnlyCollection<object> results)
+        public async void RenderResults(IReadOnlyCollection<object> results, string collectionName, bool appendResults, int queryStatementIndex)
         {
-            resultListView.Items.Clear();
+            if (!appendResults)
+            {
+                resultListView.Groups.Clear();
+                resultListView.Items.Clear();
+            }
             var textPartitionKeyPath = await Presenter.LookupPartitionKeyPath();
+            if (appendResults)
+            {
+                resultListView.Groups.Add(new ListViewGroup
+                {
+                    Header = $"Query {queryStatementIndex}",
+                    Name = $"Query{resultListView.Groups.Count}",
+                    HeaderAlignment = HorizontalAlignment.Center
+                });
+            }
             foreach (var item in results)
             {
                 var fromObject = JObject.FromObject(item);
                 var listItem = new ListViewItem();
-                listItem.Tag = fromObject;
+                if (appendResults && resultListView.Groups.Count > 0)
+                {
+                    listItem.Group = resultListView.Groups[resultListView.Groups.Count - 1];
+                }
+                listItem.Tag = new DocumentResult { Document = fromObject, CollectionName = collectionName };
                 var subItem = new ListViewSubItem
                 {
                     Text = fromObject[Constants.DocumentFields.ID]?.Value<string>()
@@ -176,7 +187,8 @@ namespace CosmosManager
                 var objects = new List<JObject>();
                 foreach (ListViewItem item in resultListView.Items)
                 {
-                    objects.Add((JObject)item.Tag);
+                    var result = (DocumentResult)item.Tag;
+                    objects.Add(result.Document);
                 }
                 await Presenter.ExportAllToDocumentAsync(objects, saveJsonDialog.FileName);
             }
@@ -190,7 +202,7 @@ namespace CosmosManager
                 return;
             }
             var ids = items.Select(s => s[Constants.DocumentFields.ID]);
-            var parser = new QueryStatementParser();
+            var parser = AppReferences.Container.GetInstance<IQueryStatementParser>();
             var parts = parser.Parse(Query);
             MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryKeywords.SET} {{{Environment.NewLine}{Environment.NewLine}}}");
         }
@@ -203,7 +215,7 @@ namespace CosmosManager
                 return;
             }
             var ids = items.Select(s => s[Constants.DocumentFields.ID]);
-            var parser = new QueryStatementParser();
+            var parser = AppReferences.Container.GetInstance<IQueryStatementParser>();
             var parts = parser.Parse(Query);
             MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine} {Constants.QueryKeywords.DELETE} '{string.Join("','", ids)}' {Environment.NewLine} {Constants.QueryKeywords.FROM} {parts.CollectionName}");
         }
@@ -230,8 +242,11 @@ namespace CosmosManager
                 return;
             }
             var selectedItem = resultListView.SelectedItems[0];
-
-            textDocument.Text = JsonConvert.SerializeObject(selectedItem.Tag, Formatting.Indented);
+            if (selectedItem.Tag == null)
+            {
+                return;
+            }
+            textDocument.Text = JsonConvert.SerializeObject(((DocumentResult)selectedItem.Tag).Document, Formatting.Indented);
         }
 
         private void increaseFontButton_Click(object sender, EventArgs e)
@@ -275,9 +290,10 @@ namespace CosmosManager
             var objects = new List<JObject>();
             foreach (ListViewItem item in resultListView.Items)
             {
-                if (item.Tag is JObject && item.Checked)
+                if (item.Tag is DocumentResult && item.Checked)
                 {
-                    objects.Add(item.Tag as JObject);
+                    var result = (DocumentResult)item.Tag;
+                    objects.Add(result.Document);
                 }
             }
             return objects;
@@ -360,8 +376,9 @@ namespace CosmosManager
 
         private void resultListView_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
-            if ((e.ColumnIndex == 0))
+            if (e.ColumnIndex == 0)
             {
+
                 var cck = new CheckBox();
                 // With...
                 Text = "";
@@ -410,16 +427,19 @@ namespace CosmosManager
 
         private async void saveExistingDocument_Click(object sender, EventArgs e)
         {
+            var documentResult = (DocumentResult)resultListView.SelectedItems[0].Tag;
             var doc = JsonConvert.DeserializeObject<object>(textDocument.Text);
-            await Presenter.SaveDocumentAsync(doc);
+            documentResult.Document = JObject.FromObject(doc);
+            await Presenter.SaveDocumentAsync(documentResult);
         }
 
         private async void deleteDocumentButton_Click(object sender, EventArgs e)
         {
-            var selectedItem = (JObject)resultListView.SelectedItems[0].Tag;
-            if (MessageBox.Show(this, $"Are you sure you want to delete document {selectedItem[Constants.DocumentFields.ID]}", "Delete Document", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            var documentResult = (DocumentResult)resultListView.SelectedItems[0].Tag;
+            var selectedDocument = documentResult.Document;
+            if (MessageBox.Show(this, $"Are you sure you want to delete document {selectedDocument[Constants.DocumentFields.ID]}", "Delete Document", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
             {
-                var wasDeleted = await Presenter.DeleteDocumentAsync(selectedItem);
+                var wasDeleted = await Presenter.DeleteDocumentAsync(documentResult);
                 if (wasDeleted)
                 {
                     //remove item from list

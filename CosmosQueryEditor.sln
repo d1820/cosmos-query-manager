@@ -6,7 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E77B1149-54A8-4657-AA2C-D5CB96D08E87}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
-		CosmosQueryEditor.ico = CosmosQueryEditor.ico
 		CreateRelease.bat = CreateRelease.bat
 		README.md = README.md
 		runsettings.runsettings = runsettings.runsettings
@@ -15,6 +14,28 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosManager", "CosmosManager\CosmosManager.csproj", "{9F9A2550-C280-49E1-B953-53AAA624FED6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosManager.Tests.Unit", "CosmosManager.Tests.Unit\CosmosManager.Tests.Unit.csproj", "{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Content", "Content", "{DDBABEA2-6AD8-41A4-B43B-30DD950B679E}"
+	ProjectSection(SolutionItems) = preProject
+		Content\CMBeautify.png = Content\CMBeautify.png
+		Content\CMConnectionChange.png = Content\CMConnectionChange.png
+		Content\CMDeleteDocument.png = Content\CMDeleteDocument.png
+		Content\CMDeleteSelected.png = Content\CMDeleteSelected.png
+		Content\CMDocumentOptions.png = Content\CMDocumentOptions.png
+		Content\CMExport.png = Content\CMExport.png
+		Content\CMFontSize.png = Content\CMFontSize.png
+		Content\CMNewQueryDoubleClickTabs.png = Content\CMNewQueryDoubleClickTabs.png
+		Content\CMNewQueryFile.png = Content\CMNewQueryFile.png
+		Content\CMNewQueryFileList.png = Content\CMNewQueryFileList.png
+		Content\CMQueryOptions.png = Content\CMQueryOptions.png
+		Content\CMQueryOutput.png = Content\CMQueryOutput.png
+		Content\CMResults.png = Content\CMResults.png
+		Content\CMRunQuery.png = Content\CMRunQuery.png
+		Content\CmSave.png = Content\CmSave.png
+		Content\CMUpdateSelected.png = Content\CMUpdateSelected.png
+		Content\CMWordWrap.png = Content\CMWordWrap.png
+		Content\CosmosManagerConnect.jpg = Content\CosmosManagerConnect.jpg
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +74,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DDBABEA2-6AD8-41A4-B43B-30DD950B679E} = {E77B1149-54A8-4657-AA2C-D5CB96D08E87}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DD1FCEC2-0A31-4729-ADBC-FC494157F75B}

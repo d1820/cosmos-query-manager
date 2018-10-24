@@ -188,5 +188,37 @@ SET {
 **Note:** Updates do not use transactions by default and the proper SQL transaction syntax must be used to invoke a transaction.
 
 
+### Multi-Statement Queries
+Cosmos Manager supports being able to run a group of queries at once. 
+These query statements are ran synchronously and in the order written in the query window. 
+Each statement must be terminated with a semi-colon **(;)**
+
+While it is not currently possible to have the results of one query fill in the data source to the next query this functionality is on the road map for the future.
+
+##### SQL/Cosmos syntax
+```
+SELECT *
+FROM Market
+WHERE Market.PartitionKey = 'List'
+;
+
+ASTRANSACTION
+UPDATE 'Db71b8bf-2b51-4ed1-9dd6-724706a099e0'
+FROM Market
+SET
+{
+  "WalletId": null,
+  "Phone": {
+    "Number": "555-555-5555"
+  }
+}
+;
+
+DELETE 'test'
+FROM Market
+WHERE Market.PartitionKey = 'List'
+
+```
+
 ## Supported Applications
 - Cosmos Emulator Required Version 1.17.x. This requirement is due to the coupling of DocumentDB Nuget packages to the emulator installed locally. If you do not use the emulator this is not a requirement of using the application.

@@ -11,9 +11,9 @@ using System.Windows.Forms;
 
 namespace CosmosManager.Presenters
 {
-    public class MainFormPresenter
+    public class MainFormPresenter : IMainFormPresenter
     {
-        private readonly IMainForm _view;
+        private IMainForm _view;
         private string _rootDir;
 
         private List<Color> _colors = new List<Color>{
@@ -27,22 +27,27 @@ namespace CosmosManager.Presenters
             Color.MediumAquamarine,
             Color.PaleGoldenrod,
         };
+
         private System.Timers.Timer statusTimer;
         private Dictionary<string, Color> _tabColors = new Dictionary<string, Color>();
+        private dynamic _context;
 
         public List<Connection> Connections { get; private set; }
 
-
-
-        public MainFormPresenter(IMainForm view)
+        public MainFormPresenter()
         {
-            _view = view;
-            _view.Presenter = this;
-            InitializeUserAppData();
-
             statusTimer = new System.Timers.Timer();
             statusTimer.Elapsed += StatusTimer_Elapsed;
             statusTimer.Interval = 5000;
+        }
+
+        public void InitializePresenter(dynamic context)
+        {
+            _context = context;
+            _view = (IMainForm)context.MainForm;
+            _view.Presenter = this;
+
+            InitializeUserAppData();
         }
 
         private void StatusTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -114,7 +119,6 @@ namespace CosmosManager.Presenters
             _view.UpdateNewQueryTabName(newTabName);
         }
 
-
         public void SetStatusBarMessage(string message, bool ignoreClearTimer = false)
         {
             _view.SetStatusBarMessage(message);
@@ -123,7 +127,6 @@ namespace CosmosManager.Presenters
                 statusTimer.Start();
             }
         }
-
 
         public void SaveNewQuery(string fileLocation, TreeNode currentNode)
         {
@@ -140,6 +143,14 @@ namespace CosmosManager.Presenters
         public void OpenTransactionCacheFolder()
         {
             Process.Start(AppReferences.TransactionCacheDataFolder);
+        }
+
+        public void OpenInFileExporer(string path)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                Process.Start(path);
+            }
         }
 
         public void UpdateTabHeaderColor()
@@ -215,7 +226,6 @@ namespace CosmosManager.Presenters
             var size = CalculateFolderSize(AppReferences.TransactionCacheDataFolder);
             _view.SetTransactionCacheLabel($"Transaction Cache: {BytesToSting(size)}");
             _view.SetFileWatcherPath(AppReferences.TransactionCacheDataFolder);
-
         }
 
         private long CalculateFolderSize(string folderPath)

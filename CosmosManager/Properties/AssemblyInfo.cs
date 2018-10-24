@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Cosmos Manager 2018")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Cosmos Query Manager is a Windows based query manager for Azure DocumentDb/CosmosDB. It provides the ability to Insert, Update, Delete documents across multiple databases.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Just In Time Coders")]
 [assembly: AssemblyProduct("CosmosManager")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]

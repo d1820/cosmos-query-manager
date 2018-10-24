@@ -19,6 +19,7 @@ namespace CosmosManager.Tasks
         {
             _logger = logger;
         }
+
         public async Task<bool> BackuQueryAsync(string connectionName, string databaseName, string collectionName, string transactionId, string query)
         {
             var formattedConnectionName = Regex.Replace(connectionName, @"(\s)", "_");

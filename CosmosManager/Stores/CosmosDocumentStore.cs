@@ -3,6 +3,7 @@ using CosmosManager.Interfaces;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace CosmosManager.Stores
     {
         private readonly IDocumentClient _client;
         private Database _cosmosDatabase;
-        private Dictionary<string, string> _partionKeys = new Dictionary<string, string>();
+        private ConcurrentDictionary<string, string> _partionKeys = new ConcurrentDictionary<string, string>();
 
         public CosmosDocumentStore(IDocumentClient client)
         {
@@ -30,7 +31,7 @@ namespace CosmosManager.Stores
             var collectionInfo = await _client.ReadDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), new Microsoft.Azure.Documents.Client.RequestOptions());
             var jPath = string.Join(".", collectionInfo.Resource.PartitionKey.Paths);
             var keyValue = jPath.Replace("/", "");
-            _partionKeys.Add(lookupKey, keyValue);
+            _partionKeys.TryAdd(lookupKey, keyValue);
             return keyValue;
         }
 

@@ -1,5 +1,7 @@
-﻿using CosmosManager.Parsers;
+﻿using CosmosManager.Interfaces;
+using CosmosManager.Parsers;
 using FluentAssertions;
+using Moq;
 using Xunit;
 
 namespace CosmosManager.Tests.Unit
@@ -10,7 +12,8 @@ namespace CosmosManager.Tests.Unit
 
         public QueryStatementParserTests()
         {
-            _parser = new QueryStatementParser();
+            var mockParser = new Mock<IQueryParser>();
+            _parser = new QueryStatementParser(mockParser.Object);
         }
 
         [Fact]

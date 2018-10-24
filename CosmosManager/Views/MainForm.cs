@@ -1,10 +1,10 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
+using CosmosManager.Views;
 using System;
 using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace CosmosManager
@@ -12,15 +12,19 @@ namespace CosmosManager
     public partial class MainForm : Form, IMainForm
     {
         private TreeNode _contextSelectedNode;
-        private TabPage contextTabPage = null;
+        private TabPage contextTabPage;
+        private readonly IFormOpener _formManager;
 
-        public MainFormPresenter Presenter { private get; set; }
+        public IMainFormPresenter Presenter { private get; set; }
 
-        public MainForm()
+        public MainForm(IFormOpener formManager, IMainFormPresenter presenter)
         {
             InitializeComponent();
-
-
+            _formManager = formManager;
+            presenter.InitializePresenter(new
+            {
+                MainForm = this
+            });
         }
 
         protected override void WndProc(ref Message m)
@@ -174,10 +178,10 @@ namespace CosmosManager
 
         private void createNewQueryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var newFileForm = new NewFileForm();
-            if (newFileForm.ShowDialog() == DialogResult.OK)
+            var (result, form) = _formManager.ShowModalForm<NewFileForm>();
+            if (result == DialogResult.OK)
             {
-                var saveFile = $"{ (_contextSelectedNode.Tag as DirectoryInfo).FullName}/{newFileForm.FileName}.csql";
+                var saveFile = $"{ (_contextSelectedNode.Tag as DirectoryInfo).FullName}/{form.FileName}.csql";
                 Presenter.SaveNewQuery(saveFile, _contextSelectedNode);
             }
         }
@@ -252,7 +256,15 @@ namespace CosmosManager
             queryWindow.Dock = DockStyle.Fill;
             queryWindow.MainPresenter = Presenter;
 
-            var presenter = new QueryWindowPresenter(queryWindow, queryTabControl.TabPages.Count);
+            //var presenter = new QueryWindowPresenter(queryWindow, queryTabControl.TabPages.Count);
+
+            var presenter = AppReferences.Container.GetInstance<IQueryWindowPresenter>();
+            presenter.InitializePresenter(new
+            {
+                TabIndexReference = queryTabControl.TabPages.Count,
+                QueryWindowControl = queryWindow
+            });
+
             if (fileInfo != null)
             {
                 presenter.SetFile(fileInfo);
@@ -273,8 +285,7 @@ namespace CosmosManager
 
         private void guideToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var helpForm = new HelpForm();
-            helpForm.Show();
+            _formManager.ShowModelessForm<HelpForm>();
         }
 
         private void reportABugToolStripMenuItem_Click(object sender, EventArgs e)
@@ -297,5 +308,35 @@ namespace CosmosManager
             CreateTempQueryTab("");
         }
 
+        private void newFileQueryTabToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CreateTempQueryTab("");
+        }
+
+
+        private void tabBackgroundPanel_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            //find the bounding box of the top tab area and if greater then last tab X/Y open new tab
+            var lastTab = queryTabControl.GetTabRect(queryTabControl.TabPages.Count - 1);
+            if (e.Location.X > lastTab.Right && e.Location.Y < lastTab.Bottom)
+            {
+                CreateTempQueryTab("");
+            }
+        }
+
+        private void aboutCosmosManagerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _formManager.ShowModalForm<AboutCosmosManager>();
+        }
+
+        private void openInFileExplorerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+             Presenter.OpenInFileExporer((_contextSelectedNode.Tag as DirectoryInfo)?.FullName);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }

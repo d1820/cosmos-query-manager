@@ -6,7 +6,6 @@ using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -168,6 +167,5 @@ namespace CosmosManager.Stores
                 throw;
             }
         }
-
     }
 }

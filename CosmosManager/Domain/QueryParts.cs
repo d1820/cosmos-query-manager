@@ -18,7 +18,6 @@ namespace CosmosManager.Domain
         public bool IsTransaction => !string.IsNullOrWhiteSpace(TransactionId);
         public string TransactionId { get; set; }
 
-
         public bool IsRollback
         {
             get
@@ -26,12 +25,13 @@ namespace CosmosManager.Domain
                 return !string.IsNullOrWhiteSpace(RollbackName);
             }
         }
+
         public string RollbackName { get; set; }
+
         public bool IsValidRollbackQuery() => !string.IsNullOrEmpty(RollbackName) &&
                 string.IsNullOrEmpty(QueryType) &&
                 string.IsNullOrEmpty(QueryBody) &&
                 string.IsNullOrEmpty(QueryFrom);
-
 
         public string CollectionName
         {

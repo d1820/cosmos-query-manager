@@ -1,13 +1,11 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
-using CosmosManager.Parsers;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -17,14 +15,12 @@ namespace CosmosManager.QueryRunners
     public class RollbackQueryRunner : IQueryRunner
     {
         private int MAX_DEGREE_PARALLEL = 5;
-        private QueryStatementParser _queryParser;
-        private readonly IResultsPresenter _presenter;
+        private IQueryStatementParser _queryParser;
         private readonly ITransactionTask _transactionTask;
 
-        public RollbackQueryRunner(IResultsPresenter presenter, ITransactionTask transactionTask)
+        public RollbackQueryRunner(ITransactionTask transactionTask, IQueryStatementParser queryStatementParser)
         {
-            _presenter = presenter;
-            _queryParser = new QueryStatementParser();
+            _queryParser = queryStatementParser;
             _transactionTask = transactionTask;
         }
 
@@ -34,15 +30,14 @@ namespace CosmosManager.QueryRunners
             return queryParts.IsRollback;
         }
 
-        public async Task<bool> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
             try
             {
-                _presenter.ResetQueryOutput();
                 var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsRollback)
                 {
-                    return false;
+                    return (false, null);
                 }
                 var collectionName = queryParts.RollbackName.Split(new[] { '_' })[0];
 
@@ -51,8 +46,7 @@ namespace CosmosManager.QueryRunners
                 if (files.Length == 0)
                 {
                     logger.LogInformation($"No files found for {queryParts.RollbackName}. Aborting Rollback.");
-                    _presenter.ShowOutputTab();
-                    return false;
+                    return (false, null);
                 }
 
                 var updateCount = 0;
@@ -81,13 +75,12 @@ namespace CosmosManager.QueryRunners
                 rollbackBlock.Complete();
                 await rollbackBlock.Completion;
                 logger.LogInformation($"Rolled back {updateCount} out of {files.Length}");
-                _presenter.ShowOutputTab();
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, new EventId(), $"Unable to execute {Constants.QueryKeywords.ROLLBACK}", ex);
-                return false;
+                return (false, null);
             }
         }
     }

@@ -1,6 +1,4 @@
-﻿using CosmosManager.Presenters;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace CosmosManager.Interfaces
@@ -11,14 +9,14 @@ namespace CosmosManager.Interfaces
         string Query { get; set; }
         string QueryOutput { get; }
         string DocumentText { get; set; }
-        QueryWindowPresenter Presenter { set; }
-        MainFormPresenter MainPresenter { set; }
+        IQueryWindowPresenter Presenter { set; }
+        IMainFormPresenter MainPresenter { set; }
 
         void ClearStats();
 
         DialogResult ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None);
 
-        void RenderResults(IReadOnlyCollection<object> results);
+        void RenderResults(IReadOnlyCollection<object> results, string collectionName, bool appendResults, int queryStatementIndex);
 
         void SetStatusBarMessage(string message, bool ignoreClearTimer = false);
 
@@ -30,6 +28,6 @@ namespace CosmosManager.Interfaces
 
         void ResetQueryOutput();
 
-         void SetUpdatedResultDocument(object document);
+        void SetUpdatedResultDocument(object document);
     }
 }

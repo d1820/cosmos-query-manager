@@ -4,7 +4,6 @@ using Microsoft.Azure.Documents.Client;
 
 namespace CosmosManager.Extensions
 {
-
     public static class OptionExtensions
     {
         public static FeedOptions ToFeedOptions(this QueryOptions options)

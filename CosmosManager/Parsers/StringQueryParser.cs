@@ -9,14 +9,12 @@ namespace CosmosManager.Parsers
     {
         public (string queryType, string queryBody) ParseQueryBody(string query)
         {
-
             var rgxInsert = new Regex($@"({Constants.QueryKeywords.INSERT})[\s\S]*(.*?)(?={Constants.QueryKeywords.INTO})");
             var matches = rgxInsert.Matches(query);
             if (matches.Count == 1)
             {
                 return (Constants.QueryKeywords.INSERT, matches[0].Value.Replace(Constants.QueryKeywords.INSERT, "").Trim());
             }
-
 
             var rgx = new Regex($@"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE}|{Constants.QueryKeywords.UPDATE})[\s\S]*(.*?)(?={Constants.QueryKeywords.FROM})");
             matches = rgx.Matches(query);
@@ -109,7 +107,6 @@ namespace CosmosManager.Parsers
             {
                 return (Constants.QueryKeywords.REPLACE, matches[0].Value.Replace(Constants.QueryKeywords.REPLACE, ""));
             }
-
 
             if (matches.Count > 1)
             {

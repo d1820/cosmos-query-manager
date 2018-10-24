@@ -1,12 +1,10 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
-using CosmosManager.Parsers;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,14 +15,12 @@ namespace CosmosManager.QueryRunners
     public class UpdateByIdQueryRunner : IQueryRunner
     {
         private int MAX_DEGREE_PARALLEL = 5;
-        private QueryStatementParser _queryParser;
-        private readonly IResultsPresenter _presenter;
+        private IQueryStatementParser _queryParser;
         private readonly ITransactionTask _transactionTask;
 
-        public UpdateByIdQueryRunner(IResultsPresenter presenter, ITransactionTask transactionTask)
+        public UpdateByIdQueryRunner(ITransactionTask transactionTask, IQueryStatementParser queryStatementParser)
         {
-            _presenter = presenter;
-            _queryParser = new QueryStatementParser();
+            _queryParser = queryStatementParser;
             _transactionTask = transactionTask;
         }
 
@@ -37,17 +33,15 @@ namespace CosmosManager.QueryRunners
                 && !string.IsNullOrEmpty(queryParts.QueryUpdateType);
         }
 
-        public async Task<bool> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
             var queryParts = _queryParser.Parse(queryStatement);
             try
             {
-                _presenter.ResetQueryOutput();
-
                 if (!queryParts.IsValidQuery())
                 {
                     logger.LogError("Invalid Query. Aborting Update.");
-                    return false;
+                    return (false, null);
                 }
 
                 var ids = queryParts.QueryBody.Split(new[] { ',' });
@@ -56,7 +50,7 @@ namespace CosmosManager.QueryRunners
                 {
                     var errorMessage = $"{Constants.QueryKeywords.REPLACE} only supports replacing 1 document at a time.";
                     logger.LogError(errorMessage);
-                    return false;
+                    return (false, null);
                 }
 
                 if (queryParts.IsTransaction)
@@ -73,7 +67,6 @@ namespace CosmosManager.QueryRunners
                                                                            await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                                                                          async (IDocumentExecuteContext context) =>
                                                                                          {
-
                                                                                              JObject jDoc = null;
                                                                                              if (queryParts.IsTransaction)
                                                                                              {
@@ -125,7 +118,6 @@ namespace CosmosManager.QueryRunners
                                                                                                      return false;
                                                                                                  }
                                                                                                  jDoc = JObject.FromObject(queryResultDoc);
-
                                                                                              }
                                                                                              var partionKeyValue = jDoc.SelectToken(partitionKeyPath).ToString();
 
@@ -167,7 +159,6 @@ namespace CosmosManager.QueryRunners
                                                                            MaxDegreeOfParallelism = MAX_DEGREE_PARALLEL
                                                                        });
 
-
                 foreach (var id in ids)
                 {
                     actionTransactionCacheBlock.Post(id);
@@ -179,9 +170,7 @@ namespace CosmosManager.QueryRunners
                 {
                     logger.LogInformation($"To rollback execute: ROLLBACK {queryParts.TransactionId}");
                 }
-
-                _presenter.ShowOutputTab();
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
@@ -191,7 +180,7 @@ namespace CosmosManager.QueryRunners
                     errorMessage += $"{Constants.QueryKeywords.REPLACE} only supports replacing 1 document at a time.";
                 }
                 logger.Log(LogLevel.Error, new EventId(), errorMessage, ex);
-                return false;
+                return (false, null);
             }
         }
     }
