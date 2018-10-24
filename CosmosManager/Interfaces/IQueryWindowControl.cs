@@ -16,7 +16,7 @@ namespace CosmosManager.Interfaces
 
         DialogResult ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None);
 
-        void RenderResults(IReadOnlyCollection<object> results);
+        void RenderResults(IReadOnlyCollection<object> results, string collectionName, bool appendResults, int queryStatementIndex);
 
         void SetStatusBarMessage(string message, bool ignoreClearTimer = false);
 

@@ -145,6 +145,14 @@ namespace CosmosManager.Presenters
             Process.Start(AppReferences.TransactionCacheDataFolder);
         }
 
+        public void OpenInFileExporer(string path)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                Process.Start(path);
+            }
+        }
+
         public void UpdateTabHeaderColor()
         {
             _view.UpdateTabHeaderColors();

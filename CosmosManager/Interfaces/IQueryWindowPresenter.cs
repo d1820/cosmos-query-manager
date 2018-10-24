@@ -30,7 +30,7 @@ namespace CosmosManager.Interfaces
 
         string BeautifyQuery(string query);
 
-        Task<bool> DeleteDocumentAsync(JObject document);
+        Task<bool> DeleteDocumentAsync(DocumentResult documentResult);
 
         Task ExportAllToDocumentAsync(List<JObject> documents, string fileName);
 
@@ -38,13 +38,13 @@ namespace CosmosManager.Interfaces
 
         Task<string> LookupPartitionKeyPath();
 
-        void RenderResults(IReadOnlyCollection<object> results);
+        void RenderResults(IReadOnlyCollection<object> results, string collectionName,  bool appendResults, int queryStatementIndex);
 
         void ResetQueryOutput();
 
         Task RunAsync();
 
-        Task<object> SaveDocumentAsync(object document);
+        Task<object> SaveDocumentAsync(DocumentResult documentResult);
 
         Task SaveQueryAsync();
 

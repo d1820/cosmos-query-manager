@@ -18,6 +18,8 @@ namespace CosmosManager.Interfaces
 
         void OpenTransactionCacheFolder();
 
+        void OpenInFileExporer(string path);
+
         void PopulateTreeView(string rootDir);
 
         void RefreshTreeView();

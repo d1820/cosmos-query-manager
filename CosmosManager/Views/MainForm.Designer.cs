@@ -48,6 +48,7 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.guideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportABugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutCosmosManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.appStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.transactionCacheSizeLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -59,11 +60,12 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.newQueryTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createNewQueryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openInFileExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextTabs = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.duplicateTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.aboutCosmosManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -104,7 +106,8 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newFileQueryTabToolStripMenuItem,
             this.toolStripSeparator2,
-            this.openFolderToolStripMenuItem});
+            this.openFolderToolStripMenuItem,
+            this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlText;
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -113,19 +116,19 @@
             // newFileQueryTabToolStripMenuItem
             // 
             this.newFileQueryTabToolStripMenuItem.Name = "newFileQueryTabToolStripMenuItem";
-            this.newFileQueryTabToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.newFileQueryTabToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newFileQueryTabToolStripMenuItem.Text = "New Query Tab";
             this.newFileQueryTabToolStripMenuItem.Click += new System.EventHandler(this.newFileQueryTabToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(153, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
             // 
             // openFolderToolStripMenuItem
             // 
             this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openFolderToolStripMenuItem.Text = "Open Folder";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
             // 
@@ -157,6 +160,7 @@
             this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
             this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.preferencesToolStripMenuItem.Text = "Preferences";
+            this.preferencesToolStripMenuItem.Visible = false;
             // 
             // connectToolStripMenuItem
             // 
@@ -206,6 +210,13 @@
             this.reportABugToolStripMenuItem.Size = new System.Drawing.Size(203, 22);
             this.reportABugToolStripMenuItem.Text = "Report A Bug";
             this.reportABugToolStripMenuItem.Click += new System.EventHandler(this.reportABugToolStripMenuItem_Click);
+            // 
+            // aboutCosmosManagerToolStripMenuItem
+            // 
+            this.aboutCosmosManagerToolStripMenuItem.Name = "aboutCosmosManagerToolStripMenuItem";
+            this.aboutCosmosManagerToolStripMenuItem.Size = new System.Drawing.Size(203, 22);
+            this.aboutCosmosManagerToolStripMenuItem.Text = "About Cosmos Manager";
+            this.aboutCosmosManagerToolStripMenuItem.Click += new System.EventHandler(this.aboutCosmosManagerToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
@@ -305,23 +316,31 @@
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newQueryTabToolStripMenuItem,
-            this.createNewQueryToolStripMenuItem});
+            this.createNewQueryToolStripMenuItem,
+            this.openInFileExplorerToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(169, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(183, 70);
             // 
             // newQueryTabToolStripMenuItem
             // 
             this.newQueryTabToolStripMenuItem.Name = "newQueryTabToolStripMenuItem";
-            this.newQueryTabToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.newQueryTabToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this.newQueryTabToolStripMenuItem.Text = "New Query Tab";
             this.newQueryTabToolStripMenuItem.Click += new System.EventHandler(this.newQueryTabToolStripMenuItem_Click);
             // 
             // createNewQueryToolStripMenuItem
             // 
             this.createNewQueryToolStripMenuItem.Name = "createNewQueryToolStripMenuItem";
-            this.createNewQueryToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.createNewQueryToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this.createNewQueryToolStripMenuItem.Text = "Create New Script";
             this.createNewQueryToolStripMenuItem.Click += new System.EventHandler(this.createNewQueryToolStripMenuItem_Click);
+            // 
+            // openInFileExplorerToolStripMenuItem
+            // 
+            this.openInFileExplorerToolStripMenuItem.Name = "openInFileExplorerToolStripMenuItem";
+            this.openInFileExplorerToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.openInFileExplorerToolStripMenuItem.Text = "Open In File Explorer";
+            this.openInFileExplorerToolStripMenuItem.Click += new System.EventHandler(this.openInFileExplorerToolStripMenuItem_Click);
             // 
             // contextTabs
             // 
@@ -346,12 +365,12 @@
             this.fileSystemWatcher1.Created += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Created);
             this.fileSystemWatcher1.Deleted += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Deleted);
             // 
-            // aboutCosmosManagerToolStripMenuItem
+            // exitToolStripMenuItem
             // 
-            this.aboutCosmosManagerToolStripMenuItem.Name = "aboutCosmosManagerToolStripMenuItem";
-            this.aboutCosmosManagerToolStripMenuItem.Size = new System.Drawing.Size(203, 22);
-            this.aboutCosmosManagerToolStripMenuItem.Text = "About Cosmos Manager";
-            this.aboutCosmosManagerToolStripMenuItem.Click += new System.EventHandler(this.aboutCosmosManagerToolStripMenuItem_Click);
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -420,6 +439,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.Panel tabBackgroundPanel;
         private System.Windows.Forms.ToolStripMenuItem aboutCosmosManagerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openInFileExplorerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
     }
 }
 

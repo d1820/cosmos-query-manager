@@ -316,8 +316,8 @@ namespace CosmosManager
 
         private void tabBackgroundPanel_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-             //find the bounding box of the top tab area and if greater then last tab X/Y open new tab
-            var lastTab = queryTabControl.GetTabRect(queryTabControl.TabPages.Count-1);
+            //find the bounding box of the top tab area and if greater then last tab X/Y open new tab
+            var lastTab = queryTabControl.GetTabRect(queryTabControl.TabPages.Count - 1);
             if (e.Location.X > lastTab.Right && e.Location.Y < lastTab.Bottom)
             {
                 CreateTempQueryTab("");
@@ -327,6 +327,16 @@ namespace CosmosManager
         private void aboutCosmosManagerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _formManager.ShowModalForm<AboutCosmosManager>();
+        }
+
+        private void openInFileExplorerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+             Presenter.OpenInFileExporer((_contextSelectedNode.Tag as DirectoryInfo)?.FullName);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

@@ -36,9 +36,9 @@ namespace CosmosManager
             container = new Container();
             AppReferences.Container = container;
 
-            container.RegisterSingleton<QueryOuputLogger>();
-            container.RegisterSingleton<IQueryWindowPresenterLogger>(() => container.GetInstance<QueryOuputLogger>());
-            container.RegisterSingleton<ILogger>(() => container.GetInstance<QueryOuputLogger>());
+            container.Register<QueryOuputLogger>();
+            container.Register<IQueryWindowPresenterLogger>(() => container.GetInstance<QueryOuputLogger>());
+            container.Register<ILogger>(() => container.GetInstance<QueryOuputLogger>());
             container.Register<IQueryStatementParser, QueryStatementParser>(Lifestyle.Singleton);
             container.Register<IQueryParser, StringQueryParser>(Lifestyle.Singleton);
 
@@ -47,7 +47,7 @@ namespace CosmosManager
 
             RegisterRunners(container);
 
-            container.Register<ITransactionTask, TransactionTask>(Lifestyle.Singleton);
+            container.Register<ITransactionTask, TransactionTask>();
             container.Register<IFormOpener, FormManager>(Lifestyle.Singleton);
             container.Register<IClientConnectionManager, ClientConnectionManager>(Lifestyle.Singleton);
 

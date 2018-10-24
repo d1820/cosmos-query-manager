@@ -23,7 +23,8 @@ namespace CosmosManager.Domain
                     logLevel,
                     eventId,
                     state,
-                    errorMessage = exception != null ? exception.GetBaseException().Message : ""
+                    errorMessage = exception.GetBaseException().Message,
+                    details = exception.StackTrace
                 };
 
                 _presenter.AddToQueryOutput(JsonConvert.SerializeObject(logObject, Formatting.Indented));

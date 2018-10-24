@@ -79,3 +79,7 @@ On selects we have options available to manipulate the results list
 In the output tab we can see all information related to the executed query. On selects we output all the cosmos metrics and costs, on other queries information related to the success of the query are displayed.
 
 ![](.\content\CMQueryOutput.png)
+
+## Transaction Cache
+The transaction cache is the storage location where rollback files are stored. The application never deletes from this folder so there is always a rollback 
+history available as a data safety precaution. As this folder grows with backup data for transactions it may need to be cleaned out or have the files archived somewhere.

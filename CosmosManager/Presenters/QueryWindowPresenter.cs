@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CosmosManager.Presenters
@@ -95,6 +96,7 @@ namespace CosmosManager.Presenters
         public async Task RunAsync()
         {
             _view.ResetResultsView();
+            ResetQueryOutput();
             //execute th interpretor and run against cosmos and connection
             if (SelectedConnection is Connection && SelectedConnection != null)
             {
@@ -102,35 +104,62 @@ namespace CosmosManager.Presenters
 
                 var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
 
-                var runner = _queryRunners.FirstOrDefault(f => f.CanRun(_view.Query));
-                if (runner != null)
+                //get each query and run it aggregating the results
+                var queries = SplitQueries();
+
+                //check all the queries for deletes without transactions
+                if (queries.Any(a =>
                 {
-                    var queryParts = _queryParser.Parse(_view.Query);
-                    if (queryParts.QueryType == Constants.QueryKeywords.DELETE &&
-                        !queryParts.IsTransaction &&
-                        _view.ShowMessage("Are you sure you want to delete these documents. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+                    var query = _queryParser.Parse(a);
+                    return query.QueryType == Constants.QueryKeywords.DELETE && !query.IsTransaction;
+                }) && _view.ShowMessage("Are you sure you want to delete documents without a transaction. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+                {
+                    return;
+                }
+
+                var hasResults = false;
+                var hasError = false;
+                for (var i = 0; i < queries.Length; i++)
+                {
+                    var query = queries[i];
+                    var runner = _queryRunners.FirstOrDefault(f => f.CanRun(query));
+                    if (runner != null)
                     {
-                        return;
-                    }
-                    ResetQueryOutput();
-                    var response = await runner.RunAsync(documentStore, SelectedConnection, _view.Query, true, _logger);
-                    if (!response.success)
-                    {
-                        _view.ShowMessage("Unable to execute query. Verify query and try again.", "Query Execution Error");
-                        ShowOutputTab();
-                    }
-                    else if (response.results != null)
-                    {
-                        RenderResults(response.results);
+                        var queryParts = _queryParser.Parse(query);
+                        if (queries.Length > 1)
+                        {
+                            AddToQueryOutput(new string('-', 300));
+                            AddToQueryOutput($"Query statement {i + 1}");
+                            AddToQueryOutput(new string('-', 300));
+                        }
+
+                        var response = await runner.RunAsync(documentStore, SelectedConnection, query, true, _logger);
+                        if (!response.success)
+                        {
+                            _view.ShowMessage($"Unable to execute query: {query}. Verify query and try again.", "Query Execution Error");
+                            //on error stop loop and return
+                            hasError = true;
+                            break;
+                        }
+                        else if (response.results != null)
+                        {
+                            //add a header row if more then 1 query needs to be ran
+                            RenderResults(response.results, queryParts.CollectionName, queries.Length > 1, i + 1);
+                            hasResults = true;
+                        }
                     }
                     else
                     {
-                        ShowOutputTab();
+                        _logger.LogError($"Unable to find a query processor for query type. query: {query}");
+                        //on error stop loop and return
+                        hasError = true;
+                        break;
                     }
+
                 }
-                else
+
+                if (!hasResults || hasError)
                 {
-                    _logger.LogError("Unable to find a query processor for query type");
                     ShowOutputTab();
                 }
                 _view.SetStatusBarMessage("", false);
@@ -141,16 +170,14 @@ namespace CosmosManager.Presenters
             }
         }
 
-        public async Task<object> SaveDocumentAsync(object document)
+        public async Task<object> SaveDocumentAsync(DocumentResult documentResult)
         {
             _view.SetStatusBarMessage("Saving Document...");
             var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
 
-            var parts = _queryParser.Parse(_view.Query);
-
             try
             {
-                var result = await documentStore.ExecuteAsync(SelectedConnection.Database, parts.CollectionName, context => context.UpdateAsync(document));
+                var result = await documentStore.ExecuteAsync(SelectedConnection.Database, documentResult.CollectionName, context => context.UpdateAsync(documentResult.Document));
                 _view.SetStatusBarMessage("Document Saved");
                 _view.SetUpdatedResultDocument(result);
                 return result;
@@ -170,18 +197,18 @@ namespace CosmosManager.Presenters
             return documentStore.LookupPartitionKeyPath(SelectedConnection.Database, parts.CollectionName);
         }
 
-        public async Task<bool> DeleteDocumentAsync(JObject document)
+        public async Task<bool> DeleteDocumentAsync(DocumentResult documentResult)
         {
             _view.SetStatusBarMessage("Deleting Document...");
             var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
-            var parts = _queryParser.Parse(_view.Query);
 
             try
             {
-                var partitionKeyPath = await documentStore.LookupPartitionKeyPath(SelectedConnection.Database, parts.CollectionName);
+                var document = documentResult.Document;
+                var partitionKeyPath = await documentStore.LookupPartitionKeyPath(SelectedConnection.Database, documentResult.CollectionName);
                 var partionKeyValue = document.SelectToken(partitionKeyPath).ToString();
-                var result = await documentStore.ExecuteAsync(SelectedConnection.Database, parts.CollectionName,
-                       context => context.DeleteAsync(document[Constants.DocumentFields.ID].ToString(), new Domain.RequestOptions() { PartitionKey = partionKeyValue }));
+                var result = await documentStore.ExecuteAsync(SelectedConnection.Database, documentResult.CollectionName,
+                       context => context.DeleteAsync(document[Constants.DocumentFields.ID].ToString(), new RequestOptions() { PartitionKey = partionKeyValue }));
 
                 _view.SetStatusBarMessage("Document Deleted");
                 _view.DocumentText = string.Empty;
@@ -193,6 +220,14 @@ namespace CosmosManager.Presenters
                 _view.ShowMessage(ex.Message, "Document Delete Error", icon: System.Windows.Forms.MessageBoxIcon.Error);
                 return false;
             }
+        }
+
+        private string[] SplitQueries(string queryText = null)
+        {
+            var queryToParse = queryText ?? _view.Query;
+            var pattern = @"(?!\B[""\'][^""\']*);(?![^""\']*[""\']\B)";
+            var queries = Regex.Split(queryToParse.Replace("\n", ""), pattern, RegexOptions.IgnoreCase);
+            return queries.Where(w => !string.IsNullOrEmpty(w.Trim())).ToArray();
         }
 
         public async Task SaveQueryAsync()
@@ -235,9 +270,9 @@ namespace CosmosManager.Presenters
             _view.SetStatusBarMessage($"{fileName} Exported");
         }
 
-        public void RenderResults(IReadOnlyCollection<object> results)
+        public void RenderResults(IReadOnlyCollection<object> results, string collectionName, bool appendResults, int queryStatementIndex)
         {
-            _view.RenderResults(results);
+            _view.RenderResults(results, collectionName, appendResults, queryStatementIndex);
         }
 
         public void ShowOutputTab()
@@ -255,57 +290,70 @@ namespace CosmosManager.Presenters
             return JsonConvert.SerializeObject(obj, Formatting.Indented);
         }
 
-        public string BeautifyQuery(string query)
+        public string BeautifyQuery(string queryText)
         {
+            var cleanedQueries = new List<string>();
             try
             {
-                var queryParts = _queryParser.Parse(query);
-                var sql = new StringBuilder();
-                if (queryParts.IsTransaction)
-                {
-                    sql.AppendLine(Constants.QueryKeywords.TRANSACTION);
-                }
-                if (queryParts.IsValidInsertQuery())
-                {
-                    sql.AppendLine(queryParts.QueryType);
-                    sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryBody), Formatting.Indented));
-                    sql.AppendLine(queryParts.QueryInto);
-                    return sql.ToString();
-                }
+                var queries = SplitQueries(queryText);
 
-                if (queryParts.IsRollback)
+                foreach (var query in queries)
                 {
-                    sql.AppendLine($"ROLLBACK {queryParts.RollbackName}");
-                    return sql.ToString();
-                }
-
-                if (queryParts.IsValidQuery())
-                {
-                    if (queryParts.IsUpdateQuery())
+                    var queryParts = _queryParser.Parse(query);
+                    var sql = new StringBuilder();
+                    if (queryParts.IsTransaction)
                     {
+                        sql.AppendLine(Constants.QueryKeywords.TRANSACTION);
+                    }
+                    if (queryParts.IsValidInsertQuery())
+                    {
+                        sql.AppendLine(queryParts.QueryType);
+                        sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryBody), Formatting.Indented));
+                        sql.AppendLine(queryParts.QueryInto);
+                        cleanedQueries.Add(sql.ToString());
+                        continue;
+                    }
+
+                    if (queryParts.IsRollback)
+                    {
+                        sql.AppendLine($"ROLLBACK {queryParts.RollbackName}");
+                        cleanedQueries.Add(sql.ToString());
+                        continue;
+                    }
+
+                    if (queryParts.IsValidQuery())
+                    {
+                        if (queryParts.IsUpdateQuery())
+                        {
+                            sql.AppendLine($"{queryParts.QueryType} {queryParts.QueryBody}");
+                            sql.AppendLine($"{queryParts.QueryFrom}");
+                            if (queryParts.HasWhereClause())
+                            {
+                                sql.AppendLine(queryParts.QueryWhere);
+                            }
+                            sql.AppendLine(queryParts.QueryUpdateType);
+                            sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
+                            cleanedQueries.Add(sql.ToString());
+                            continue;
+                        }
                         sql.AppendLine($"{queryParts.QueryType} {queryParts.QueryBody}");
                         sql.AppendLine($"{queryParts.QueryFrom}");
                         if (queryParts.HasWhereClause())
                         {
                             sql.AppendLine(queryParts.QueryWhere);
                         }
-                        sql.AppendLine(queryParts.QueryUpdateType);
-                        sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
-                        return sql.ToString();
+                        cleanedQueries.Add(sql.ToString());
+                        continue;
                     }
-                    sql.AppendLine($"{queryParts.QueryType} {queryParts.QueryBody}");
-                    sql.AppendLine($"{queryParts.QueryFrom}");
-                    if (queryParts.HasWhereClause())
-                    {
-                        sql.AppendLine(queryParts.QueryWhere);
-                    }
-                    return sql.ToString();
                 }
+
             }
             catch (Exception)
             {
+                return queryText;
             }
-            return query;
+            return string.Join($";{Environment.NewLine}{Environment.NewLine}", cleanedQueries);
+            ;
         }
     }
 }
