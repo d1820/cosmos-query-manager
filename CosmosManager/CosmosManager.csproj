@@ -7,7 +7,7 @@
     <ProjectGuid>{9F9A2550-C280-49E1-B953-53AAA624FED6}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>CosmosManager</RootNamespace>
-    <AssemblyName>CosmosManager2018</AssemblyName>
+    <AssemblyName>CosmosManager2019</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -139,6 +139,7 @@
     <Compile Include="Extensions\ControlExtensions.cs" />
     <Compile Include="Extensions\DocumentDBExtensions.cs" />
     <Compile Include="Extensions\DocumentExtensions.cs" />
+    <Compile Include="Extensions\JObjectExtenstions.cs" />
     <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Extensions\OptionExtensions.cs" />
     <Compile Include="Interfaces\ICosmosDocument.cs" />

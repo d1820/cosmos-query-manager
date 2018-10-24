@@ -41,7 +41,6 @@ namespace CosmosManager.QueryRunners
                                                                               PopulateQueryMetrics = true,
                                                                               EnableCrossPartitionQuery = true,
                                                                               MaxBufferedItemCount = 200,
-                                                                              MaxDegreeOfParallelism = 5,
                                                                               MaxItemCount = -1,
                                                                           };
 

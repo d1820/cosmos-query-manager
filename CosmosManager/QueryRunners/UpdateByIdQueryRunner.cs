@@ -122,6 +122,7 @@ namespace CosmosManager.QueryRunners
                                                                                              var partionKeyValue = jDoc.SelectToken(partitionKeyPath).ToString();
 
                                                                                              var partialDoc = JObject.Parse(queryParts.QueryUpdateBody);
+
                                                                                              //ensure the partial update is not trying to update id or the partition key
                                                                                              var pToken = partialDoc.SelectToken(partitionKeyPath);
                                                                                              var idToken = partialDoc.SelectToken(Constants.DocumentFields.ID);
@@ -130,9 +131,10 @@ namespace CosmosManager.QueryRunners
                                                                                                  logger.LogError($"Updates are not allowed on ids or existing partition keys of a document. Skipping updated for document {documentId}.");
                                                                                                  return false;
                                                                                              }
+                                                                                             var shouldUpdateToEmptyArray = partialDoc.HasEmptyJArray();
                                                                                              jDoc.Merge(partialDoc, new JsonMergeSettings
                                                                                              {
-                                                                                                 MergeArrayHandling = MergeArrayHandling.Merge,
+                                                                                                 MergeArrayHandling = shouldUpdateToEmptyArray ? MergeArrayHandling.Replace : MergeArrayHandling.Merge,
                                                                                                  MergeNullValueHandling = MergeNullValueHandling.Merge
                                                                                              });
 
@@ -183,5 +185,7 @@ namespace CosmosManager.QueryRunners
                 return (false, null);
             }
         }
+
+
     }
 }

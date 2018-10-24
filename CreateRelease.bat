@@ -15,7 +15,7 @@ msbuild .\CosmosManager\CosmosManager.csproj /target:publish /p:Configuration=Re
 
 xcopy /s /y ".\CosmosManager\bin\Release\app.publish\*" ".\CosmosManager\publish\"
 
-del /f ".\CosmosManager\publish\CosmosManager2018.exe"
+del /f ".\CosmosManager\publish\CosmosManager2019.exe"
 
 echo Creating Installer
 "C:\Program Files\7-Zip\7z.exe" a -sfx7z.sfx ".\Releases\CosmosManagerInstaller-%version%.exe" ".\CosmosManager\publish\*"
