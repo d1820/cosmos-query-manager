@@ -104,9 +104,10 @@ namespace CosmosManager.QueryRunners
                                                                                                 logger.LogError($"Updates are not allowed on ids or existing partition keys of a document. Skipping updated for document {documentId}.");
                                                                                                 return false;
                                                                                             }
+                                                                                            var shouldUpdateToEmptyArray = partialDoc.HasEmptyJArray();
                                                                                             document.Merge(partialDoc, new JsonMergeSettings
                                                                                             {
-                                                                                                MergeArrayHandling = MergeArrayHandling.Merge,
+                                                                                                MergeArrayHandling = shouldUpdateToEmptyArray ? MergeArrayHandling.Replace : MergeArrayHandling.Merge,
                                                                                                 MergeNullValueHandling = MergeNullValueHandling.Merge
                                                                                             });
 

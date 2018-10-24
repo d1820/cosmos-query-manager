@@ -334,42 +334,6 @@ namespace CosmosManager
                 }
             });
 
-            //}
-
-            //private void GetAllProperties(JObject parent, List<string> propList)
-            //{
-            //    var props = parent.Properties();
-            //    foreach (var property in props)
-            //    {
-            //        if (!propList.Contains(property.Name))
-            //        {
-            //            propList.Add($"{property.Name}");
-            //            ParseJArray(property.Value.Children<JArray>(), propList);
-
-            //        }
-            //    }
-            //    foreach (var child in parent.Children<JObject>())
-            //    {
-            //        GetAllProperties(child, propList);
-            //    }
-
-            //    ParseJArray(parent.Children<JArray>(), propList);
-            //}
-
-            //private void ParseJArray(IEnumerable<JArray> arrays, List<string> propList)
-            //{
-            //    foreach (var childArray in arrays)
-            //    {
-            //        foreach (var child in childArray)
-            //        {
-            //            var objects = child.Children<JObject>();
-            //            foreach (var obj in objects)
-            //            {
-            //                GetAllProperties(obj, propList);
-            //            }
-            //        }
-            //    }
-            //}
         }
 
         private CheckState headerCheckState = CheckState.Unchecked;
