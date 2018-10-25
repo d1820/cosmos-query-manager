@@ -39,9 +39,9 @@ namespace CosmosManager.Parsers
 
         public string CleanQuery(string query)
         {
-            var cleanString = query.Replace(@"\n", " ")
-                .Replace(@"\t", " ")
-                .Replace(@"\r", " ")
+            var cleanString = query.Replace('\n', ' ')
+                .Replace('\t', ' ')
+                .Replace('\r', ' ')
                 .Trim();
 
             var keyWords = new List<KeyValuePair<string, string>> {
@@ -54,7 +54,8 @@ namespace CosmosManager.Parsers
                 new KeyValuePair<string, string>("where", Constants.QueryKeywords.WHERE),
                 new KeyValuePair<string, string>("update", Constants.QueryKeywords.UPDATE),
                 new KeyValuePair<string, string>("insert", Constants.QueryKeywords.INSERT),
-                new KeyValuePair<string, string>("into", Constants.QueryKeywords.INTO)
+                new KeyValuePair<string, string>("into", Constants.QueryKeywords.INTO),
+                new KeyValuePair<string, string>("delete", Constants.QueryKeywords.DELETE)
             };
 
             foreach (var word in keyWords)

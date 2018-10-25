@@ -226,7 +226,8 @@ namespace CosmosManager.Presenters
         {
             var queryToParse = queryText ?? _view.Query;
             var pattern = @"(?!\B[""\'][^""\']*);(?![^""\']*[""\']\B)";
-            var queries = Regex.Split(queryToParse.Replace("\n", ""), pattern, RegexOptions.IgnoreCase);
+            var preCleanString = queryToParse.Replace('\n', ' ').Replace('\r', ' ').Replace('\t', ' ');
+            var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase);
             return queries.Where(w => !string.IsNullOrEmpty(w.Trim())).ToArray();
         }
 
