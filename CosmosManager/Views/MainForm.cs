@@ -129,7 +129,10 @@ namespace CosmosManager
                     }
                 }
                 CreateTab(fi.Name, fi);
+                return;
             }
+
+            fileTreeView_NodeMouseClick(sender, e);
         }
 
         private void queryTabControl_DrawItem(object sender, DrawItemEventArgs e)
