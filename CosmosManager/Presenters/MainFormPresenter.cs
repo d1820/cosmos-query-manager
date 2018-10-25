@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Timers;
 using System.Windows.Forms;
 
@@ -66,9 +67,11 @@ namespace CosmosManager.Presenters
                 _rootDir = rootDir;
                 rootNode = new TreeNode(info.Name);
                 rootNode.Tag = info;
+
                 GetDirectories(info.GetDirectories(), rootNode);
                 GetFiles(rootNode);
                 _view.AddFileNode(rootNode);
+                rootNode.Expand();
             }
         }
 
@@ -79,6 +82,7 @@ namespace CosmosManager.Presenters
 
         public void LoadSubDirsAndFiles(DirectoryInfo folder, TreeNode currentNode)
         {
+            currentNode.Nodes.Clear();
             GetDirectories(folder.GetDirectories(), currentNode);
             GetFiles(currentNode);
         }
@@ -186,6 +190,14 @@ namespace CosmosManager.Presenters
                 if (subSubDirs.Length != 0)
                 {
                     GetDirectories(subSubDirs, aNode);
+
+                }
+                var hasFiles = subDir.GetFiles("*.csql", SearchOption.TopDirectoryOnly).Any();
+                if (hasFiles)
+                {
+                    //add a fake node to show the plus sign
+                    var tempNode = new TreeNode("TEMP", 1, 1);
+                    aNode.Nodes.Add(tempNode);
                 }
                 nodeToAddTo.Nodes.Add(aNode);
             }
@@ -196,12 +208,13 @@ namespace CosmosManager.Presenters
             var nodeDirInfo = (DirectoryInfo)nodeToAddTo.Tag;
 
             TreeNode aNode;
-            nodeToAddTo.Nodes.Clear();
+            //nodeToAddTo.Nodes.Clear();
             var files = nodeDirInfo.GetFiles("*.csql", SearchOption.TopDirectoryOnly);
             if (files.Length > 0)
             {
                 nodeToAddTo.Expand();
             }
+
             foreach (var file in files)
             {
                 aNode = new TreeNode(file.Name, 1, 1);

@@ -95,8 +95,12 @@ namespace CosmosManager
             var newSelected = e.Node;
             if (newSelected.Tag is DirectoryInfo)
             {
-                var nodeDirInfo = (DirectoryInfo)newSelected.Tag;
-                Presenter.LoadSubDirsAndFiles(nodeDirInfo, newSelected);
+                if (newSelected.IsExpanded)
+                {
+                    var nodeDirInfo = (DirectoryInfo)newSelected.Tag;
+                    Presenter.LoadSubDirsAndFiles(nodeDirInfo, newSelected);
+                }
+
             }
         }
 
@@ -104,6 +108,7 @@ namespace CosmosManager
         {
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
+                queryTabControl.TabPages.Clear();
                 Presenter.PopulateTreeView(folderBrowserDialog1.SelectedPath);
             }
         }
@@ -331,7 +336,7 @@ namespace CosmosManager
 
         private void openInFileExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-             Presenter.OpenInFileExporer((_contextSelectedNode.Tag as DirectoryInfo)?.FullName);
+            Presenter.OpenInFileExporer((_contextSelectedNode.Tag as DirectoryInfo)?.FullName);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
