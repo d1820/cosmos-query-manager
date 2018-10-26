@@ -26,6 +26,7 @@ namespace CosmosManager.Domain
             public const string INSERT = "INSERT";
             public const string INTO = "INTO";
             public const string REPLACE = "REPLACE";
+            public const string ORDERBY = "ORDER BY";
         }
     }
 }

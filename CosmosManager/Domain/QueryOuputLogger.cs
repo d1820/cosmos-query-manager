@@ -27,7 +27,7 @@ namespace CosmosManager.Domain
                     details = exception.StackTrace
                 };
 
-                _presenter.AddToQueryOutput(JsonConvert.SerializeObject(logObject, Formatting.Indented));
+                _presenter?.AddToQueryOutput(JsonConvert.SerializeObject(logObject, Formatting.Indented));
             }
             else
             {
@@ -39,7 +39,7 @@ namespace CosmosManager.Domain
                 {
                     var parts = stat.Value?.ToString().Split(new[] { ',' });
 
-                    _presenter.AddToQueryOutput(JsonConvert.SerializeObject(parts, Formatting.Indented));
+                    _presenter?.AddToQueryOutput(JsonConvert.SerializeObject(parts, Formatting.Indented));
                 }
             }
         }

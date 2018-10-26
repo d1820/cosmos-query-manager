@@ -70,7 +70,7 @@ namespace CosmosManager.QueryRunners
                                                                                              JObject jDoc = null;
                                                                                              if (queryParts.IsTransaction)
                                                                                              {
-                                                                                                 var backupResult = await _transactionTask.BackupAsync(context, connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, documentId);
+                                                                                                 var backupResult = await _transactionTask.BackupAsync(context, connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, logger, documentId);
                                                                                                  if (!backupResult.isSuccess)
                                                                                                  {
                                                                                                      logger.LogError($"Unable to backup document {documentId}. Skipping Update.");
@@ -168,7 +168,7 @@ namespace CosmosManager.QueryRunners
                 actionTransactionCacheBlock.Complete();
                 await actionTransactionCacheBlock.Completion;
                 logger.LogInformation($"Updated {updateCount} out of {ids.Length}");
-                if (queryParts.IsTransaction)
+                if (queryParts.IsTransaction && updateCount > 0)
                 {
                     logger.LogInformation($"To rollback execute: ROLLBACK {queryParts.TransactionId}");
                 }

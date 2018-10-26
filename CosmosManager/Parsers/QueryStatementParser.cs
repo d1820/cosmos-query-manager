@@ -33,7 +33,8 @@ namespace CosmosManager.Parsers
                 QueryWhere = _queryParser.ParseWhere(cleanQuery).Trim(),
                 RollbackName = _queryParser.ParseRollback(cleanQuery).Trim(),
                 TransactionId = _queryParser.ParseTransaction(cleanQuery).Trim(),
-                QueryInto = _queryParser.ParseIntoBody(cleanQuery).Trim()
+                QueryInto = _queryParser.ParseIntoBody(cleanQuery).Trim(),
+                QueryOrderBy = _queryParser.ParseOrderBy(cleanQuery).Trim()
             };
         }
 
@@ -55,7 +56,8 @@ namespace CosmosManager.Parsers
                 new KeyValuePair<string, string>("update", Constants.QueryKeywords.UPDATE),
                 new KeyValuePair<string, string>("insert", Constants.QueryKeywords.INSERT),
                 new KeyValuePair<string, string>("into", Constants.QueryKeywords.INTO),
-                new KeyValuePair<string, string>("delete", Constants.QueryKeywords.DELETE)
+                new KeyValuePair<string, string>("delete", Constants.QueryKeywords.DELETE),
+                new KeyValuePair<string, string>("order by", Constants.QueryKeywords.ORDERBY)
             };
 
             foreach (var word in keyWords)

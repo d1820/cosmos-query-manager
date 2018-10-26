@@ -14,6 +14,7 @@ namespace CosmosManager.Domain
         public string QueryUpdateType { get; set; }
 
         public string QueryWhere { get; set; }
+        public string QueryOrderBy { get; set; }
 
         public bool IsTransaction => !string.IsNullOrWhiteSpace(TransactionId);
         public string TransactionId { get; set; }
@@ -75,6 +76,8 @@ namespace CosmosManager.Domain
 
         public bool HasWhereClause() => !string.IsNullOrEmpty(QueryWhere);
 
+        public bool HasOrderByClause() => !string.IsNullOrEmpty(QueryOrderBy);
+
         public string ToRawQuery()
         {
             if (QueryType == Constants.QueryKeywords.INSERT)
@@ -87,6 +90,11 @@ namespace CosmosManager.Domain
             if (!string.IsNullOrEmpty(QueryWhere))
             {
                 baseString += $" {QueryWhere}";
+            }
+
+            if (!string.IsNullOrEmpty(QueryOrderBy))
+            {
+                baseString += $" {QueryOrderBy}";
             }
 
             if (!string.IsNullOrEmpty(QueryUpdateBody))
@@ -104,6 +112,11 @@ namespace CosmosManager.Domain
             if (!string.IsNullOrEmpty(QueryWhere))
             {
                 baseString += $" {QueryWhere}";
+            }
+
+            if (!string.IsNullOrEmpty(QueryOrderBy))
+            {
+                baseString += $" {QueryOrderBy}";
             }
 
             return baseString;

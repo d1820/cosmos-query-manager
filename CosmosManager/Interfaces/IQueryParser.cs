@@ -15,5 +15,7 @@
         string ParseTransaction(string query);
 
         string ParseIntoBody(string query);
+
+        string ParseOrderBy(string query);
     }
 }

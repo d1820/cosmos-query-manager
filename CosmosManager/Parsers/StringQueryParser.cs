@@ -67,6 +67,8 @@ namespace CosmosManager.Parsers
                 return matches[0].Value;
             }
 
+            query = RemoveOrderBy(query);
+
             //its not a WHERE check then look for only SET/REPLACE
             rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.REPLACE}|{Constants.QueryKeywords.SET})");
             matches = rgx.Matches(query);
@@ -74,6 +76,7 @@ namespace CosmosManager.Parsers
             {
                 return matches[0].Value;
             }
+
             //lets check if its only a FROM and then end
             rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)");
 
@@ -90,8 +93,17 @@ namespace CosmosManager.Parsers
             return string.Empty;
         }
 
+        private string RemoveOrderBy(string query)
+        {
+            var rgx = new Regex($@"({Constants.QueryKeywords.ORDERBY})[\s\S]*(.*?)");
+            return rgx.Replace(query, "");
+        }
+
         public (string updateType, string updateBody) ParseUpdateBody(string query)
         {
+            query = RemoveOrderBy(query);
+
+
             var rgx = new Regex($@"({Constants.QueryKeywords.SET})[\s\S]*(.*?)");
 
             var matches = rgx.Matches(query);
@@ -118,7 +130,7 @@ namespace CosmosManager.Parsers
 
         public string ParseWhere(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)(?={Constants.QueryKeywords.SET})");
+            var rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)(?=({Constants.QueryKeywords.SET}|{Constants.QueryKeywords.ORDERBY}))");
 
             var matches = rgx.Matches(query);
             if (matches.Count == 1)
@@ -174,6 +186,30 @@ namespace CosmosManager.Parsers
                 throw new FormatException($"Invalid query. {Constants.QueryKeywords.TRANSACTION} statement should be on a line by itself.");
             }
             return $"{fromBody}_{DateTime.Now.ToString("yyyyMMdd_hhmmss")}_{Guid.NewGuid()}";
+        }
+
+        public string ParseOrderBy(string query)
+        {
+            //Orderby only allowed in a select
+            var rgxSelect = new Regex($"({Constants.QueryKeywords.SELECT})");
+            if (rgxSelect.Matches(query).Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var rgx = new Regex($@"({Constants.QueryKeywords.ORDERBY})[\s\S]*(.*?)");
+            var matches = rgx.Matches(query);
+            if (matches.Count == 1)
+            {
+                return matches[0].Value;
+            }
+
+            if (matches.Count > 1)
+            {
+                throw new FormatException($"Invalid query. Query {Constants.QueryKeywords.ORDERBY} statement is not formatted correct.");
+            }
+
+            return string.Empty;
         }
     }
 }

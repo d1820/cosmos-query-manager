@@ -324,24 +324,24 @@ namespace CosmosManager.Presenters
 
                     if (queryParts.IsValidQuery())
                     {
-                        if (queryParts.IsUpdateQuery())
-                        {
-                            sql.AppendLine($"{queryParts.QueryType} {queryParts.QueryBody}");
-                            sql.AppendLine($"{queryParts.QueryFrom}");
-                            if (queryParts.HasWhereClause())
-                            {
-                                sql.AppendLine(queryParts.QueryWhere);
-                            }
-                            sql.AppendLine(queryParts.QueryUpdateType);
-                            sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
-                            cleanedQueries.Add(sql.ToString());
-                            continue;
-                        }
                         sql.AppendLine($"{queryParts.QueryType} {queryParts.QueryBody}");
                         sql.AppendLine($"{queryParts.QueryFrom}");
                         if (queryParts.HasWhereClause())
                         {
                             sql.AppendLine(queryParts.QueryWhere);
+                        }
+
+                        if (queryParts.IsUpdateQuery())
+                        {
+                            sql.AppendLine(queryParts.QueryUpdateType);
+                            sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
+                            cleanedQueries.Add(sql.ToString());
+                            continue;
+                        }
+
+                        if (queryParts.HasOrderByClause())
+                        {
+                            sql.AppendLine(queryParts.QueryOrderBy);
                         }
                         cleanedQueries.Add(sql.ToString());
                         continue;
