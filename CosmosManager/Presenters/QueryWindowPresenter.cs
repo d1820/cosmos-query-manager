@@ -144,7 +144,7 @@ namespace CosmosManager.Presenters
                         else if (response.results != null)
                         {
                             //add a header row if more then 1 query needs to be ran
-                            RenderResults(response.results, queryParts.CollectionName, queries.Length > 1, i + 1);
+                            RenderResults(response.results, queryParts.CollectionName, queryParts, queries.Length > 1, i + 1);
                             hasResults = true;
                         }
                     }
@@ -225,9 +225,19 @@ namespace CosmosManager.Presenters
         private string[] SplitQueries(string queryText = null)
         {
             var queryToParse = queryText ?? _view.Query;
+            var preCleanString = queryToParse.Replace('\n', '|').Replace('\r', ' ').Replace('\t', ' ');
+
+            //remove any comment sections
+            //if (!keepComments)
+            //{
+            //    var rgx = new Regex(@"(\/\*)[\\s\\S](.*?)(\*\/)[|\\s]+");
+            //    //remove all comment blocks
+            //    preCleanString = rgx.Replace(preCleanString, "");
+            //}
+
             var pattern = @"(?!\B[""\'][^""\']*);(?![^""\']*[""\']\B)";
-            var preCleanString = queryToParse.Replace('\n', ' ').Replace('\r', ' ').Replace('\t', ' ');
             var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase);
+
             return queries.Where(w => !string.IsNullOrEmpty(w.Trim())).ToArray();
         }
 
@@ -271,9 +281,9 @@ namespace CosmosManager.Presenters
             _view.SetStatusBarMessage($"{fileName} Exported");
         }
 
-        public void RenderResults(IReadOnlyCollection<object> results, string collectionName, bool appendResults, int queryStatementIndex)
+        public void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex)
         {
-            _view.RenderResults(results, collectionName, appendResults, queryStatementIndex);
+            _view.RenderResults(results, collectionName, query, appendResults, queryStatementIndex);
         }
 
         public void ShowOutputTab()
@@ -291,70 +301,97 @@ namespace CosmosManager.Presenters
             return JsonConvert.SerializeObject(obj, Formatting.Indented);
         }
 
-        public string BeautifyQuery(string queryText)
+        public string BeautifyQuery(string query)
         {
             var cleanedQueries = new List<string>();
             try
             {
-                var queries = SplitQueries(queryText);
+                var queries = SplitQueries(query);
 
-                foreach (var query in queries)
+                foreach (var querytxt in queries)
                 {
-                    var queryParts = _queryParser.Parse(query);
+                    var queryParts = _queryParser.Parse(querytxt);
                     var sql = new StringBuilder();
                     if (queryParts.IsTransaction)
                     {
-                        sql.AppendLine(Constants.QueryKeywords.TRANSACTION);
+                        sql.Append(Constants.QueryKeywords.TRANSACTION);
                     }
                     if (queryParts.IsValidInsertQuery())
                     {
-                        sql.AppendLine(queryParts.QueryType);
-                        sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryBody), Formatting.Indented));
-                        sql.AppendLine(queryParts.QueryInto);
+                        sql.Append(queryParts.QueryType);
+                        sql.Append(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryBody), Formatting.Indented));
+                        sql.Append(queryParts.QueryInto);
+                        sql = ResetComments(queryParts, sql);
                         cleanedQueries.Add(sql.ToString());
                         continue;
                     }
 
                     if (queryParts.IsRollback)
                     {
-                        sql.AppendLine($"ROLLBACK {queryParts.RollbackName}");
+                        sql.Append($"ROLLBACK {queryParts.RollbackName}");
+                        sql = ResetComments(queryParts, sql);
                         cleanedQueries.Add(sql.ToString());
                         continue;
                     }
 
                     if (queryParts.IsValidQuery())
                     {
-                        sql.AppendLine($"{queryParts.QueryType} {queryParts.QueryBody}");
-                        sql.AppendLine($"{queryParts.QueryFrom}");
+                        sql.Append($"{queryParts.QueryType} {queryParts.QueryBody}");
+                        sql.Append($"{queryParts.QueryFrom}");
+                        if (queryParts.HasJoins())
+                        {
+                            var joins = queryParts.QueryJoin.Split(new string[] { Constants.QueryKeywords.JOIN }, StringSplitOptions.RemoveEmptyEntries);
+                            foreach (var join in joins)
+                            {
+                                sql.Append($"{Constants.QueryKeywords.JOIN} {join}");
+                            }
+                        }
+
                         if (queryParts.HasWhereClause())
                         {
-                            sql.AppendLine(queryParts.QueryWhere);
+                            sql.Append(queryParts.QueryWhere);
                         }
 
                         if (queryParts.IsUpdateQuery())
                         {
-                            sql.AppendLine(queryParts.QueryUpdateType);
-                            sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
+                            sql.Append(queryParts.QueryUpdateType);
+                            sql.Append(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
+                            sql = ResetComments(queryParts, sql);
                             cleanedQueries.Add(sql.ToString());
                             continue;
                         }
 
                         if (queryParts.HasOrderByClause())
                         {
-                            sql.AppendLine(queryParts.QueryOrderBy);
+                            sql.Append(queryParts.QueryOrderBy);
                         }
-                        cleanedQueries.Add(sql.ToString());
-                        continue;
+                        sql = ResetComments(queryParts, sql);
+                        cleanedQueries.Add(sql.ToString().Replace("|", Environment.NewLine));
                     }
                 }
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return queryText;
+                return query;
             }
             return string.Join($";{Environment.NewLine}{Environment.NewLine}", cleanedQueries);
             ;
+        }
+
+        private StringBuilder ResetComments(QueryParts queryParts, StringBuilder sqlString)
+        {
+            if (queryParts.Comments.Count > 0)
+            {
+                var tempstr = sqlString.ToString();
+                for (var i = 0; i < queryParts.Comments.Count; i++)
+                {
+                    var match = queryParts.Comments[i];
+                    tempstr = tempstr.Insert(match.Index, match.Value);
+                }
+                return new StringBuilder(tempstr);
+            }
+            return sqlString;
         }
     }
 }

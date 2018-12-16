@@ -6,5 +6,6 @@ namespace CosmosManager.Domain
     {
         public JObject Document { get; set; }
         public string CollectionName { get; set;}
+        public QueryParts Query { get; set;}
     }
 }

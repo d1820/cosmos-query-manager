@@ -45,6 +45,8 @@ namespace CosmosManager
             container.Register<IQueryWindowPresenter, QueryWindowPresenter>();
             container.Register<IMainFormPresenter, MainFormPresenter>(Lifestyle.Singleton);
 
+            container.Register<IActionLogFormPresenter, ActionLogFormPresenter>(Lifestyle.Singleton);
+
             RegisterRunners(container);
 
             container.Register<ITransactionTask, TransactionTask>();
@@ -55,7 +57,13 @@ namespace CosmosManager
             container.Register<HelpForm>();
             container.Register<NewFileForm>();
             container.Register<AboutCosmosManager>();
-            SuppressRegistrations(new List<Type> { typeof(HelpForm), typeof(AboutCosmosManager), typeof(NewFileForm) }, container, "Forms Controlled By Manager");
+            container.Register<ActionLogForm>();
+            SuppressRegistrations(new List<Type> {
+                typeof(HelpForm),
+                typeof(ActionLogForm),
+                typeof(AboutCosmosManager),
+                typeof(NewFileForm)
+                }, container, "Forms Controlled By Manager");
 
             // Optionally verify the container.
             container.Verify();

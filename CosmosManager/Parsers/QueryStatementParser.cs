@@ -21,6 +21,9 @@ namespace CosmosManager.Parsers
             OrginalQuery = query;
             var cleanQuery = CleanQuery(query);
 
+            var result = _queryParser.ParseAndCleanComments(cleanQuery);
+            cleanQuery = result.commentFreeQuery;
+
             var typeAndBody = _queryParser.ParseQueryBody(cleanQuery);
             var updateTypeAndBody = _queryParser.ParseUpdateBody(cleanQuery);
             return new QueryParts
@@ -34,13 +37,17 @@ namespace CosmosManager.Parsers
                 RollbackName = _queryParser.ParseRollback(cleanQuery).Trim(),
                 TransactionId = _queryParser.ParseTransaction(cleanQuery).Trim(),
                 QueryInto = _queryParser.ParseIntoBody(cleanQuery).Trim(),
-                QueryOrderBy = _queryParser.ParseOrderBy(cleanQuery).Trim()
+                QueryOrderBy = _queryParser.ParseOrderBy(cleanQuery).Trim(),
+                QueryJoin = _queryParser.ParseJoins(cleanQuery).Trim(),
+                Comments = result.comments
             };
         }
 
         public string CleanQuery(string query)
         {
-            var cleanString = query.Replace('\n', ' ')
+            //
+            var cleanString = query
+                .Replace('\n', '|')
                 .Replace('\t', ' ')
                 .Replace('\r', ' ')
                 .Trim();
@@ -57,7 +64,12 @@ namespace CosmosManager.Parsers
                 new KeyValuePair<string, string>("insert", Constants.QueryKeywords.INSERT),
                 new KeyValuePair<string, string>("into", Constants.QueryKeywords.INTO),
                 new KeyValuePair<string, string>("delete", Constants.QueryKeywords.DELETE),
-                new KeyValuePair<string, string>("order by", Constants.QueryKeywords.ORDERBY)
+                new KeyValuePair<string, string>("order by", Constants.QueryKeywords.ORDERBY),
+                new KeyValuePair<string, string>("join", Constants.QueryKeywords.JOIN),
+                new KeyValuePair<string, string>("in", Constants.QueryKeywords.IN),
+                new KeyValuePair<string, string>("and", Constants.QueryKeywords.AND),
+                new KeyValuePair<string, string>("or", Constants.QueryKeywords.OR),
+                new KeyValuePair<string, string>("between", Constants.QueryKeywords.BETWEEN)
             };
 
             foreach (var word in keyWords)

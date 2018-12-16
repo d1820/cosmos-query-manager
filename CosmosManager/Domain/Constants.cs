@@ -27,6 +27,11 @@ namespace CosmosManager.Domain
             public const string INTO = "INTO";
             public const string REPLACE = "REPLACE";
             public const string ORDERBY = "ORDER BY";
+            public const string JOIN = "JOIN";
+            public const string IN = "IN";
+            public const string AND = "AND";
+            public const string OR = "OR";
+            public const string BETWEEN = "BETWEEN";
         }
     }
 }

@@ -117,7 +117,7 @@ namespace CosmosManager
             this.textQuery.AcceptsTab = true;
             this.textQuery.DetectUrls = false;
             this.textQuery.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textQuery.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textQuery.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textQuery.Location = new System.Drawing.Point(0, 28);
             this.textQuery.Name = "textQuery";
             this.textQuery.Size = new System.Drawing.Size(930, 193);
@@ -357,6 +357,7 @@ namespace CosmosManager
             // 
             this.textDocument.AcceptsTab = true;
             this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textDocument.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textDocument.Location = new System.Drawing.Point(0, 25);
             this.textDocument.Name = "textDocument";
             this.textDocument.Size = new System.Drawing.Size(562, 303);
@@ -487,13 +488,13 @@ namespace CosmosManager
             // 
             this.textQueryOutput.BackColor = System.Drawing.Color.WhiteSmoke;
             this.textQueryOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textQueryOutput.Font = new System.Drawing.Font("Arial", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textQueryOutput.Location = new System.Drawing.Point(3, 3);
             this.textQueryOutput.Name = "textQueryOutput";
             this.textQueryOutput.ReadOnly = true;
             this.textQueryOutput.Size = new System.Drawing.Size(916, 328);
             this.textQueryOutput.TabIndex = 1;
             this.textQueryOutput.Text = "";
-            this.textQueryOutput.WordWrap = false;
             // 
             // saveJsonDialog
             // 

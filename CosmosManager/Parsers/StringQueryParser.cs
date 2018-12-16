@@ -56,10 +56,26 @@ namespace CosmosManager.Parsers
             return matches[0].Value;
         }
 
+        /// <summary>
+        /// Parses from body.
+        /// </summary>
+        /// <example>
+        /// FROM col
+        /// FROM col WHERE col.id = '123'
+        /// FROM col c JOIN y IN c.List
+        /// FROM col c JOIN y IN c.List WHERE c.Active = true
+        /// FROM col c ORDER BY c.Active
+        /// FROM col SET {}
+        /// FROM col REPLACE {}
+        /// </example>
+        /// "
+        /// <param name="query">The query.</param>
+        /// <returns></returns>
+        /// <exception cref="FormatException">Invalid query. Query {Constants.QueryKeywords.FROM}</exception>
         public string ParseFromBody(string query)
         {
-            //|{Constants.QueryKeywords.REPLACE}|{Constants.QueryKeywords.SET}
-            var rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.WHERE})");
+            //check if we have JOINS
+            var rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S].*?(?={Constants.QueryKeywords.JOIN})");
 
             var matches = rgx.Matches(query);
             if (matches.Count == 1)
@@ -67,14 +83,38 @@ namespace CosmosManager.Parsers
                 return matches[0].Value;
             }
 
-            query = RemoveOrderBy(query);
+            //if no joins look for a where clause
+            rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.WHERE})");
 
-            //its not a WHERE check then look for only SET/REPLACE
-            rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.REPLACE}|{Constants.QueryKeywords.SET})");
             matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
                 return matches[0].Value;
+            }
+
+            //query = RemoveOrderBy(query);
+            var rgxSelect = new Regex($"({Constants.QueryKeywords.SELECT})");
+            if (rgxSelect.Matches(query).Count > 0)
+            {
+                rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.ORDERBY})");
+                matches = rgx.Matches(query);
+                if (matches.Count == 1)
+                {
+                    return matches[0].Value;
+                }
+            }
+
+            //its not a WHERE check then look for only SET/REPLACE
+            //these are only allowed from an update
+            var rgxUpdate = new Regex($"({Constants.QueryKeywords.UPDATE})");
+            if (rgxUpdate.Matches(query).Count > 0)
+            {
+                rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.REPLACE}|{Constants.QueryKeywords.SET})");
+                matches = rgx.Matches(query);
+                if (matches.Count == 1)
+                {
+                    return matches[0].Value;
+                }
             }
 
             //lets check if its only a FROM and then end
@@ -210,6 +250,44 @@ namespace CosmosManager.Parsers
             }
 
             return string.Empty;
+        }
+
+        public string ParseJoins(string query)
+        {
+            //we can really use joins if its a select, where clause
+            var rgxSelectOrWhere = new Regex($"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.WHERE})");
+            if (rgxSelectOrWhere.Matches(query).Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var rgx = new Regex($@"({Constants.QueryKeywords.JOIN})[\s\S]*(.*?)(?=({Constants.QueryKeywords.WHERE}|{Constants.QueryKeywords.ORDERBY}))");
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 1)
+            {
+                return matches[0].Value;
+            }
+
+            //lets check if its only a JOIN and then end
+            rgx = new Regex($@"({Constants.QueryKeywords.JOIN})[\s\S]*(.*?)");
+            matches = rgx.Matches(query);
+            if (matches.Count == 1)
+            {
+                return matches[0].Value;
+            }
+
+            return string.Empty;
+        }
+
+        public (MatchCollection comments, string commentFreeQuery) ParseAndCleanComments(string query)
+        {
+            var rgx = new Regex(@"(\/\*)[\\s\\S]*(.*?)(\*\/)[|\\s]+");
+            var matches =  rgx.Matches(query);
+
+            //remove all comment blocks
+            var cleanedQuery = rgx.Replace(query,"");
+            return (matches, cleanedQuery);
         }
     }
 }

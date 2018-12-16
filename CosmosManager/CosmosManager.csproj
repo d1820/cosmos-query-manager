@@ -176,6 +176,13 @@
     <Compile Include="Views\AboutCosmosManager.Designer.cs">
       <DependentUpon>AboutCosmosManager.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\ActionLogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\ActionLogForm.Designer.cs">
+      <DependentUpon>ActionLogForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Presenters\ActionLogFormPresenter.cs" />
     <Compile Include="Views\HelpForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -187,6 +194,8 @@
     <Compile Include="Interfaces\IQueryResultDecorator.cs" />
     <Compile Include="Interfaces\IStoredProcedureExecuteContext.cs" />
     <Compile Include="Interfaces\IQueryWindowControl.cs" />
+    <Compile Include="Interfaces\IActionLogForm.cs" />
+    <Compile Include="Interfaces\IActionLogFormPresenter.cs" />
     <Compile Include="Views\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -213,6 +222,9 @@
     <Compile Include="Stores\StoredProcedureExecuteContext.cs" />
     <EmbeddedResource Include="Views\AboutCosmosManager.resx">
       <DependentUpon>AboutCosmosManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ActionLogForm.resx">
+      <DependentUpon>ActionLogForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\HelpForm.resx">
       <DependentUpon>HelpForm.cs</DependentUpon>

@@ -25,6 +25,8 @@ Cosmos Manager uses a custom SQL query language that is a mixture of Cosmos and 
 #### SQL/Cosmos syntax
 ```
 SELECT * FROM Market WHERE Market.id = 'test'
+
+SELECT * FROM Market m JOIN type IN m.Types WHERE m.id = 'test' AND type = 'whole'
 ```
 
 ### TRANSACTIONS
@@ -221,4 +223,4 @@ WHERE Market.PartitionKey = 'List'
 ```
 
 ## Supported Applications
-- Cosmos Emulator Required Version 1.17.x. This requirement is due to the coupling of DocumentDB Nuget packages to the emulator installed locally. If you do not use the emulator this is not a requirement of using the application.
+- Cosmos Emulator Min Required Version 1.17.x. This requirement is due to the coupling of DocumentDB Nuget packages to the emulator installed locally. If you do not use the emulator this is not a requirement of using the application.

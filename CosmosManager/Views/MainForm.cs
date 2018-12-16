@@ -15,6 +15,7 @@ namespace CosmosManager
         private TabPage contextTabPage;
         private readonly IFormOpener _formManager;
 
+
         public IMainFormPresenter Presenter { private get; set; }
 
         public MainForm(IFormOpener formManager, IMainFormPresenter presenter)
@@ -264,8 +265,6 @@ namespace CosmosManager
             queryWindow.Dock = DockStyle.Fill;
             queryWindow.MainPresenter = Presenter;
 
-            //var presenter = new QueryWindowPresenter(queryWindow, queryTabControl.TabPages.Count);
-
             var presenter = AppReferences.Container.GetInstance<IQueryWindowPresenter>();
             presenter.InitializePresenter(new
             {
@@ -345,6 +344,19 @@ namespace CosmosManager
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void viewPreviousActionsLogToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _formManager.ShowModalForm<ActionLogForm>(form =>
+            {
+                var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
+                presenter.InitializePresenter(new
+                {
+                    ActionLogForm = form
+                });
+                presenter.RenderActionList();
+            });
         }
     }
 }

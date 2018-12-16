@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CosmosManager.Domain
 {
@@ -15,6 +16,9 @@ namespace CosmosManager.Domain
 
         public string QueryWhere { get; set; }
         public string QueryOrderBy { get; set; }
+        public string QueryJoin { get; set; }
+
+        public MatchCollection Comments { get; set; }
 
         public bool IsTransaction => !string.IsNullOrWhiteSpace(TransactionId);
         public string TransactionId { get; set; }
@@ -40,7 +44,9 @@ namespace CosmosManager.Domain
             {
                 if (!string.IsNullOrWhiteSpace(QueryFrom))
                 {
-                    var colName = QueryFrom.Split(new[] { ' ' }).LastOrDefault();
+                    var cleanedColStr = QueryFrom.Replace(Constants.QueryKeywords.FROM, "").Trim();
+                    var colNameParts = cleanedColStr.Split(new[] { ' ' });
+                    var colName = colNameParts.FirstOrDefault();
                     if (!string.IsNullOrEmpty(colName))
                     {
                         return colName;
@@ -49,7 +55,9 @@ namespace CosmosManager.Domain
 
                 if (!string.IsNullOrWhiteSpace(QueryInto))
                 {
-                    var colName = QueryInto.Split(new[] { ' ' }).LastOrDefault();
+                    var cleanedColStr = QueryInto.Replace(Constants.QueryKeywords.INTO, "").Trim();
+                    var colNameParts = cleanedColStr.Split(new[] { ' ' });
+                    var colName = colNameParts.FirstOrDefault();
                     if (!string.IsNullOrEmpty(colName))
                     {
                         return colName;
@@ -78,6 +86,8 @@ namespace CosmosManager.Domain
 
         public bool HasOrderByClause() => !string.IsNullOrEmpty(QueryOrderBy);
 
+        public bool HasJoins() => !string.IsNullOrEmpty(QueryJoin);
+
         public string ToRawQuery()
         {
             if (QueryType == Constants.QueryKeywords.INSERT)
@@ -87,6 +97,11 @@ namespace CosmosManager.Domain
 
             //order of the parts matters for consistency
             var baseString = $"{QueryType} {QueryBody} {QueryFrom}";
+            if (!string.IsNullOrEmpty(QueryJoin))
+            {
+                baseString += $" {QueryJoin}";
+            }
+
             if (!string.IsNullOrEmpty(QueryWhere))
             {
                 baseString += $" {QueryWhere}";
@@ -102,13 +117,17 @@ namespace CosmosManager.Domain
                 baseString += $" {QueryUpdateBody}";
             }
 
-            return baseString;
+            return baseString.Replace("|", " ");
         }
 
         public string ToRawSelectQuery()
         {
             //order of the parts matters for consistency
             var baseString = $"{Constants.QueryKeywords.SELECT} {QueryBody} {QueryFrom}";
+            if (!string.IsNullOrEmpty(QueryJoin))
+            {
+                baseString += $" {QueryJoin}";
+            }
             if (!string.IsNullOrEmpty(QueryWhere))
             {
                 baseString += $" {QueryWhere}";
@@ -119,7 +138,7 @@ namespace CosmosManager.Domain
                 baseString += $" {QueryOrderBy}";
             }
 
-            return baseString;
+            return baseString.Replace("|", " ");
         }
     }
 }

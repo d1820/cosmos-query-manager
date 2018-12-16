@@ -38,9 +38,11 @@
             this.newFileQueryTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.openFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewTransactionCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewPreviousActionsLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,7 +68,6 @@
             this.duplicateTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -118,26 +119,31 @@
             // newFileQueryTabToolStripMenuItem
             // 
             this.newFileQueryTabToolStripMenuItem.Name = "newFileQueryTabToolStripMenuItem";
-            this.newFileQueryTabToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newFileQueryTabToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.newFileQueryTabToolStripMenuItem.Text = "New Query Tab";
             this.newFileQueryTabToolStripMenuItem.Click += new System.EventHandler(this.newFileQueryTabToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(153, 6);
             // 
             // openFolderToolStripMenuItem
             // 
             this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.openFolderToolStripMenuItem.Text = "Open Folder";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(153, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -145,6 +151,7 @@
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.viewTransactionCacheToolStripMenuItem,
+            this.viewPreviousActionsLogToolStripMenuItem,
             this.toolStripSeparator1,
             this.preferencesToolStripMenuItem});
             this.editToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -155,19 +162,27 @@
             // viewTransactionCacheToolStripMenuItem
             // 
             this.viewTransactionCacheToolStripMenuItem.Name = "viewTransactionCacheToolStripMenuItem";
-            this.viewTransactionCacheToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.viewTransactionCacheToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
             this.viewTransactionCacheToolStripMenuItem.Text = "View Transaction Cache";
             this.viewTransactionCacheToolStripMenuItem.Click += new System.EventHandler(this.viewTransactionCacheToolStripMenuItem_Click);
+            // 
+            // viewPreviousActionsLogToolStripMenuItem
+            // 
+            this.viewPreviousActionsLogToolStripMenuItem.Name = "viewPreviousActionsLogToolStripMenuItem";
+            this.viewPreviousActionsLogToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.viewPreviousActionsLogToolStripMenuItem.Text = "View Previous Actions Log";
+            this.viewPreviousActionsLogToolStripMenuItem.Click += new System.EventHandler(this.viewPreviousActionsLogToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(197, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(210, 6);
+            this.toolStripSeparator1.Visible = false;
             // 
             // preferencesToolStripMenuItem
             // 
             this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
             this.preferencesToolStripMenuItem.Text = "Preferences";
             this.preferencesToolStripMenuItem.Visible = false;
             // 
@@ -374,11 +389,6 @@
             this.fileSystemWatcher1.Created += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Created);
             this.fileSystemWatcher1.Deleted += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Deleted);
             // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -449,6 +459,7 @@
         private System.Windows.Forms.ToolStripMenuItem openInFileExplorerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem viewPreviousActionsLogToolStripMenuItem;
     }
 }
 
