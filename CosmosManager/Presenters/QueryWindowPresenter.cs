@@ -227,7 +227,7 @@ namespace CosmosManager.Presenters
             var preCleanString = queryToParse.Replace('\n', '|').Replace('\r', ' ').Replace('\t', ' ');
 
             const string pattern = @";(?!\s*(?=\*\/))";
-            var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase);
+            var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
             var results = queries.Where(w => !string.IsNullOrEmpty(w.Trim().Replace("|", ""))).Select(_queryParser.Parse);
             if (filterOutCommentOnlyQueries)

@@ -9,14 +9,14 @@ namespace CosmosManager.Parsers
     {
         public (string queryType, string queryBody) ParseQueryBody(string query)
         {
-            var rgxInsert = new Regex($@"({Constants.QueryKeywords.INSERT})[\s\S]*(.*?)(?={Constants.QueryKeywords.INTO})");
+            var rgxInsert = new Regex($@"({Constants.QueryKeywords.INSERT})[\s\S]*(.*?)(?={Constants.QueryKeywords.INTO})", RegexOptions.Compiled);
             var matches = rgxInsert.Matches(query);
             if (matches.Count == 1)
             {
                 return (Constants.QueryKeywords.INSERT, matches[0].Value.Replace(Constants.QueryKeywords.INSERT, "").Trim());
             }
 
-            var rgx = new Regex($@"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE}|{Constants.QueryKeywords.UPDATE})[\s\S]*(.*?)(?={Constants.QueryKeywords.FROM})");
+            var rgx = new Regex($@"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE}|{Constants.QueryKeywords.UPDATE})[\s\S]*(.*?)(?={Constants.QueryKeywords.FROM})", RegexOptions.Compiled);
             matches = rgx.Matches(query);
             if (matches.Count == 0)
             {
@@ -26,7 +26,7 @@ namespace CosmosManager.Parsers
             {
                 throw new FormatException($"Invalid query. Only {Constants.QueryKeywords.SELECT}, {Constants.QueryKeywords.DELETE}, {Constants.QueryKeywords.INSERT}, {Constants.QueryKeywords.UPDATE} statement syntax supported.");
             }
-            var queryTypeRgx = new Regex($"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE}|{Constants.QueryKeywords.UPDATE})(.*?)");
+            var queryTypeRgx = new Regex($"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.DELETE}|{Constants.QueryKeywords.UPDATE})(.*?)", RegexOptions.Compiled);
 
             var queryTypeMatches = queryTypeRgx.Matches(matches[0].Value);
             if (queryTypeMatches.Count == 0)
@@ -41,7 +41,7 @@ namespace CosmosManager.Parsers
 
         public string ParseIntoBody(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryKeywords.INTO})[\s\S]*(.*?)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.INTO})[\s\S]*(.*?)", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -75,7 +75,7 @@ namespace CosmosManager.Parsers
         public string ParseFromBody(string query)
         {
             //check if we have JOINS
-            var rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S].*?(?={Constants.QueryKeywords.JOIN})");
+            var rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S].*?(?={Constants.QueryKeywords.JOIN})", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 1)
@@ -84,7 +84,7 @@ namespace CosmosManager.Parsers
             }
 
             //if no joins look for a where clause
-            rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.WHERE})");
+            rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.WHERE})", RegexOptions.Compiled);
 
             matches = rgx.Matches(query);
             if (matches.Count == 1)
@@ -96,7 +96,7 @@ namespace CosmosManager.Parsers
             var rgxSelect = new Regex($"({Constants.QueryKeywords.SELECT})");
             if (rgxSelect.Matches(query).Count > 0)
             {
-                rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.ORDERBY})");
+                rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.ORDERBY})", RegexOptions.Compiled);
                 matches = rgx.Matches(query);
                 if (matches.Count == 1)
                 {
@@ -106,10 +106,10 @@ namespace CosmosManager.Parsers
 
             //its not a WHERE check then look for only SET/REPLACE
             //these are only allowed from an update
-            var rgxUpdate = new Regex($"({Constants.QueryKeywords.UPDATE})");
+            var rgxUpdate = new Regex($"({Constants.QueryKeywords.UPDATE})", RegexOptions.Compiled);
             if (rgxUpdate.Matches(query).Count > 0)
             {
-                rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.REPLACE}|{Constants.QueryKeywords.SET})");
+                rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryKeywords.REPLACE}|{Constants.QueryKeywords.SET})", RegexOptions.Compiled);
                 matches = rgx.Matches(query);
                 if (matches.Count == 1)
                 {
@@ -118,7 +118,7 @@ namespace CosmosManager.Parsers
             }
 
             //lets check if its only a FROM and then end
-            rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)");
+            rgx = new Regex($@"({Constants.QueryKeywords.FROM})[\s\S]*(.*?)", RegexOptions.Compiled);
 
             matches = rgx.Matches(query);
             if (matches.Count == 1)
@@ -135,7 +135,7 @@ namespace CosmosManager.Parsers
 
         private string RemoveOrderBy(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryKeywords.ORDERBY})[\s\S]*(.*?)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.ORDERBY})[\s\S]*(.*?)", RegexOptions.Compiled);
             return rgx.Replace(query, "");
         }
 
@@ -144,7 +144,7 @@ namespace CosmosManager.Parsers
             query = RemoveOrderBy(query);
 
 
-            var rgx = new Regex($@"({Constants.QueryKeywords.SET})[\s\S]*(.*?)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.SET})[\s\S]*(.*?)", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 1)
@@ -152,7 +152,7 @@ namespace CosmosManager.Parsers
                 return (Constants.QueryKeywords.SET, matches[0].Value.Replace(Constants.QueryKeywords.SET, ""));
             }
 
-            rgx = new Regex($@"({Constants.QueryKeywords.REPLACE})[\s\S]*(.*?)");
+            rgx = new Regex($@"({Constants.QueryKeywords.REPLACE})[\s\S]*(.*?)", RegexOptions.Compiled);
             matches = rgx.Matches(query);
 
             if (matches.Count == 1)
@@ -170,7 +170,7 @@ namespace CosmosManager.Parsers
 
         public string ParseWhere(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)(?=({Constants.QueryKeywords.SET}|{Constants.QueryKeywords.ORDERBY}))");
+            var rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)(?=({Constants.QueryKeywords.SET}|{Constants.QueryKeywords.ORDERBY}))", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 1)
@@ -179,7 +179,7 @@ namespace CosmosManager.Parsers
             }
 
             //lets check if its only a FROM and then end
-            rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)");
+            rgx = new Regex($@"({Constants.QueryKeywords.WHERE})[\s\S]*(.*?)", RegexOptions.Compiled);
             matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
@@ -196,7 +196,7 @@ namespace CosmosManager.Parsers
 
         public string ParseRollback(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryKeywords.ROLLBACK})[\s\S]*(.*?)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.ROLLBACK})[\s\S]*(.*?)", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -214,7 +214,7 @@ namespace CosmosManager.Parsers
         public string ParseTransaction(string query)
         {
             var fromBody = ParseFromBody(query).Replace(Constants.QueryKeywords.FROM, "").Trim();
-            var rgx = new Regex($@"({Constants.QueryKeywords.TRANSACTION})[\s\S]*(.*?)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.TRANSACTION})[\s\S]*(.*?)", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -231,13 +231,13 @@ namespace CosmosManager.Parsers
         public string ParseOrderBy(string query)
         {
             //Orderby only allowed in a select
-            var rgxSelect = new Regex($"({Constants.QueryKeywords.SELECT})");
+            var rgxSelect = new Regex($"({Constants.QueryKeywords.SELECT})", RegexOptions.Compiled);
             if (rgxSelect.Matches(query).Count == 0)
             {
                 return string.Empty;
             }
 
-            var rgx = new Regex($@"({Constants.QueryKeywords.ORDERBY})[\s\S]*(.*?)");
+            var rgx = new Regex($@"({Constants.QueryKeywords.ORDERBY})[\s\S]*(.*?)", RegexOptions.Compiled);
             var matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
@@ -255,13 +255,13 @@ namespace CosmosManager.Parsers
         public string ParseJoins(string query)
         {
             //we can really use joins if its a select, where clause
-            var rgxSelectOrWhere = new Regex($"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.WHERE})");
+            var rgxSelectOrWhere = new Regex($"({Constants.QueryKeywords.SELECT}|{Constants.QueryKeywords.WHERE})", RegexOptions.Compiled);
             if (rgxSelectOrWhere.Matches(query).Count == 0)
             {
                 return string.Empty;
             }
 
-            var rgx = new Regex($@"({Constants.QueryKeywords.JOIN})[\s\S]*(.*?)(?=({Constants.QueryKeywords.WHERE}|{Constants.QueryKeywords.ORDERBY}))");
+            var rgx = new Regex($@"({Constants.QueryKeywords.JOIN})[\s\S]*(.*?)(?=({Constants.QueryKeywords.WHERE}|{Constants.QueryKeywords.ORDERBY}))", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 1)
@@ -270,7 +270,7 @@ namespace CosmosManager.Parsers
             }
 
             //lets check if its only a JOIN and then end
-            rgx = new Regex($@"({Constants.QueryKeywords.JOIN})[\s\S]*(.*?)");
+            rgx = new Regex($@"({Constants.QueryKeywords.JOIN})[\s\S]*(.*?)", RegexOptions.Compiled);
             matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
