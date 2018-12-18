@@ -223,4 +223,4 @@ WHERE Market.PartitionKey = 'List'
 ```
 
 ## Supported Applications
-- Cosmos Emulator Min Required Version 1.17.x. This requirement is due to the coupling of DocumentDB Nuget packages to the emulator installed locally. If you do not use the emulator this is not a requirement of using the application.
+- Cosmos Emulator Min Required Version 2.2.0. This requirement is due to the coupling of DocumentDB Nuget packages to the emulator installed locally. If you do not use the emulator this is not a requirement of using the application.
