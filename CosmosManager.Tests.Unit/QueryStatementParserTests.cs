@@ -2,6 +2,7 @@
 using CosmosManager.Parsers;
 using FluentAssertions;
 using Moq;
+using System;
 using Xunit;
 
 namespace CosmosManager.Tests.Unit
@@ -19,7 +20,7 @@ namespace CosmosManager.Tests.Unit
         [Fact]
         public void CleanQuery_RemovesTabs_NewLines_Returns()
         {
-            var query = @"astransaction \t\n\r";
+            var query = "astransaction\t" + Environment.NewLine;
             var rawQuery = _parser.CleanQuery(query);
 
             rawQuery.Should().Be("ASTRANSACTION");

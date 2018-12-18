@@ -43,10 +43,7 @@ namespace CosmosManager.Parsers
 
         public string CleanQuery(string query)
         {
-            var cleanString = query
-                .Replace('\n', '|')
-                .Replace('\t', ' ')
-                .Replace('\r', ' ')
+            var cleanString = Regex.Replace( query, @"[\t\n\r]", " ")
                 .Trim()
                 .TrimStart('|')
                 .TrimEnd('|');
