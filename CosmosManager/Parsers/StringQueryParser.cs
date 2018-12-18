@@ -282,11 +282,11 @@ namespace CosmosManager.Parsers
 
         public (MatchCollection comments, string commentFreeQuery) ParseAndCleanComments(string query)
         {
-            var rgx = new Regex(@"(\/\*)[\\s\\S]*(.*?)(\*\/)[|\\s]+");
-            var matches =  rgx.Matches(query);
+            var rgx = new Regex(@"(\/\*)[\\s\\S]*(.*?)(\*\/)[|\\s]*");
 
+            var matches = rgx.Matches(query);
             //remove all comment blocks
-            var cleanedQuery = rgx.Replace(query,"");
+            var cleanedQuery = rgx.Replace(query, "");
             return (matches, cleanedQuery);
         }
     }

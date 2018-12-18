@@ -20,8 +20,18 @@ namespace CosmosManager.Domain
 
         public MatchCollection Comments { get; set; }
 
+        public string OrginalQuery { get; set; }
+
         public bool IsTransaction => !string.IsNullOrWhiteSpace(TransactionId);
         public string TransactionId { get; set; }
+
+        public bool IsCommentOnly
+        {
+            get
+            {
+                return string.IsNullOrWhiteSpace(QueryType) && Comments.Count > 0;
+            }
+        }
 
         public bool IsRollback
         {

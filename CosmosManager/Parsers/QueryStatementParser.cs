@@ -14,11 +14,8 @@ namespace CosmosManager.Parsers
             _queryParser = queryParser;
         }
 
-        public string OrginalQuery { get; private set; }
-
         public QueryParts Parse(string query)
         {
-            OrginalQuery = query;
             var cleanQuery = CleanQuery(query);
 
             var result = _queryParser.ParseAndCleanComments(cleanQuery);
@@ -39,18 +36,20 @@ namespace CosmosManager.Parsers
                 QueryInto = _queryParser.ParseIntoBody(cleanQuery).Trim(),
                 QueryOrderBy = _queryParser.ParseOrderBy(cleanQuery).Trim(),
                 QueryJoin = _queryParser.ParseJoins(cleanQuery).Trim(),
-                Comments = result.comments
+                Comments = result.comments,
+                OrginalQuery = query
             };
         }
 
         public string CleanQuery(string query)
         {
-            //
             var cleanString = query
                 .Replace('\n', '|')
                 .Replace('\t', ' ')
                 .Replace('\r', ' ')
-                .Trim();
+                .Trim()
+                .TrimStart('|')
+                .TrimEnd('|');
 
             var keyWords = new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>("from", Constants.QueryKeywords.FROM),

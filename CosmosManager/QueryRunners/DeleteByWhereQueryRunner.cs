@@ -64,7 +64,7 @@ namespace CosmosManager.QueryRunners
                 if (queryParts.IsTransaction)
                 {
                     logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
-                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, _queryParser.OrginalQuery);
+                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, queryParts.OrginalQuery);
                 }
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(connection.Database, queryParts.CollectionName);
 

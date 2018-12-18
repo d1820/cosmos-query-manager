@@ -105,14 +105,10 @@ namespace CosmosManager.Presenters
                 var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
 
                 //get each query and run it aggregating the results
-                var queries = SplitQueries();
+                var queries = SplitQueries(filterOutCommentOnlyQueries: true);
 
                 //check all the queries for deletes without transactions
-                if (queries.Any(a =>
-                {
-                    var query = _queryParser.Parse(a);
-                    return query.QueryType == Constants.QueryKeywords.DELETE && !query.IsTransaction;
-                }) && _view.ShowMessage("Are you sure you want to delete documents without a transaction. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+                if (queries.Any(query => query.QueryType == Constants.QueryKeywords.DELETE && !query.IsTransaction) && _view.ShowMessage("Are you sure you want to delete documents without a transaction. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
                 {
                     return;
                 }
@@ -121,11 +117,10 @@ namespace CosmosManager.Presenters
                 var hasError = false;
                 for (var i = 0; i < queries.Length; i++)
                 {
-                    var query = queries[i];
-                    var runner = _queryRunners.FirstOrDefault(f => f.CanRun(query));
+                    var queryParts = queries[i];
+                    var runner = _queryRunners.FirstOrDefault(f => f.CanRun(queryParts.OrginalQuery));
                     if (runner != null)
                     {
-                        var queryParts = _queryParser.Parse(query);
                         if (queries.Length > 1)
                         {
                             AddToQueryOutput(new string('-', 300));
@@ -133,10 +128,10 @@ namespace CosmosManager.Presenters
                             AddToQueryOutput(new string('-', 300));
                         }
 
-                        var response = await runner.RunAsync(documentStore, SelectedConnection, query, true, _logger);
+                        var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts.OrginalQuery, true, _logger);
                         if (!response.success)
                         {
-                            _view.ShowMessage($"Unable to execute query: {query}. Verify query and try again.", "Query Execution Error");
+                            _view.ShowMessage($"Unable to execute query: {queryParts.OrginalQuery}. Verify query and try again.", "Query Execution Error");
                             //on error stop loop and return
                             hasError = true;
                             break;
@@ -150,10 +145,14 @@ namespace CosmosManager.Presenters
                     }
                     else
                     {
-                        _logger.LogError($"Unable to find a query processor for query type. query: {query}");
-                        //on error stop loop and return
-                        hasError = true;
-                        break;
+                        //if we have comments then we can assume the whole query is a comment so skip and goto next
+                        if (!queryParts.IsCommentOnly)
+                        {
+                            _logger.LogError($"Unable to find a query processor for query type. query: {queryParts.OrginalQuery}");
+                            //on error stop loop and return
+                            hasError = true;
+                            break;
+                        }
                     }
 
                 }
@@ -222,23 +221,20 @@ namespace CosmosManager.Presenters
             }
         }
 
-        private string[] SplitQueries(string queryText = null)
+        private QueryParts[] SplitQueries(string queryText = null, bool filterOutCommentOnlyQueries = false)
         {
             var queryToParse = queryText ?? _view.Query;
             var preCleanString = queryToParse.Replace('\n', '|').Replace('\r', ' ').Replace('\t', ' ');
 
-            //remove any comment sections
-            //if (!keepComments)
-            //{
-            //    var rgx = new Regex(@"(\/\*)[\\s\\S](.*?)(\*\/)[|\\s]+");
-            //    //remove all comment blocks
-            //    preCleanString = rgx.Replace(preCleanString, "");
-            //}
-
-            var pattern = @"(?!\B[""\'][^""\']*);(?![^""\']*[""\']\B)";
+            const string pattern = @";(?!\s*(?=\*\/))";
             var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase);
 
-            return queries.Where(w => !string.IsNullOrEmpty(w.Trim())).ToArray();
+            var results = queries.Where(w => !string.IsNullOrEmpty(w.Trim().Replace("|", ""))).Select(_queryParser.Parse);
+            if (filterOutCommentOnlyQueries)
+            {
+                results = results.Where(w => !w.IsCommentOnly).ToArray();
+            }
+            return results.ToArray();
         }
 
         public async Task SaveQueryAsync()
@@ -306,12 +302,17 @@ namespace CosmosManager.Presenters
             var cleanedQueries = new List<string>();
             try
             {
-                var queries = SplitQueries(query);
-
-                foreach (var querytxt in queries)
+                foreach (var queryParts in SplitQueries(query))
                 {
-                    var queryParts = _queryParser.Parse(querytxt);
                     var sql = new StringBuilder();
+
+                    if (queryParts.IsCommentOnly)
+                    {
+                        sql = ResetComments(queryParts, sql);
+                        cleanedQueries.Add(sql.ToString().Replace("|", Environment.NewLine));
+                        continue;
+                    }
+
                     if (queryParts.IsTransaction)
                     {
                         sql.Append(Constants.QueryKeywords.TRANSACTION);
@@ -368,8 +369,8 @@ namespace CosmosManager.Presenters
                         sql = ResetComments(queryParts, sql);
                         cleanedQueries.Add(sql.ToString().Replace("|", Environment.NewLine));
                     }
-                }
 
+                }
             }
             catch (Exception ex)
             {
