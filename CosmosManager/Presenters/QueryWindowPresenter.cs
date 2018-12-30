@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -86,6 +87,7 @@ namespace CosmosManager.Presenters
             }
             CurrentFileInfo = fileInfo;
             _view.Query = File.ReadAllText(fileInfo.FullName);
+            _view.HighlightAllText();
         }
 
         public void SetTempQuery(string query)
@@ -128,7 +130,7 @@ namespace CosmosManager.Presenters
                             AddToQueryOutput(new string('-', 300));
                         }
 
-                        var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts.OrginalQuery, true, _logger);
+                        var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts, true, _logger);
                         if (!response.success)
                         {
                             _view.ShowMessage($"Unable to execute query: {queryParts.OrginalQuery}. Verify query and try again.", "Query Execution Error");
@@ -379,6 +381,29 @@ namespace CosmosManager.Presenters
             return string.Join($";{Environment.NewLine}{Environment.NewLine}", cleanedQueries);
             ;
         }
+
+        public void HighlightKeywords(QueryTextLine queryTextLine)
+        {
+            foreach (var word in Constants.KeyWordList)
+            {
+                var pattern = $@"(?!\B[""\'][^""\']*)\b{word.Key}\b(?![^""\']*[""\']\B)";
+                var matches = Regex.Matches(queryTextLine.Line, pattern, RegexOptions.IgnoreCase);
+
+                foreach (Match m in matches)
+                {
+                    _view.SetQueryTextColor(queryTextLine.StartIndex + m.Index, m.Length, Color.FromArgb(86,156,214));
+
+                }
+
+            }
+        }
+
+        public void HighlightComments(QueryTextLine queryTextLine)
+        {
+
+        }
+
+
 
         private StringBuilder ResetComments(QueryParts queryParts, StringBuilder sqlString)
         {

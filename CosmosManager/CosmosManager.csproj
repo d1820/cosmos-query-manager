@@ -211,6 +211,7 @@
     <Compile Include="Views\NewFileForm.Designer.cs">
       <DependentUpon>NewFileForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Domain\QueryTextLine.cs" />
     <Compile Include="Views\QueryWindowControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

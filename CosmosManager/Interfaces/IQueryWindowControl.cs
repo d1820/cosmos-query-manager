@@ -1,5 +1,6 @@
 ﻿using CosmosManager.Domain;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace CosmosManager.Interfaces
@@ -30,5 +31,9 @@ namespace CosmosManager.Interfaces
         void ResetQueryOutput();
 
         void SetUpdatedResultDocument(object document);
+
+        void SetQueryTextColor(int startIndex, int endIndex, Color color);
+
+        void HighlightAllText();
     }
 }

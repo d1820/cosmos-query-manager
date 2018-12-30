@@ -125,6 +125,9 @@ namespace CosmosManager
             this.textQuery.TabStop = false;
             this.textQuery.Text = "";
             this.textQuery.WordWrap = false;
+            this.textQuery.TextChanged += new System.EventHandler(this.textQuery_TextChanged);
+            this.textQuery.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textQuery_KeyPress);
+            this.textQuery.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textQuery_KeyUp);
             // 
             // queryStatusBar
             // 

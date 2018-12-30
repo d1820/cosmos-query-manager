@@ -47,5 +47,7 @@ namespace CosmosManager.Interfaces
         void SetTempQuery(string query);
 
         void ShowOutputTab();
+
+        void HighlightKeywords(QueryTextLine queryTextLine);
     }
 }

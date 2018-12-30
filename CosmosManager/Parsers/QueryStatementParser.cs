@@ -48,30 +48,10 @@ namespace CosmosManager.Parsers
                 .TrimStart('|')
                 .TrimEnd('|');
 
-            var keyWords = new List<KeyValuePair<string, string>> {
-                new KeyValuePair<string, string>("from", Constants.QueryKeywords.FROM),
-                new KeyValuePair<string, string>("select", Constants.QueryKeywords.SELECT),
-                new KeyValuePair<string, string>("set", Constants.QueryKeywords.SET),
-                new KeyValuePair<string, string>("replace", Constants.QueryKeywords.REPLACE),
-                new KeyValuePair<string, string>("rollback", Constants.QueryKeywords.ROLLBACK),
-                new KeyValuePair<string, string>("astransaction", Constants.QueryKeywords.TRANSACTION),
-                new KeyValuePair<string, string>("where", Constants.QueryKeywords.WHERE),
-                new KeyValuePair<string, string>("update", Constants.QueryKeywords.UPDATE),
-                new KeyValuePair<string, string>("insert", Constants.QueryKeywords.INSERT),
-                new KeyValuePair<string, string>("into", Constants.QueryKeywords.INTO),
-                new KeyValuePair<string, string>("delete", Constants.QueryKeywords.DELETE),
-                new KeyValuePair<string, string>("order by", Constants.QueryKeywords.ORDERBY),
-                new KeyValuePair<string, string>("join", Constants.QueryKeywords.JOIN),
-                new KeyValuePair<string, string>("in", Constants.QueryKeywords.IN),
-                new KeyValuePair<string, string>("and", Constants.QueryKeywords.AND),
-                new KeyValuePair<string, string>("or", Constants.QueryKeywords.OR),
-                new KeyValuePair<string, string>("between", Constants.QueryKeywords.BETWEEN)
-            };
-
-            foreach (var word in keyWords)
+            foreach (var word in Constants.KeyWordList)
             {
-                var pattern = $@"(?!\B[""\'][^""\']*){word.Key}(?![^""\']*[""\']\B)";
-                cleanString = Regex.Replace(cleanString, pattern, word.Value, RegexOptions.IgnoreCase);
+                var pattern = $@"(?!\B[""\'][^""\']*)\b{word.Key}\b(?![^""\']*[""\']\B)";
+                cleanString = Regex.Replace(cleanString, pattern, word.Value, RegexOptions.IgnoreCase | RegexOptions.Compiled);
             }
             return cleanString;
         }

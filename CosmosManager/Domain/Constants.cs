@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace CosmosManager.Domain
 {
     public static class Constants
@@ -33,5 +35,26 @@ namespace CosmosManager.Domain
             public const string OR = "OR";
             public const string BETWEEN = "BETWEEN";
         }
+
+        public static List<KeyValuePair<string, string>> KeyWordList = new List<KeyValuePair<string, string>>{
+                new KeyValuePair<string, string>("from", QueryKeywords.FROM),
+                new KeyValuePair<string, string>("select", QueryKeywords.SELECT),
+                new KeyValuePair<string, string>("set", QueryKeywords.SET),
+                new KeyValuePair<string, string>("replace", QueryKeywords.REPLACE),
+                new KeyValuePair<string, string>("rollback", QueryKeywords.ROLLBACK),
+                new KeyValuePair<string, string>("astransaction", QueryKeywords.TRANSACTION),
+                new KeyValuePair<string, string>("where", QueryKeywords.WHERE),
+                new KeyValuePair<string, string>("update", QueryKeywords.UPDATE),
+                new KeyValuePair<string, string>("insert", QueryKeywords.INSERT),
+                new KeyValuePair<string, string>("into", QueryKeywords.INTO),
+                new KeyValuePair<string, string>("delete", QueryKeywords.DELETE),
+                new KeyValuePair<string, string>("order by", QueryKeywords.ORDERBY),
+                new KeyValuePair<string, string>("join", QueryKeywords.JOIN),
+                new KeyValuePair<string, string>("in", QueryKeywords.IN),
+                new KeyValuePair<string, string>("and", QueryKeywords.AND),
+                new KeyValuePair<string, string>("or", QueryKeywords.OR),
+                new KeyValuePair<string, string>("between", QueryKeywords.BETWEEN)
+            };
+
     }
 }

@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.ListViewItem;
@@ -18,6 +17,18 @@ namespace CosmosManager
 {
     public partial class QueryWindowControl : UserControl, IQueryWindowControl
     {
+        private readonly List<char> _skipChars = new List<char>{(char)Keys.Up,
+                                                                    (char)Keys.Down,
+                                                                    (char)Keys.Right,
+                                                                    (char)Keys.Left,
+                                                                    (char)Keys.PageDown,
+                                                                    (char)Keys.PageUp,
+                                                                    (char)Keys.Home,
+                                                                    (char)Keys.End,
+                                                                    };
+
+        private int _totalDocumentCount = 0;
+
         public QueryWindowControl()
         {
             InitializeComponent();
@@ -87,6 +98,13 @@ namespace CosmosManager
             tabControlQueryOutput.SelectedIndex = 0;
         }
 
+        public void SetQueryTextColor(int startIndex, int endIndex, Color color)
+        {
+            var currentCursorIndex = textQuery.SelectionStart;
+            textQuery.Select(startIndex == -1 ? currentCursorIndex : startIndex, endIndex);
+            textQuery.SelectionColor = color;
+        }
+
         public IQueryWindowPresenter Presenter { private get; set; }
         public IMainFormPresenter MainPresenter { private get; set; }
 
@@ -95,6 +113,7 @@ namespace CosmosManager
             try
             {
                 runQueryButton.Enabled = false;
+                _totalDocumentCount = 0;
                 await Presenter.RunAsync();
             }
             finally
@@ -130,22 +149,26 @@ namespace CosmosManager
             ((DocumentResult)selectedItem.Tag).Document = JObject.FromObject(document);
         }
 
+
+
         public async void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex)
         {
             if (!appendResults)
             {
                 resultListView.Groups.Clear();
                 resultListView.Items.Clear();
+                _totalDocumentCount = 0;
             }
             var textPartitionKeyPath = await Presenter.LookupPartitionKeyPath();
             if (appendResults)
             {
                 resultListView.Groups.Add(new ListViewGroup
                 {
-                    Header = $"Query {queryStatementIndex}",
+                    Header = $"Query {queryStatementIndex} ({results.Count} Documents)",
                     Name = $"Query{resultListView.Groups.Count}",
                     HeaderAlignment = HorizontalAlignment.Center
                 });
+                _totalDocumentCount += results.Count;
             }
             foreach (var item in results)
             {
@@ -169,7 +192,7 @@ namespace CosmosManager
                 listItem.SubItems.Add(subItem);
                 resultListView.Items.Add(listItem);
             }
-            resultCountTextbox.Text = $"{results.Count} Documents";
+            resultCountTextbox.Text = $"{_totalDocumentCount} Documents";
             resultListToolStrip.Refresh();
         }
 
@@ -440,6 +463,17 @@ namespace CosmosManager
             textQueryOutput.Text += message;
         }
 
+        public void HighlightAllText()
+        {
+            textQuery.SuspendLayout();
+            SetQueryTextColor(0, textQuery.Text.Length, Color.Black);
+            textQuery.Select(0, 0);
+
+            Presenter.HighlightKeywords(new QueryTextLine(textQuery.Text, 0, textQuery.Text.Length - 1));
+            SetQueryTextColor(textQuery.Text.Length, 0, Color.Black);
+            textQuery.ResumeLayout();
+        }
+
         public void ResetQueryOutput()
         {
             if (textQueryOutput.InvokeRequired)
@@ -462,6 +496,58 @@ namespace CosmosManager
         private void beautifyQueryButton_Click(object sender, EventArgs e)
         {
             textQuery.Text = Presenter.BeautifyQuery(textQuery.Text);
+        }
+
+
+
+        private void textQuery_TextChanged(object sender, EventArgs e)
+        {
+            //           //get all the lines in an object array
+            ////store the length too so we can scan array and find the line the cursor is in
+            //var currentTotal = 0;
+            //var lines = textQuery.Text.Split(new[] { '\n' });
+            //var o = new List<QueryTextLine>();
+            //foreach (var line in lines)
+            //{
+            //    var realLine = $"{line}\n";
+            //    var estStart = currentTotal - 1 <= 0 ? 0 : currentTotal;
+            //    o.Add(new QueryTextLine(realLine, estStart, estStart + realLine.Length - 1));
+            //    currentTotal += realLine.Length;
+            //}
+
+            //textQuery.SuspendLayout();
+            //var currentIndex = textQuery.SelectionStart;
+            //var currentLine = o.FirstOrDefault(s => currentIndex >= s.StartIndex && currentIndex <= s.EndIndex);
+            //if (currentLine == null)
+            //{
+            //    return;
+            //}
+
+            //SetQueryTextColor(currentLine.StartIndex, currentLine.EndIndex, Color.Black);
+            //textQuery.Select(currentIndex, 0);
+
+            //Presenter.HighlightKeywords(currentLine);
+
+            //SetQueryTextColor(currentIndex+1, 0, Color.Black);
+            //textQuery.ResumeLayout();
+
+        }
+
+        private void textQuery_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            //if (_skipChars.Any(a => a == e.KeyChar))
+            //{
+            //    return;
+            //}
+
+        }
+
+        private void textQuery_KeyUp(object sender, KeyEventArgs e)
+        {
+            //if (e.Control)
+            //{
+
+            //}
         }
     }
 }
