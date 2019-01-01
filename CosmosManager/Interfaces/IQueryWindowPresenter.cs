@@ -48,6 +48,5 @@ namespace CosmosManager.Interfaces
 
         void ShowOutputTab();
 
-        void HighlightKeywords(QueryTextLine queryTextLine);
     }
 }

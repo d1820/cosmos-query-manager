@@ -1,6 +1,5 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace CosmosManager.Parsers

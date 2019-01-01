@@ -33,7 +33,7 @@ namespace CosmosManager
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(QueryWindowControl));
             this.splitQueryResult = new System.Windows.Forms.SplitContainer();
-            this.textQuery = new System.Windows.Forms.RichTextBox();
+            this.textQuery = new ScintillaNET.Scintilla();
             this.queryStatusBar = new System.Windows.Forms.Panel();
             this.queryToolStrip = new System.Windows.Forms.ToolStrip();
             this.beautifyQueryButton = new System.Windows.Forms.ToolStripButton();
@@ -54,7 +54,7 @@ namespace CosmosManager
             this.selectedToUpdateButton = new System.Windows.Forms.ToolStripButton();
             this.selectedToDeleteButton = new System.Windows.Forms.ToolStripButton();
             this.resultCountTextbox = new System.Windows.Forms.ToolStripTextBox();
-            this.textDocument = new System.Windows.Forms.RichTextBox();
+            this.textDocument = new ScintillaNET.Scintilla();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.beautifyResultDocumentButton = new System.Windows.Forms.ToolStripButton();
             this.resultWordWrapButton = new System.Windows.Forms.ToolStripButton();
@@ -114,20 +114,11 @@ namespace CosmosManager
             // 
             // textQuery
             // 
-            this.textQuery.AcceptsTab = true;
-            this.textQuery.DetectUrls = false;
             this.textQuery.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textQuery.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textQuery.Location = new System.Drawing.Point(0, 28);
             this.textQuery.Name = "textQuery";
             this.textQuery.Size = new System.Drawing.Size(930, 193);
-            this.textQuery.TabIndex = 2;
-            this.textQuery.TabStop = false;
-            this.textQuery.Text = "";
-            this.textQuery.WordWrap = false;
-            this.textQuery.TextChanged += new System.EventHandler(this.textQuery_TextChanged);
-            this.textQuery.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textQuery_KeyPress);
-            this.textQuery.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textQuery_KeyUp);
+            this.textQuery.TabIndex = 3;
             // 
             // queryStatusBar
             // 
@@ -358,15 +349,11 @@ namespace CosmosManager
             // 
             // textDocument
             // 
-            this.textDocument.AcceptsTab = true;
             this.textDocument.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textDocument.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textDocument.Location = new System.Drawing.Point(0, 25);
             this.textDocument.Name = "textDocument";
             this.textDocument.Size = new System.Drawing.Size(562, 303);
-            this.textDocument.TabIndex = 1;
-            this.textDocument.TabStop = false;
-            this.textDocument.Text = "";
+            this.textDocument.TabIndex = 4;
             // 
             // toolStrip2
             // 
@@ -573,12 +560,10 @@ namespace CosmosManager
         private System.Windows.Forms.ToolStripButton resultFontSizeDecreaseButton;
         private System.Windows.Forms.ToolStripButton resuleFontSizeIncreaseButton;
         private System.Windows.Forms.ToolStripButton saveExistingDocument;
-        private System.Windows.Forms.RichTextBox textDocument;
         private System.Windows.Forms.ToolStripButton deleteDocumentButton;
         private System.Windows.Forms.TabControl tabControlQueryOutput;
         private System.Windows.Forms.TabPage tabResultsPage;
         private System.Windows.Forms.TabPage tabOuputPage;
-        private System.Windows.Forms.RichTextBox textQuery;
         private System.Windows.Forms.RichTextBox textQueryOutput;
         private System.Windows.Forms.ToolStripTextBox resultCountTextbox;
         private System.Windows.Forms.ToolStripButton beautifyResultDocumentButton;
@@ -590,5 +575,7 @@ namespace CosmosManager
         private System.Windows.Forms.ToolStripButton saveQueryButton;
         private System.Windows.Forms.ToolStripButton runQueryButton;
         private System.Windows.Forms.ToolStripComboBox selectConnections;
+        private ScintillaNET.Scintilla textQuery;
+        private ScintillaNET.Scintilla textDocument;
     }
 }

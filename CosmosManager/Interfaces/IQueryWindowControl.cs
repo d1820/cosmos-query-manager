@@ -14,6 +14,8 @@ namespace CosmosManager.Interfaces
         IQueryWindowPresenter Presenter { set; }
         IMainFormPresenter MainPresenter { set; }
 
+        DockStyle Dock { get; set; }
+
         void ClearStats();
 
         DialogResult ShowMessage(string message, string title = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None);
@@ -32,8 +34,5 @@ namespace CosmosManager.Interfaces
 
         void SetUpdatedResultDocument(object document);
 
-        void SetQueryTextColor(int startIndex, int endIndex, Color color);
-
-        void HighlightAllText();
     }
 }

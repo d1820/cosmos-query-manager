@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -87,7 +86,6 @@ namespace CosmosManager.Presenters
             }
             CurrentFileInfo = fileInfo;
             _view.Query = File.ReadAllText(fileInfo.FullName);
-            _view.HighlightAllText();
         }
 
         public void SetTempQuery(string query)
@@ -226,7 +224,7 @@ namespace CosmosManager.Presenters
         private QueryParts[] SplitQueries(string queryText = null, bool filterOutCommentOnlyQueries = false)
         {
             var queryToParse = queryText ?? _view.Query;
-            var preCleanString = queryToParse.Replace('\n', '|').Replace('\r', ' ').Replace('\t', ' ');
+            var preCleanString = queryToParse.Replace("\r\n", "|").Replace("\n", "|").Replace("\t", " ");
 
             const string pattern = @";(?!\s*(?=\*\/))";
             var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -301,6 +299,7 @@ namespace CosmosManager.Presenters
 
         public string BeautifyQuery(string query)
         {
+
             var cleanedQueries = new List<string>();
             try
             {
@@ -339,26 +338,26 @@ namespace CosmosManager.Presenters
 
                     if (queryParts.IsValidQuery())
                     {
-                        sql.Append($"{queryParts.QueryType} {queryParts.QueryBody}");
-                        sql.Append($"{queryParts.QueryFrom}");
+                        DoAppend(sql, $"{queryParts.QueryType} {queryParts.QueryBody}");
+                        DoAppend(sql, $"{queryParts.QueryFrom}");
                         if (queryParts.HasJoins())
                         {
                             var joins = queryParts.QueryJoin.Split(new string[] { Constants.QueryKeywords.JOIN }, StringSplitOptions.RemoveEmptyEntries);
                             foreach (var join in joins)
                             {
-                                sql.Append($"{Constants.QueryKeywords.JOIN} {join}");
+                                DoAppend(sql, $"{Constants.QueryKeywords.JOIN} {join}");
                             }
                         }
 
                         if (queryParts.HasWhereClause())
                         {
-                            sql.Append(queryParts.QueryWhere);
+                            DoAppend(sql, queryParts.QueryWhere);
                         }
 
                         if (queryParts.IsUpdateQuery())
                         {
-                            sql.Append(queryParts.QueryUpdateType);
-                            sql.Append(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
+                            DoAppend(sql, queryParts.QueryUpdateType);
+                            DoAppend(sql, JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
                             sql = ResetComments(queryParts, sql);
                             cleanedQueries.Add(sql.ToString());
                             continue;
@@ -366,7 +365,7 @@ namespace CosmosManager.Presenters
 
                         if (queryParts.HasOrderByClause())
                         {
-                            sql.Append(queryParts.QueryOrderBy);
+                            DoAppend(sql, queryParts.QueryOrderBy);
                         }
                         sql = ResetComments(queryParts, sql);
                         cleanedQueries.Add(sql.ToString().Replace("|", Environment.NewLine));
@@ -379,31 +378,20 @@ namespace CosmosManager.Presenters
                 return query;
             }
             return string.Join($";{Environment.NewLine}{Environment.NewLine}", cleanedQueries);
-            ;
+
         }
 
-        public void HighlightKeywords(QueryTextLine queryTextLine)
+        private void DoAppend(StringBuilder stringBuilder, string currentString)
         {
-            foreach (var word in Constants.KeyWordList)
-            {
-                var pattern = $@"(?!\B[""\'][^""\']*)\b{word.Key}\b(?![^""\']*[""\']\B)";
-                var matches = Regex.Matches(queryTextLine.Line, pattern, RegexOptions.IgnoreCase);
+            //if(currentString.StartsWith("|") || currentString.EndsWith("|"))
+            //{
+            //    stringBuilder.Append(currentString);
+            //    return;
+            //}
+            // stringBuilder.AppendLine(currentString);
 
-                foreach (Match m in matches)
-                {
-                    _view.SetQueryTextColor(queryTextLine.StartIndex + m.Index, m.Length, Color.FromArgb(86,156,214));
-
-                }
-
-            }
+            stringBuilder.Append(currentString);
         }
-
-        public void HighlightComments(QueryTextLine queryTextLine)
-        {
-
-        }
-
-
 
         private StringBuilder ResetComments(QueryParts queryParts, StringBuilder sqlString)
         {

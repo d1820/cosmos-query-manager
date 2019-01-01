@@ -3,6 +3,7 @@ using CosmosManager.Interfaces;
 using CosmosManager.Managers;
 using CosmosManager.Parsers;
 using CosmosManager.Presenters;
+using CosmosManager.Stylers;
 using CosmosManager.Tasks;
 using CosmosManager.Views;
 using Microsoft.Extensions.Logging;
@@ -49,6 +50,12 @@ namespace CosmosManager
 
             RegisterRunners(container);
 
+            container.Register<IQueryStyler, QueryTextStyler>(Lifestyle.Transient);
+            container.Register<IJsonStyler, JsonDocumentStyler>(Lifestyle.Transient);
+            container.Register<IQueryWindowControl, QueryWindowControl>(Lifestyle.Transient);
+
+
+
             container.Register<ITransactionTask, TransactionTask>();
             container.Register<IFormOpener, FormManager>(Lifestyle.Singleton);
             container.Register<IClientConnectionManager, ClientConnectionManager>(Lifestyle.Singleton);
@@ -58,6 +65,10 @@ namespace CosmosManager
             container.Register<NewFileForm>();
             container.Register<AboutCosmosManager>();
             container.Register<ActionLogForm>();
+            SuppressRegistrations(new List<Type> {
+                typeof(QueryWindowControl)
+                }, container, "UserControls Managed");
+
             SuppressRegistrations(new List<Type> {
                 typeof(HelpForm),
                 typeof(ActionLogForm),

@@ -1,15 +1,14 @@
-﻿using CosmosManager.Controls;
-using CosmosManager.Domain;
+﻿using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.ListViewItem;
 
@@ -29,7 +28,7 @@ namespace CosmosManager
 
         private int _totalDocumentCount = 0;
 
-        public QueryWindowControl()
+        public QueryWindowControl(IQueryStyler queryTextStyler, IJsonStyler jsonStyler)
         {
             InitializeComponent();
 
@@ -37,6 +36,9 @@ namespace CosmosManager
 
             //look for a connections string file
             selectConnections.Items.Add("Load Connection File");
+
+            queryTextStyler.SyntaxifyTextBox(textQuery);
+            jsonStyler.SyntaxifyTextBox(textDocument);
         }
 
         public object[] ConnectionsList
@@ -98,14 +100,9 @@ namespace CosmosManager
             tabControlQueryOutput.SelectedIndex = 0;
         }
 
-        public void SetQueryTextColor(int startIndex, int endIndex, Color color)
-        {
-            var currentCursorIndex = textQuery.SelectionStart;
-            textQuery.Select(startIndex == -1 ? currentCursorIndex : startIndex, endIndex);
-            textQuery.SelectionColor = color;
-        }
 
         public IQueryWindowPresenter Presenter { private get; set; }
+
         public IMainFormPresenter MainPresenter { private get; set; }
 
         private async void runQueryButton_Click_1(object sender, EventArgs e)
@@ -148,8 +145,6 @@ namespace CosmosManager
             var selectedItem = resultListView.SelectedItems[0];
             ((DocumentResult)selectedItem.Tag).Document = JObject.FromObject(document);
         }
-
-
 
         public async void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex)
         {
@@ -283,38 +278,52 @@ namespace CosmosManager
 
         private void increaseFontButton_Click(object sender, EventArgs e)
         {
-            textQuery.ZoomFactor *= 1.25F;
+            textQuery.ZoomIn();
         }
 
         private void decreaseFontButton_Click(object sender, EventArgs e)
         {
-            if (textQuery.ZoomFactor > 0)
+            if (textQuery.Zoom > 0)
             {
-                textQuery.ZoomFactor /= 1.25F;
+                textQuery.ZoomOut();
             }
         }
 
         private void wordWrapToggleButton_Click(object sender, EventArgs e)
         {
-            textQuery.WordWrap = !textQuery.WordWrap;
+            if (textQuery.WrapMode == WrapMode.None)
+            {
+                textQuery.WrapMode = WrapMode.Word;
+            }
+            else
+            {
+                textQuery.WrapMode = WrapMode.None;
+            }
         }
 
         private void resultWordWrapButton_Click(object sender, EventArgs e)
         {
-            textDocument.WordWrap = !textDocument.WordWrap;
+            if (textDocument.WrapMode == WrapMode.None)
+            {
+                textDocument.WrapMode = WrapMode.Word;
+            }
+            else
+            {
+                textDocument.WrapMode = WrapMode.None;
+            }
         }
 
         private void resultFontSizeDecreaseButton_Click(object sender, EventArgs e)
         {
-            if (textDocument.ZoomFactor > 0)
+            if (textDocument.Zoom > 0)
             {
-                textDocument.ZoomFactor /= 1.25F;
+                textDocument.ZoomOut();
             }
         }
 
         private void resuleFontSizeIncreaseButton_Click(object sender, EventArgs e)
         {
-            textDocument.ZoomFactor *= 1.25F;
+            textDocument.ZoomIn();
         }
 
         private List<DocumentResult> GetCheckedListItems()
@@ -329,43 +338,6 @@ namespace CosmosManager
                 }
             }
             return objects;
-        }
-
-        private Task SetSyntaxHighlightAsync(JObject document, SyntaxRichTextBox textbox)
-        {
-            //https://www.codeproject.com/Articles/10675/Enabling-syntax-highlighting-in-a-RichTextBox
-
-            return Task.Run(() =>
-            {
-                if (textbox.InvokeRequired)
-                {
-                    textbox.BeginInvoke((Action)(() =>
-                    {
-                        // Set the colors that will be used.
-                        textbox.Settings.KeywordColor = Color.SlateBlue;
-                        textbox.Settings.CommentColor = Color.Green;
-                        textbox.Settings.StringColor = Color.DarkGray;
-                        textbox.Settings.IntegerColor = Color.Red;
-
-                        // Let's not process strings and integers.
-                        textbox.Settings.EnableComments = false;
-                        textbox.ProcessAllLines();
-                    }));
-                }
-                else
-                {
-                    // Set the colors that will be used.
-                    textbox.Settings.KeywordColor = Color.SlateBlue;
-                    textbox.Settings.CommentColor = Color.Green;
-                    textbox.Settings.StringColor = Color.DarkGray;
-                    textbox.Settings.IntegerColor = Color.Red;
-
-                    textbox.Settings.EnableComments = false;
-
-                    textbox.ProcessAllLines();
-                }
-            });
-
         }
 
         private CheckState headerCheckState = CheckState.Unchecked;
@@ -463,17 +435,6 @@ namespace CosmosManager
             textQueryOutput.Text += message;
         }
 
-        public void HighlightAllText()
-        {
-            textQuery.SuspendLayout();
-            SetQueryTextColor(0, textQuery.Text.Length, Color.Black);
-            textQuery.Select(0, 0);
-
-            Presenter.HighlightKeywords(new QueryTextLine(textQuery.Text, 0, textQuery.Text.Length - 1));
-            SetQueryTextColor(textQuery.Text.Length, 0, Color.Black);
-            textQuery.ResumeLayout();
-        }
-
         public void ResetQueryOutput()
         {
             if (textQueryOutput.InvokeRequired)
@@ -499,55 +460,63 @@ namespace CosmosManager
         }
 
 
+        #region Indent / Outdent
 
-        private void textQuery_TextChanged(object sender, EventArgs e)
+        private void Indent()
         {
-            //           //get all the lines in an object array
-            ////store the length too so we can scan array and find the line the cursor is in
-            //var currentTotal = 0;
-            //var lines = textQuery.Text.Split(new[] { '\n' });
-            //var o = new List<QueryTextLine>();
-            //foreach (var line in lines)
-            //{
-            //    var realLine = $"{line}\n";
-            //    var estStart = currentTotal - 1 <= 0 ? 0 : currentTotal;
-            //    o.Add(new QueryTextLine(realLine, estStart, estStart + realLine.Length - 1));
-            //    currentTotal += realLine.Length;
-            //}
-
-            //textQuery.SuspendLayout();
-            //var currentIndex = textQuery.SelectionStart;
-            //var currentLine = o.FirstOrDefault(s => currentIndex >= s.StartIndex && currentIndex <= s.EndIndex);
-            //if (currentLine == null)
-            //{
-            //    return;
-            //}
-
-            //SetQueryTextColor(currentLine.StartIndex, currentLine.EndIndex, Color.Black);
-            //textQuery.Select(currentIndex, 0);
-
-            //Presenter.HighlightKeywords(currentLine);
-
-            //SetQueryTextColor(currentIndex+1, 0, Color.Black);
-            //textQuery.ResumeLayout();
-
+            // we use this hack to send "Shift+Tab" to scintilla, since there is no known API to indent,
+            // although the indentation function exists. Pressing TAB with the editor focused confirms this.
+            GenerateKeystrokes("{TAB}");
         }
 
-        private void textQuery_KeyPress(object sender, KeyPressEventArgs e)
+        private void Outdent()
         {
-            //if (_skipChars.Any(a => a == e.KeyChar))
-            //{
-            //    return;
-            //}
-
+            // we use this hack to send "Shift+Tab" to scintilla, since there is no known API to outdent,
+            // although the indentation function exists. Pressing Shift+Tab with the editor focused confirms this.
+            GenerateKeystrokes("+{TAB}");
         }
 
-        private void textQuery_KeyUp(object sender, KeyEventArgs e)
+        private void GenerateKeystrokes(string keys)
         {
-            //if (e.Control)
-            //{
-
-            //}
+            //HotKeyManager.Enable = false;
+            textQuery.Focus();
+            SendKeys.Send(keys);
+            //HotKeyManager.Enable = true;
         }
+
+        #endregion
+
+        #region Uppercase / Lowercase
+
+        private void Lowercase()
+        {
+
+            // save the selection
+            var start = textQuery.SelectionStart;
+            var end = textQuery.SelectionEnd;
+
+            // modify the selected text
+            textQuery.ReplaceSelection(textQuery.GetTextRange(start, end - start).ToLower());
+
+            // preserve the original selection
+            textQuery.SetSelection(start, end);
+        }
+
+        private void Uppercase()
+        {
+
+            // save the selection
+            var start = textQuery.SelectionStart;
+            var end = textQuery.SelectionEnd;
+
+            // modify the selected text
+            textQuery.ReplaceSelection(textQuery.GetTextRange(start, end - start).ToUpper());
+
+            // preserve the original selection
+            textQuery.SetSelection(start, end);
+        }
+
+        #endregion
+
     }
 }

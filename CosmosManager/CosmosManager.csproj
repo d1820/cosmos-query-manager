@@ -122,9 +122,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\SyntaxHighlighterControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Decorators\QueryResultMetricDecorator.cs" />
     <Compile Include="Decorators\QueryResultTotalCostDecorator.cs" />
     <Compile Include="Domain\Connection.cs" />
@@ -169,6 +166,7 @@
     <Compile Include="Parsers\QueryStatementParser.cs" />
     <Compile Include="QueryRunners\DeleteByWhereQueryRunner.cs" />
     <Compile Include="Interfaces\ITransactionTask.cs" />
+    <Compile Include="Stylers\JsonDocumentStyler.cs" />
     <Compile Include="Tasks\TransactionTask.cs" />
     <Compile Include="Views\AboutCosmosManager.cs">
       <SubType>Form</SubType>
@@ -196,6 +194,7 @@
     <Compile Include="Interfaces\IQueryWindowControl.cs" />
     <Compile Include="Interfaces\IActionLogForm.cs" />
     <Compile Include="Interfaces\IActionLogFormPresenter.cs" />
+    <Compile Include="Interfaces\ITextStyler.cs" />
     <Compile Include="Views\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -212,6 +211,7 @@
       <DependentUpon>NewFileForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Domain\QueryTextLine.cs" />
+    <Compile Include="Stylers\QueryTextStyler.cs" />
     <Compile Include="Views\QueryWindowControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -289,6 +289,9 @@
     <None Include="Resources\closeIcon.png" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="jacobslusser.ScintillaNET">
+      <Version>3.6.3</Version>
+    </PackageReference>
     <PackageReference Include="Markdig">
       <Version>0.15.4</Version>
     </PackageReference>

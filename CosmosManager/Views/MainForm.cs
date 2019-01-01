@@ -261,7 +261,7 @@ namespace CosmosManager
             var tab = new TabPage(tabName + "   ");
             tab.Name = $"tab{queryTabControl.TabPages.Count + 1}";
 
-            var queryWindow = new QueryWindowControl();
+            var queryWindow = AppReferences.Container.GetInstance<IQueryWindowControl>();
             queryWindow.Dock = DockStyle.Fill;
             queryWindow.MainPresenter = Presenter;
 
@@ -285,7 +285,7 @@ namespace CosmosManager
                 presenter.SetConnections(Presenter.Connections);
             }
             tab.Tag = presenter;
-            tab.Controls.Add(queryWindow);
+            tab.Controls.Add(queryWindow as QueryWindowControl);
             queryTabControl.TabPages.Add(tab);
             queryTabControl.SelectedTab = tab;
         }
