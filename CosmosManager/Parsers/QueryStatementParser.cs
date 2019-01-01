@@ -42,10 +42,11 @@ namespace CosmosManager.Parsers
 
         public string CleanQuery(string query)
         {
-            var cleanString = Regex.Replace( query, @"[\t\n\r]", " ", RegexOptions.Compiled)
+            var cleanString = Regex.Replace(query, @"[\t\n\r]", " ", RegexOptions.Compiled)
                 .Trim()
                 .TrimStart('|')
                 .TrimEnd('|');
+            cleanString = Regex.Replace(cleanString, @"\s+", " ", RegexOptions.Compiled);
 
             foreach (var word in Constants.KeyWordList)
             {

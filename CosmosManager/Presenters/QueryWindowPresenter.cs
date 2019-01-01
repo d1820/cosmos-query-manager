@@ -229,6 +229,7 @@ namespace CosmosManager.Presenters
             const string pattern = @";(?!\s*(?=\*\/))";
             var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+            //this removes empty lines, then converts to a QueryPart object
             var results = queries.Where(w => !string.IsNullOrEmpty(w.Trim().Replace("|", ""))).Select(_queryParser.Parse);
             if (filterOutCommentOnlyQueries)
             {
@@ -299,7 +300,6 @@ namespace CosmosManager.Presenters
 
         public string BeautifyQuery(string query)
         {
-
             var cleanedQueries = new List<string>();
             try
             {
@@ -342,16 +342,16 @@ namespace CosmosManager.Presenters
                         DoAppend(sql, $"{queryParts.QueryFrom}");
                         if (queryParts.HasJoins())
                         {
-                            var joins = queryParts.QueryJoin.Split(new string[] { Constants.QueryKeywords.JOIN }, StringSplitOptions.RemoveEmptyEntries);
-                            foreach (var join in joins)
-                            {
-                                DoAppend(sql, $"{Constants.QueryKeywords.JOIN} {join}");
-                            }
+                            var joins = queryParts.QueryJoin.Split(new string[] { Constants.QueryKeywords.JOIN }, StringSplitOptions.RemoveEmptyEntries).Select(s => $"{Constants.QueryKeywords.JOIN} {s.Trim()}").ToArray();
+                            sql.Append(String.Join("|", joins));
                         }
 
                         if (queryParts.HasWhereClause())
                         {
-                            DoAppend(sql, queryParts.QueryWhere);
+                            var whereFormatted = queryParts.QueryWhere
+                                .Replace(Constants.QueryKeywords.AND, $"|\t{Constants.QueryKeywords.AND}")
+                                .Replace(Constants.QueryKeywords.OR, $"|\t{Constants.QueryKeywords.OR}");
+                            DoAppend(sql, whereFormatted);
                         }
 
                         if (queryParts.IsUpdateQuery())
@@ -365,10 +365,14 @@ namespace CosmosManager.Presenters
 
                         if (queryParts.HasOrderByClause())
                         {
-                            DoAppend(sql, queryParts.QueryOrderBy);
+                            var orderByFormatted = queryParts.QueryOrderBy
+                                .Replace(Constants.QueryKeywords.AND, $"|\t{Constants.QueryKeywords.AND}")
+                                .Replace(Constants.QueryKeywords.OR, $"|\t{Constants.QueryKeywords.OR}");
+                            DoAppend(sql, orderByFormatted);
                         }
                         sql = ResetComments(queryParts, sql);
-                        cleanedQueries.Add(sql.ToString().Replace("|", Environment.NewLine));
+                        var cleanedMultiLine = Regex.Replace(sql.ToString(), @"\|+", "|");
+                        cleanedQueries.Add(cleanedMultiLine.Replace("|", Environment.NewLine));
                     }
 
                 }
@@ -381,16 +385,15 @@ namespace CosmosManager.Presenters
 
         }
 
-        private void DoAppend(StringBuilder stringBuilder, string currentString)
+        private void DoAppend(StringBuilder sql, string currentString)
         {
-            //if(currentString.StartsWith("|") || currentString.EndsWith("|"))
-            //{
-            //    stringBuilder.Append(currentString);
-            //    return;
-            //}
-            // stringBuilder.AppendLine(currentString);
+            if (currentString.StartsWith("|") || currentString.EndsWith("|"))
+            {
+                sql.Append(currentString);
 
-            stringBuilder.Append(currentString);
+                return;
+            }
+            sql.Append($"|{currentString}");
         }
 
         private StringBuilder ResetComments(QueryParts queryParts, StringBuilder sqlString)

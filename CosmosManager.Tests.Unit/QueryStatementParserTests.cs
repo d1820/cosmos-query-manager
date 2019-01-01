@@ -9,7 +9,7 @@ namespace CosmosManager.Tests.Unit
 {
     public class QueryStatementParserTests
     {
-        private readonly QueryStatementParser _parser;
+        private QueryStatementParser _parser;
 
         public QueryStatementParserTests()
         {
@@ -103,6 +103,22 @@ namespace CosmosManager.Tests.Unit
 
             rawQuery.Contains("ROLLBACK").Should().BeTrue();
 
+        }
+
+        [Fact]
+        public void Parse_PutsCommentsBackInCorrectIndex()
+        {
+            _parser = new QueryStatementParser(new StringQueryParser());
+            var query = "||SELECT * FROM Cart |/*test*/|WHERE ((Cart.CreatedOn < \"2018-12-12T17:02:35.594738+00:00\") AND STARTSWITH(Cart.PartitionKey, \"sessioncart-\")) ";
+            var result = _parser.Parse(query);
+        }
+
+        [Fact]
+        public void Parse_MultiLineJoins()
+        {
+            _parser = new QueryStatementParser(new StringQueryParser());
+            var query = "SELECT pr.id, pr.PartitionKey,   ct.Tier,    ct.TierDesc,    ct.CostPerMonth,    ct.CostsByStateCode,    ct.IsActive,    ct[\"Order\"],    ct.Options|FROM ProductRegistry pr|JOIN   ct IN pr.CoverageTiers JOIN   restriction IN ct.Options.DependentsOptions.DependentRestrictions JOIN   relationship IN restriction.RelationshipTypes|WHERE IS_DEFINED(ct.Options.DependentsOptions.DependentRestrictions) AND relationship = \"child\" OR relationship = \"spouse\"";
+            var result = _parser.Parse(query);
         }
     }
 }
