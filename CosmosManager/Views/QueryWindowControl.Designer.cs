@@ -294,12 +294,12 @@ namespace CosmosManager
             // 
             // columnId
             // 
-            this.columnId.Text = "id";
+            this.columnId.Text = "";
             this.columnId.Width = 136;
             // 
             // columnPartitionKey
             // 
-            this.columnPartitionKey.Text = "PartitionKey";
+            this.columnPartitionKey.Text = "";
             this.columnPartitionKey.Width = 166;
             // 
             // resultListToolStrip
