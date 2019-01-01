@@ -15,7 +15,7 @@ namespace CosmosManager.Domain
             public const string ID = "id";
         }
 
-        public static class QueryKeywords
+        public static class QueryParsingKeywords
         {
             public const string SELECT = "SELECT";
             public const string UPDATE = "UPDATE";
@@ -30,30 +30,30 @@ namespace CosmosManager.Domain
             public const string REPLACE = "REPLACE";
             public const string ORDERBY = "ORDER BY";
             public const string JOIN = "JOIN";
-            public const string IN = "IN";
-            public const string AND = "AND";
-            public const string OR = "OR";
-            public const string BETWEEN = "BETWEEN";
         }
 
-        public static List<KeyValuePair<string, string>> KeyWordList = new List<KeyValuePair<string, string>>{
-                new KeyValuePair<string, string>("from", QueryKeywords.FROM),
-                new KeyValuePair<string, string>("select", QueryKeywords.SELECT),
-                new KeyValuePair<string, string>("set", QueryKeywords.SET),
-                new KeyValuePair<string, string>("replace", QueryKeywords.REPLACE),
-                new KeyValuePair<string, string>("rollback", QueryKeywords.ROLLBACK),
-                new KeyValuePair<string, string>("astransaction", QueryKeywords.TRANSACTION),
-                new KeyValuePair<string, string>("where", QueryKeywords.WHERE),
-                new KeyValuePair<string, string>("update", QueryKeywords.UPDATE),
-                new KeyValuePair<string, string>("insert", QueryKeywords.INSERT),
-                new KeyValuePair<string, string>("into", QueryKeywords.INTO),
-                new KeyValuePair<string, string>("delete", QueryKeywords.DELETE),
-                new KeyValuePair<string, string>("order by", QueryKeywords.ORDERBY),
-                new KeyValuePair<string, string>("join", QueryKeywords.JOIN),
-                new KeyValuePair<string, string>("in", QueryKeywords.IN),
-                new KeyValuePair<string, string>("and", QueryKeywords.AND),
-                new KeyValuePair<string, string>("or", QueryKeywords.OR),
-                new KeyValuePair<string, string>("between", QueryKeywords.BETWEEN)
+        public static List<string> KeyWordList = new List<string>{
+                QueryParsingKeywords.FROM,
+                QueryParsingKeywords.SELECT,
+                QueryParsingKeywords.SET,
+                QueryParsingKeywords.REPLACE,
+                QueryParsingKeywords.ROLLBACK,
+                QueryParsingKeywords.TRANSACTION,
+                QueryParsingKeywords.WHERE,
+                QueryParsingKeywords.UPDATE,
+                QueryParsingKeywords.INSERT,
+                QueryParsingKeywords.INTO,
+                QueryParsingKeywords.DELETE,
+                QueryParsingKeywords.ORDERBY,
+                QueryParsingKeywords.JOIN,
+                "IN",
+                "AND",
+                "OR",
+                "BETWEEN",
+                "NOT",
+                "DESC",
+                "ASC",
+                "VALUE"
             };
 
         public static List<string> BuiltInKeyWordList = new List<string>{
@@ -109,7 +109,33 @@ namespace CosmosManager.Domain
                 "ARRAY_CONTAINS",
                 "ARRAY_LENGTH",
                 "ARRAY_SLICE",
+                "COUNT",
+                "SUM",
+                "MIN",
+                "MAX",
+                "AVG",
+
             };
+
+        public static List<string> NewLineKeywords = new List<string> {
+                QueryParsingKeywords.FROM,
+                QueryParsingKeywords.SELECT,
+                QueryParsingKeywords.SET,
+                QueryParsingKeywords.REPLACE,
+                QueryParsingKeywords.ROLLBACK,
+                QueryParsingKeywords.TRANSACTION,
+                QueryParsingKeywords.WHERE,
+                QueryParsingKeywords.UPDATE,
+                QueryParsingKeywords.INSERT,
+                QueryParsingKeywords.INTO,
+                QueryParsingKeywords.DELETE,
+                QueryParsingKeywords.ORDERBY,
+                QueryParsingKeywords.JOIN
+         };
+
+        public static List<string> IndentKeywords = new List<string> {
+
+        };
 
     }
 }

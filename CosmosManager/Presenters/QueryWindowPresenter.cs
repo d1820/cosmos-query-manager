@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -105,10 +104,10 @@ namespace CosmosManager.Presenters
                 var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
 
                 //get each query and run it aggregating the results
-                var queries = SplitQueries(filterOutCommentOnlyQueries: true);
+                var queries = ConveryQueryTextToQueryParts(_view.Query);
 
                 //check all the queries for deletes without transactions
-                if (queries.Any(query => query.QueryType == Constants.QueryKeywords.DELETE && !query.IsTransaction) && _view.ShowMessage("Are you sure you want to delete documents without a transaction. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+                if (queries.Any(query => query.QueryType == Constants.QueryParsingKeywords.DELETE && !query.IsTransaction) && _view.ShowMessage("Are you sure you want to delete documents without a transaction. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
                 {
                     return;
                 }
@@ -221,23 +220,6 @@ namespace CosmosManager.Presenters
             }
         }
 
-        private QueryParts[] SplitQueries(string queryText = null, bool filterOutCommentOnlyQueries = false)
-        {
-            var queryToParse = queryText ?? _view.Query;
-            var preCleanString = queryToParse.Replace("\r\n", "|").Replace("\n", "|").Replace("\t", " ");
-
-            const string pattern = @";(?!\s*(?=\*\/))";
-            var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-            //this removes empty lines, then converts to a QueryPart object
-            var results = queries.Where(w => !string.IsNullOrEmpty(w.Trim().Replace("|", ""))).Select(_queryParser.Parse);
-            if (filterOutCommentOnlyQueries)
-            {
-                results = results.Where(w => !w.IsCommentOnly).ToArray();
-            }
-            return results.ToArray();
-        }
-
         public async Task SaveQueryAsync()
         {
             using (var sw = new StreamWriter(CurrentFileInfo.FullName))
@@ -298,117 +280,64 @@ namespace CosmosManager.Presenters
             return JsonConvert.SerializeObject(obj, Formatting.Indented);
         }
 
-        public string BeautifyQuery(string query)
+        public string BeautifyQuery(string queryText)
         {
             var cleanedQueries = new List<string>();
             try
             {
-                foreach (var queryParts in SplitQueries(query))
+                var queries = CleanAndSplitQueryText(queryText);
+                foreach (var query in queries)
                 {
-                    var sql = new StringBuilder();
+                    var trimmedQuery = query.Trim().TrimStart('|').TrimEnd('|');
 
-                    if (queryParts.IsCommentOnly)
+                    foreach (var newlineWord in Constants.NewLineKeywords)
                     {
-                        sql = ResetComments(queryParts, sql);
-                        cleanedQueries.Add(sql.ToString().Replace("|", Environment.NewLine));
-                        continue;
+                        trimmedQuery = Regex.Replace(trimmedQuery, $@"\s+({newlineWord})", $"|{newlineWord}");
+                    }
+                    trimmedQuery = _queryParser.CleanExtraNewLines(trimmedQuery);
+                    trimmedQuery = _queryParser.CleanExtraSpaces(trimmedQuery);
+                    foreach (var indentKeyWord in Constants.IndentKeywords)
+                    {
+                        trimmedQuery = Regex.Replace(trimmedQuery, $@"\|[\t]*({indentKeyWord})", $"|\t{indentKeyWord}");
                     }
 
-                    if (queryParts.IsTransaction)
+                    var formattedQuery = trimmedQuery.Replace("|", Environment.NewLine);
+
+                    if (queries.Count() > 1)
                     {
-                        sql.Append(Constants.QueryKeywords.TRANSACTION);
+                        formattedQuery += ";";
                     }
-                    if (queryParts.IsValidInsertQuery())
-                    {
-                        sql.Append(queryParts.QueryType);
-                        sql.Append(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryBody), Formatting.Indented));
-                        sql.Append(queryParts.QueryInto);
-                        sql = ResetComments(queryParts, sql);
-                        cleanedQueries.Add(sql.ToString());
-                        continue;
-                    }
-
-                    if (queryParts.IsRollback)
-                    {
-                        sql.Append($"ROLLBACK {queryParts.RollbackName}");
-                        sql = ResetComments(queryParts, sql);
-                        cleanedQueries.Add(sql.ToString());
-                        continue;
-                    }
-
-                    if (queryParts.IsValidQuery())
-                    {
-                        DoAppend(sql, $"{queryParts.QueryType} {queryParts.QueryBody}");
-                        DoAppend(sql, $"{queryParts.QueryFrom}");
-                        if (queryParts.HasJoins())
-                        {
-                            var joins = queryParts.QueryJoin.Split(new string[] { Constants.QueryKeywords.JOIN }, StringSplitOptions.RemoveEmptyEntries).Select(s => $"{Constants.QueryKeywords.JOIN} {s.Trim()}").ToArray();
-                            sql.Append(String.Join("|", joins));
-                        }
-
-                        if (queryParts.HasWhereClause())
-                        {
-                            var whereFormatted = queryParts.QueryWhere
-                                .Replace(Constants.QueryKeywords.AND, $"|\t{Constants.QueryKeywords.AND}")
-                                .Replace(Constants.QueryKeywords.OR, $"|\t{Constants.QueryKeywords.OR}");
-                            DoAppend(sql, whereFormatted);
-                        }
-
-                        if (queryParts.IsUpdateQuery())
-                        {
-                            DoAppend(sql, queryParts.QueryUpdateType);
-                            DoAppend(sql, JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
-                            sql = ResetComments(queryParts, sql);
-                            cleanedQueries.Add(sql.ToString());
-                            continue;
-                        }
-
-                        if (queryParts.HasOrderByClause())
-                        {
-                            var orderByFormatted = queryParts.QueryOrderBy
-                                .Replace(Constants.QueryKeywords.AND, $"|\t{Constants.QueryKeywords.AND}")
-                                .Replace(Constants.QueryKeywords.OR, $"|\t{Constants.QueryKeywords.OR}");
-                            DoAppend(sql, orderByFormatted);
-                        }
-                        sql = ResetComments(queryParts, sql);
-                        var cleanedMultiLine = Regex.Replace(sql.ToString(), @"\|+", "|");
-                        cleanedQueries.Add(cleanedMultiLine.Replace("|", Environment.NewLine));
-                    }
-
+                    cleanedQueries.Add(formattedQuery);
                 }
             }
             catch (Exception ex)
             {
-                return query;
+                return queryText;
             }
-            return string.Join($";{Environment.NewLine}{Environment.NewLine}", cleanedQueries);
+            return string.Join($"{Environment.NewLine}{Environment.NewLine}", cleanedQueries);
 
         }
 
-        private void DoAppend(StringBuilder sql, string currentString)
+        private QueryParts[] ConveryQueryTextToQueryParts(string queryToParse)
         {
-            if (currentString.StartsWith("|") || currentString.EndsWith("|"))
+            if (string.IsNullOrEmpty(queryToParse))
             {
-                sql.Append(currentString);
-
-                return;
+                return new QueryParts[0];
             }
-            sql.Append($"|{currentString}");
+            var queries = CleanAndSplitQueryText(queryToParse);
+            return queries.Select(_queryParser.Parse).Where(w => !w.IsCommentOnly).ToArray();
         }
 
-        private StringBuilder ResetComments(QueryParts queryParts, StringBuilder sqlString)
+        private IEnumerable<string> CleanAndSplitQueryText(string queryToParse)
         {
-            if (queryParts.Comments.Count > 0)
-            {
-                var tempstr = sqlString.ToString();
-                for (var i = 0; i < queryParts.Comments.Count; i++)
-                {
-                    var match = queryParts.Comments[i];
-                    tempstr = tempstr.Insert(match.Index, match.Value);
-                }
-                return new StringBuilder(tempstr);
-            }
-            return sqlString;
+
+            var preCleanString = _queryParser.CleanQueryText(queryToParse);
+            //splits on semit-colon
+            const string pattern = @";(?!\s*(?=\*\/))";
+            var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+            //this removes empty lines, then converts to a QueryPart object
+            return queries.Where(w => !string.IsNullOrEmpty(w.Trim().Replace("|", "")));
         }
     }
 }

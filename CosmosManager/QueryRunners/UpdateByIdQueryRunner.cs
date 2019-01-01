@@ -27,7 +27,7 @@ namespace CosmosManager.QueryRunners
         public bool CanRun(string query)
         {
             var queryParts = _queryParser.Parse(query);
-            return queryParts.QueryType.Equals(Constants.QueryKeywords.UPDATE, StringComparison.InvariantCultureIgnoreCase)
+            return queryParts.QueryType.Equals(Constants.QueryParsingKeywords.UPDATE, StringComparison.InvariantCultureIgnoreCase)
                 && !queryParts.QueryBody.Equals("*")
                 && !string.IsNullOrEmpty(queryParts.QueryUpdateBody)
                 && !string.IsNullOrEmpty(queryParts.QueryUpdateType);
@@ -51,9 +51,9 @@ namespace CosmosManager.QueryRunners
 
                 var ids = queryParts.QueryBody.Split(new[] { ',' });
 
-                if (queryParts.QueryUpdateType == Constants.QueryKeywords.REPLACE && ids.Length > 1)
+                if (queryParts.QueryUpdateType == Constants.QueryParsingKeywords.REPLACE && ids.Length > 1)
                 {
-                    var errorMessage = $"{Constants.QueryKeywords.REPLACE} only supports replacing 1 document at a time.";
+                    var errorMessage = $"{Constants.QueryParsingKeywords.REPLACE} only supports replacing 1 document at a time.";
                     logger.LogError(errorMessage);
                     return (false, null);
                 }
@@ -181,10 +181,10 @@ namespace CosmosManager.QueryRunners
             }
             catch (Exception ex)
             {
-                var errorMessage = $"Unable to run {Constants.QueryKeywords.UPDATE} query.";
-                if (queryParts.QueryUpdateType == Constants.QueryKeywords.REPLACE)
+                var errorMessage = $"Unable to run {Constants.QueryParsingKeywords.UPDATE} query.";
+                if (queryParts.QueryUpdateType == Constants.QueryParsingKeywords.REPLACE)
                 {
-                    errorMessage += $"{Constants.QueryKeywords.REPLACE} only supports replacing 1 document at a time.";
+                    errorMessage += $"{Constants.QueryParsingKeywords.REPLACE} only supports replacing 1 document at a time.";
                 }
                 logger.Log(LogLevel.Error, new EventId(), errorMessage, ex);
                 return (false, null);

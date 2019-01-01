@@ -1,5 +1,6 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CosmosManager.Parsers
@@ -15,7 +16,7 @@ namespace CosmosManager.Parsers
 
         public QueryParts Parse(string query)
         {
-            var cleanQuery = CleanQuery(query);
+            var cleanQuery = CleanQueryText(query);
 
             var result = _queryParser.ParseAndCleanComments(cleanQuery);
             cleanQuery = result.commentFreeQuery;
@@ -40,18 +41,39 @@ namespace CosmosManager.Parsers
             };
         }
 
-        public string CleanQuery(string query)
+        public string CleanExtraSpaces(string query)
         {
-            var cleanString = Regex.Replace(query, @"[\t\n\r]", " ", RegexOptions.Compiled)
+            return Regex.Replace(query, @"\s+", " ", RegexOptions.Compiled);
+        }
+
+        public string CleanExtraNewLines(string query)
+        {
+
+            return Regex.Replace(query, @"\|+", "|", RegexOptions.Compiled);
+        }
+
+        public string CleanQueryText(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return query;
+            }
+            var cleanString = query.Replace("\r\n", "|")
+                .Replace("\n", "|")
+                .Replace("\t", " ")
+                .Replace("\r", "")
                 .Trim()
                 .TrimStart('|')
                 .TrimEnd('|');
-            cleanString = Regex.Replace(cleanString, @"\s+", " ", RegexOptions.Compiled);
+            //get rid of all extra spaces
+            cleanString = CleanExtraSpaces(cleanString);
+            //get rid of all extra new lines
+            cleanString =  CleanExtraNewLines(cleanString);
 
-            foreach (var word in Constants.KeyWordList)
+            foreach (var word in Constants.KeyWordList.Concat(Constants.BuiltInKeyWordList))
             {
-                var pattern = $@"(?!\B[""\'][^""\']*)\b{word.Key}\b(?![^""\']*[""\']\B)";
-                cleanString = Regex.Replace(cleanString, pattern, word.Value, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+                var pattern = $@"(?!\B[""\'][^""\']*)\b{word}\b(?![^""\']*[""\']\B)";
+                cleanString = Regex.Replace(cleanString, pattern, word.ToUpperInvariant(), RegexOptions.IgnoreCase | RegexOptions.Compiled);
             }
             return cleanString;
         }

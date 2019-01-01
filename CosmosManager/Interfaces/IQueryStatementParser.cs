@@ -4,7 +4,11 @@ namespace CosmosManager.Interfaces
 {
     public interface IQueryStatementParser
     {
-        string CleanQuery(string query);
+        string CleanQueryText(string query);
+
+        string CleanExtraSpaces(string query);
+
+        string CleanExtraNewLines(string query);
 
         QueryParts Parse(string query);
     }

@@ -54,7 +54,7 @@ namespace CosmosManager.Domain
             {
                 if (!string.IsNullOrWhiteSpace(QueryFrom))
                 {
-                    var cleanedColStr = QueryFrom.Replace(Constants.QueryKeywords.FROM, "").Trim();
+                    var cleanedColStr = QueryFrom.Replace(Constants.QueryParsingKeywords.FROM, "").Trim();
                     var colNameParts = cleanedColStr.Split(new[] { ' ' });
                     var colName = colNameParts.FirstOrDefault();
                     if (!string.IsNullOrEmpty(colName))
@@ -65,7 +65,7 @@ namespace CosmosManager.Domain
 
                 if (!string.IsNullOrWhiteSpace(QueryInto))
                 {
-                    var cleanedColStr = QueryInto.Replace(Constants.QueryKeywords.INTO, "").Trim();
+                    var cleanedColStr = QueryInto.Replace(Constants.QueryParsingKeywords.INTO, "").Trim();
                     var colNameParts = cleanedColStr.Split(new[] { ' ' });
                     var colName = colNameParts.FirstOrDefault();
                     if (!string.IsNullOrEmpty(colName))
@@ -77,14 +77,14 @@ namespace CosmosManager.Domain
             }
         }
 
-        public bool IsReplaceUpdateQuery() => !string.IsNullOrEmpty(QueryType) && QueryUpdateType == Constants.QueryKeywords.REPLACE;
+        public bool IsReplaceUpdateQuery() => !string.IsNullOrEmpty(QueryType) && QueryUpdateType == Constants.QueryParsingKeywords.REPLACE;
 
         public bool IsValidQuery() => !string.IsNullOrEmpty(QueryType) &&
                 !string.IsNullOrEmpty(QueryBody) &&
                 !string.IsNullOrEmpty(QueryFrom);
 
         public bool IsUpdateQuery() => !string.IsNullOrEmpty(QueryType) &&
-                QueryType == Constants.QueryKeywords.UPDATE &&
+                QueryType == Constants.QueryParsingKeywords.UPDATE &&
                 !string.IsNullOrEmpty(QueryBody) &&
                 !string.IsNullOrEmpty(QueryFrom);
 
@@ -100,7 +100,7 @@ namespace CosmosManager.Domain
 
         public string ToRawQuery()
         {
-            if (QueryType == Constants.QueryKeywords.INSERT)
+            if (QueryType == Constants.QueryParsingKeywords.INSERT)
             {
                 return $"{QueryType} {QueryBody} {QueryInto}";
             }
@@ -133,7 +133,7 @@ namespace CosmosManager.Domain
         public string ToRawSelectQuery()
         {
             //order of the parts matters for consistency
-            var baseString = $"{Constants.QueryKeywords.SELECT} {QueryBody} {QueryFrom}";
+            var baseString = $"{Constants.QueryParsingKeywords.SELECT} {QueryBody} {QueryFrom}";
             if (!string.IsNullOrEmpty(QueryJoin))
             {
                 baseString += $" {QueryJoin}";

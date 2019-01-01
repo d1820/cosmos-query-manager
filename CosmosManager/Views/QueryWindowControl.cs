@@ -314,7 +314,7 @@ namespace CosmosManager
                 var items = group.Select(s => s.Document);
                 var ids = items.Select(s => s[Constants.DocumentFields.ID]);
                 var parts = group.Key;
-                MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryKeywords.SET} {{{Environment.NewLine}{Environment.NewLine}}}");
+                MainPresenter.CreateTempQueryTab($"{Constants.QueryParsingKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryParsingKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryParsingKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryParsingKeywords.SET} {{{Environment.NewLine}{Environment.NewLine}}}");
             }
         }
 
@@ -330,7 +330,7 @@ namespace CosmosManager
                 var items = group.Select(s => s.Document);
                 var ids = items.Select(s => s[Constants.DocumentFields.ID]);
                 var parts = group.Key;
-                MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine} {Constants.QueryKeywords.DELETE} '{string.Join("','", ids)}' {Environment.NewLine} {Constants.QueryKeywords.FROM} {parts.CollectionName}");
+                MainPresenter.CreateTempQueryTab($"{Constants.QueryParsingKeywords.TRANSACTION}{Environment.NewLine} {Constants.QueryParsingKeywords.DELETE} '{string.Join("','", ids)}' {Environment.NewLine} {Constants.QueryParsingKeywords.FROM} {parts.CollectionName}");
             }
 
         }

@@ -84,7 +84,7 @@ namespace CosmosManager.QueryRunners
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, new EventId(), $"Unable to execute {Constants.QueryKeywords.ROLLBACK}", ex);
+                logger.Log(LogLevel.Error, new EventId(), $"Unable to execute {Constants.QueryParsingKeywords.ROLLBACK}", ex);
                 return (false, null);
             }
         }
