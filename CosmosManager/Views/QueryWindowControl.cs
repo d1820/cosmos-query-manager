@@ -16,17 +16,9 @@ namespace CosmosManager
 {
     public partial class QueryWindowControl : UserControl, IQueryWindowControl
     {
-        private readonly List<char> _skipChars = new List<char>{(char)Keys.Up,
-                                                                    (char)Keys.Down,
-                                                                    (char)Keys.Right,
-                                                                    (char)Keys.Left,
-                                                                    (char)Keys.PageDown,
-                                                                    (char)Keys.PageUp,
-                                                                    (char)Keys.Home,
-                                                                    (char)Keys.End,
-                                                                    };
+        private int _totalDocumentCount;
 
-        private int _totalDocumentCount = 0;
+        private CheckState _headerCheckState;
 
         public QueryWindowControl(IQueryStyler queryTextStyler, IJsonStyler jsonStyler)
         {
@@ -99,7 +91,6 @@ namespace CosmosManager
             textDocument.Clear();
             tabControlQueryOutput.SelectedIndex = 0;
         }
-
 
         public IQueryWindowPresenter Presenter { private get; set; }
 
@@ -175,9 +166,8 @@ namespace CosmosManager
                 }
                 else
                 {
-                    //if current headers dont match new headers clear the headers
                     var headers = SetResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
-                    //if the next query has a different select clear column headers
+                    //if the next query has a different select, then clear column headers
                     if (resultListView.Columns[1].Text != headers.header1)
                     {
                         resultListView.Columns[1].Text = string.Empty;
@@ -204,7 +194,6 @@ namespace CosmosManager
                     listItem.Group = resultListView.Groups[resultListView.Groups.Count - 1];
                 }
                 listItem.Tag = new DocumentResult { Document = fromObject, CollectionName = collectionName, Query = query };
-                //check for id, else grab first prop
                 JProperty col1Prop = null;
                 JToken col1Token = null;
                 var resultProps = fromObject.Properties();
@@ -220,7 +209,6 @@ namespace CosmosManager
                 }
                 col1Token = col1Prop.Value;
                 subItem.Text = col1Token?.Value<string>();
-
                 listItem.SubItems.Add(subItem);
 
                 if (resultProps.Count() > 1)
@@ -291,7 +279,6 @@ namespace CosmosManager
             }
             return (col1Prop.Name, col2Prop.Name);
         }
-
 
         private async void exportRecordToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -442,8 +429,6 @@ namespace CosmosManager
             return objects;
         }
 
-        private CheckState headerCheckState = CheckState.Unchecked;
-
         private void resultListView_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
             if (e.ColumnIndex == 0)
@@ -461,7 +446,7 @@ namespace CosmosManager
                 cck.SetBounds(e.Bounds.X, e.Bounds.Y, cck.GetPreferredSize(new Size(e.Bounds.Width, e.Bounds.Height)).Width, cck.GetPreferredSize(new Size(e.Bounds.Width, e.Bounds.Height)).Width);
                 cck.Size = new Size((cck.GetPreferredSize(new Size((e.Bounds.Width - 1), e.Bounds.Height)).Width + 1), e.Bounds.Height);
                 cck.Location = new Point(4, 0);
-                cck.CheckState = headerCheckState;
+                cck.CheckState = _headerCheckState;
                 resultListView.Controls.Add(cck);
                 cck.Show();
                 cck.BringToFront();
@@ -478,7 +463,7 @@ namespace CosmosManager
         private void resultListViewheaderCheckAll(object sender, EventArgs e)
         {
             var listboxCheckHeader = sender as CheckBox;
-            headerCheckState = listboxCheckHeader.CheckState;
+            _headerCheckState = listboxCheckHeader.CheckState;
             for (var i = 0; i < resultListView.Items.Count; i++)
             {
                 resultListView.Items[i].Checked = listboxCheckHeader.Checked;
