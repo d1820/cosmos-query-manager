@@ -111,7 +111,6 @@
             this.openFolderToolStripMenuItem,
             this.toolStripSeparator3,
             this.exitToolStripMenuItem});
-            this.fileToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlText;
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -154,7 +153,6 @@
             this.viewPreviousActionsLogToolStripMenuItem,
             this.toolStripSeparator1,
             this.preferencesToolStripMenuItem});
-            this.editToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlText;
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -191,7 +189,6 @@
             this.connectToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadConnectionFileToolStripMenuItem,
             this.editConnectionFileToolStripMenuItem});
-            this.connectToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlText;
             this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
             this.connectToolStripMenuItem.Size = new System.Drawing.Size(64, 20);
             this.connectToolStripMenuItem.Text = "Connect";
@@ -216,7 +213,6 @@
             this.guideToolStripMenuItem,
             this.reportABugToolStripMenuItem,
             this.aboutCosmosManagerToolStripMenuItem});
-            this.helpToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlText;
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "Help";
@@ -256,7 +252,7 @@
             // appStatusLabel
             // 
             this.appStatusLabel.BackColor = System.Drawing.SystemColors.Control;
-            this.appStatusLabel.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.appStatusLabel.ForeColor = System.Drawing.Color.White;
             this.appStatusLabel.Name = "appStatusLabel";
             this.appStatusLabel.Size = new System.Drawing.Size(39, 17);
             this.appStatusLabel.Text = "Ready";
@@ -264,7 +260,8 @@
             // transactionCacheSizeLabel
             // 
             this.transactionCacheSizeLabel.BackColor = System.Drawing.SystemColors.Control;
-            this.transactionCacheSizeLabel.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.transactionCacheSizeLabel.ForeColor = System.Drawing.Color.White;
+            this.transactionCacheSizeLabel.LinkColor = System.Drawing.Color.White;
             this.transactionCacheSizeLabel.Name = "transactionCacheSizeLabel";
             this.transactionCacheSizeLabel.Size = new System.Drawing.Size(1175, 17);
             this.transactionCacheSizeLabel.Spring = true;
@@ -286,19 +283,20 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabBackgroundPanel);
             this.splitContainer1.Size = new System.Drawing.Size(1229, 578);
-            this.splitContainer1.SplitterDistance = 175;
+            this.splitContainer1.SplitterDistance = 231;
             this.splitContainer1.TabIndex = 2;
             // 
             // fileTreeView
             // 
             this.fileTreeView.CausesValidation = false;
             this.fileTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fileTreeView.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.fileTreeView.ImageIndex = 0;
             this.fileTreeView.ImageList = this.imageList1;
             this.fileTreeView.Location = new System.Drawing.Point(0, 0);
             this.fileTreeView.Name = "fileTreeView";
             this.fileTreeView.SelectedImageIndex = 0;
-            this.fileTreeView.Size = new System.Drawing.Size(175, 578);
+            this.fileTreeView.Size = new System.Drawing.Size(231, 578);
             this.fileTreeView.TabIndex = 0;
             this.fileTreeView.TabStop = false;
             this.fileTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.fileTreeView_NodeMouseClick);
@@ -314,12 +312,11 @@
             // 
             // tabBackgroundPanel
             // 
-            this.tabBackgroundPanel.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.tabBackgroundPanel.Controls.Add(this.queryTabControl);
             this.tabBackgroundPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabBackgroundPanel.Location = new System.Drawing.Point(0, 0);
             this.tabBackgroundPanel.Name = "tabBackgroundPanel";
-            this.tabBackgroundPanel.Size = new System.Drawing.Size(1050, 578);
+            this.tabBackgroundPanel.Size = new System.Drawing.Size(994, 578);
             this.tabBackgroundPanel.TabIndex = 1;
             this.tabBackgroundPanel.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tabBackgroundPanel_MouseDoubleClick);
             // 
@@ -330,8 +327,9 @@
             this.queryTabControl.Location = new System.Drawing.Point(0, 0);
             this.queryTabControl.Name = "queryTabControl";
             this.queryTabControl.SelectedIndex = 0;
-            this.queryTabControl.Size = new System.Drawing.Size(1050, 578);
+            this.queryTabControl.Size = new System.Drawing.Size(994, 578);
             this.queryTabControl.TabIndex = 0;
+            this.queryTabControl.Visible = false;
             this.queryTabControl.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.queryTabControl_DrawItem);
             this.queryTabControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this.queryTabControl_MouseDown);
             this.queryTabControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.queryTabControl_MouseUp);
@@ -393,12 +391,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1229, 624);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
-            this.ForeColor = System.Drawing.SystemColors.Control;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
@@ -422,44 +418,44 @@
 
         #endregion
 
-        private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
-        private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-        private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.TreeView fileTreeView;
-        private System.Windows.Forms.TabControl queryTabControl;
-        private System.Windows.Forms.ToolStripMenuItem openFolderToolStripMenuItem;
-        private System.Windows.Forms.ImageList imageList1;
-        private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem loadConnectionFileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel appStatusLabel;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem createNewQueryToolStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip contextTabs;
-        private System.Windows.Forms.ToolStripMenuItem duplicateTabToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel transactionCacheSizeLabel;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem viewTransactionCacheToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem guideToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem reportABugToolStripMenuItem;
-        private System.IO.FileSystemWatcher fileSystemWatcher1;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem editConnectionFileToolStripMenuItem;
-        private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.ToolStripMenuItem newQueryTabToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem newFileQueryTabToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.Panel tabBackgroundPanel;
-        private System.Windows.Forms.ToolStripMenuItem aboutCosmosManagerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openInFileExplorerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
-        private System.Windows.Forms.ToolStripMenuItem viewPreviousActionsLogToolStripMenuItem;
+        public System.Windows.Forms.OpenFileDialog openFileDialog1;
+        public System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        public System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        public System.Windows.Forms.MenuStrip menuStrip1;
+        public System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        public System.Windows.Forms.StatusStrip statusStrip1;
+        public System.Windows.Forms.SplitContainer splitContainer1;
+        public System.Windows.Forms.TabControl queryTabControl;
+        public System.Windows.Forms.ToolStripMenuItem openFolderToolStripMenuItem;
+        public System.Windows.Forms.ImageList imageList1;
+        public System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem loadConnectionFileToolStripMenuItem;
+        public System.Windows.Forms.ToolStripStatusLabel appStatusLabel;
+        public System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        public System.Windows.Forms.ToolStripMenuItem createNewQueryToolStripMenuItem;
+        public System.Windows.Forms.ContextMenuStrip contextTabs;
+        public System.Windows.Forms.ToolStripMenuItem duplicateTabToolStripMenuItem;
+        public System.Windows.Forms.ToolStripStatusLabel transactionCacheSizeLabel;
+        public System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem viewTransactionCacheToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem guideToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem reportABugToolStripMenuItem;
+        public System.IO.FileSystemWatcher fileSystemWatcher1;
+        public System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        public System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem editConnectionFileToolStripMenuItem;
+        public System.Windows.Forms.ToolTip toolTip1;
+        public System.Windows.Forms.ToolStripMenuItem newQueryTabToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem newFileQueryTabToolStripMenuItem;
+        public System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        public System.Windows.Forms.Panel tabBackgroundPanel;
+        public System.Windows.Forms.ToolStripMenuItem aboutCosmosManagerToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem openInFileExplorerToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        public System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        public System.Windows.Forms.ToolStripMenuItem viewPreviousActionsLogToolStripMenuItem;
+        public System.Windows.Forms.TreeView fileTreeView;
     }
 }
 

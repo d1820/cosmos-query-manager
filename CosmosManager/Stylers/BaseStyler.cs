@@ -10,7 +10,7 @@ namespace CosmosManager.Stylers
             textbox.StyleResetDefault();
             textbox.Styles[Style.Default].Font = "Consolas";
             textbox.Styles[Style.Default].Size = 11;
-            textbox.Styles[Style.Default].BackColor = IntToColor(0x1E1E1E);
+            textbox.Styles[Style.Default].BackColor = Color.FromArgb(30, 30, 30);
             textbox.Styles[Style.Default].ForeColor = IntToColor(0xFFFFFF);
             textbox.StyleClearAll();
         }
@@ -30,10 +30,10 @@ namespace CosmosManager.Stylers
         protected void InitNumberMargin(Scintilla textbox)
         {
 
-            textbox.Styles[Style.LineNumber].BackColor = IntToColor(0x1E1E1E);
+            textbox.Styles[Style.LineNumber].BackColor = Color.FromArgb(51, 51, 51);
             textbox.Styles[Style.LineNumber].ForeColor = IntToColor(0xF1DC01);
             textbox.Styles[Style.IndentGuide].ForeColor = IntToColor(0xF1DC01);
-            textbox.Styles[Style.IndentGuide].BackColor = IntToColor(0x1E1E1E);
+            textbox.Styles[Style.IndentGuide].BackColor = Color.FromArgb(51, 51, 51);
 
             var nums = textbox.Margins[1];
             nums.Width = 30;

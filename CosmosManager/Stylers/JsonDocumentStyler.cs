@@ -4,6 +4,7 @@ using System.Drawing;
 
 namespace CosmosManager.Stylers
 {
+
     public class JsonDocumentStyler : BaseStyler, IJsonStyler
     {
         private Scintilla _textbox;

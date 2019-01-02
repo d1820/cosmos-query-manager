@@ -92,7 +92,7 @@ namespace CosmosManager
             // 
             // splitQueryResult
             // 
-            this.splitQueryResult.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.splitQueryResult.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
             this.splitQueryResult.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitQueryResult.Location = new System.Drawing.Point(0, 0);
             this.splitQueryResult.Name = "splitQueryResult";
@@ -507,6 +507,7 @@ namespace CosmosManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
             this.Controls.Add(this.splitQueryResult);
             this.Name = "QueryWindowControl";
             this.Size = new System.Drawing.Size(930, 585);
