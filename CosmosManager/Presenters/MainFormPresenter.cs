@@ -69,7 +69,7 @@ namespace CosmosManager.Presenters
                 _rootDir = rootDir;
                 rootNode = new TreeNode(info.Name);
                 rootNode.Tag = info;
-
+                rootNode.ImageKey = "FolderOpen";
                 GetDirectories(info.GetDirectories(), rootNode);
                 GetFiles(rootNode);
                 _view.AddFileNode(rootNode);
@@ -199,6 +199,7 @@ namespace CosmosManager.Presenters
                 var hasFiles = subDir.GetFiles("*.csql", SearchOption.TopDirectoryOnly).Any();
                 if (hasFiles)
                 {
+                    aNode.ImageKey = "FolderOpen";
                     //add a fake node to show the plus sign
                     var tempNode = new TreeNode("TEMP", 1, 1);
                     aNode.Nodes.Add(tempNode);

@@ -118,31 +118,31 @@
             // newFileQueryTabToolStripMenuItem
             // 
             this.newFileQueryTabToolStripMenuItem.Name = "newFileQueryTabToolStripMenuItem";
-            this.newFileQueryTabToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.newFileQueryTabToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newFileQueryTabToolStripMenuItem.Text = "New Query Tab";
             this.newFileQueryTabToolStripMenuItem.Click += new System.EventHandler(this.newFileQueryTabToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(153, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
             // 
             // openFolderToolStripMenuItem
             // 
             this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openFolderToolStripMenuItem.Text = "Open Folder";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(153, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -309,9 +309,11 @@
             this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
             this.imageList1.Images.SetKeyName(0, "Folder");
             this.imageList1.Images.SetKeyName(1, "File");
+            this.imageList1.Images.SetKeyName(2, "FolderOpen");
             // 
             // tabBackgroundPanel
             // 
+            this.tabBackgroundPanel.BackColor = System.Drawing.SystemColors.Control;
             this.tabBackgroundPanel.Controls.Add(this.queryTabControl);
             this.tabBackgroundPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabBackgroundPanel.Location = new System.Drawing.Point(0, 0);

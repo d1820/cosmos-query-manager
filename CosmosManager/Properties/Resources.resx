@@ -118,43 +118,85 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="move_waiting_down_alternative" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\move_waiting_down_alternative.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="app-json-icon (1)" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\app-json-icon (1).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="page_delete" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\page_delete.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="gb_font_larger_d" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\gb_font_larger_d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="refresh--page-icon-32662 (1)" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\refresh--page-icon-32662 (1).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="gb_font_smaller_d" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\gb_font_smaller_d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="documents_delete" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\documents_delete.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="gbl_Save" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\gbl_Save.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="arrow_undo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\arrow_undo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="closeIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\closeIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Start-icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Start-icon1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="app-json-icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\app-json-icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Delete-file-icon (1)" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Delete-file-icon (1)1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="refresh--page-icon-32662 (1)" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\refresh--page-icon-32662 (1).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="format_font_size_less" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\format_font_size_less1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Downloads-icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Downloads-icon1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="add_16" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\add_16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="app-json-icon (1)" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\app-json-icon (1).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="text_uppercase" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\text_uppercase1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="gb_font_smaller_d" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\gb_font_smaller_d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="3floppy-mount-icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\3floppy-mount-icon1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="move_waiting_down_alternative" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\move_waiting_down_alternative.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="export-icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\export-icon1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="text_indent_remove" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\text_indent_remove1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="page_delete" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\page_delete.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="documents_delete" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\documents_delete.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="closeIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\closeIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="gbl_Save" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\gbl_Save.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="gb_font_larger_d" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\gb_font_larger_d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="json" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\json1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="arrow_undo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\arrow_undo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="text_indent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\text_indent1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="arrow_more" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\arrow_more.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="3floppy-unmount-icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\3floppy-unmount-icon1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="text_lowercase" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\text_lowercase1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="format_font_size_more" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\format_font_size_more1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="text_lowercase1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\text_lowercase2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

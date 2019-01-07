@@ -1,6 +1,7 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
+using CosmosManager.Stylers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ScintillaNET;
@@ -23,6 +24,8 @@ namespace CosmosManager
         public QueryWindowControl(IQueryStyler queryTextStyler, IJsonStyler jsonStyler)
         {
             InitializeComponent();
+
+            QueryWindowStyler.ApplyTheme(ThemeType.Dark, this);
 
             resultListView.DoubleBuffered(true);
 
@@ -482,6 +485,10 @@ namespace CosmosManager
 
         private async void saveExistingDocument_Click(object sender, EventArgs e)
         {
+            if (resultListView.SelectedItems.Count == 0)
+            {
+                return;
+            }
             var documentResult = (DocumentResult)resultListView.SelectedItems[0].Tag;
             var doc = JsonConvert.DeserializeObject<object>(textDocument.Text);
             documentResult.Document = JObject.FromObject(doc);
@@ -490,6 +497,10 @@ namespace CosmosManager
 
         private async void deleteDocumentButton_Click(object sender, EventArgs e)
         {
+            if (resultListView.SelectedItems.Count == 0)
+            {
+                return;
+            }
             var documentResult = (DocumentResult)resultListView.SelectedItems[0].Tag;
             var selectedDocument = documentResult.Document;
             if (MessageBox.Show(this, $"Are you sure you want to delete document {selectedDocument[Constants.DocumentFields.ID]}", "Delete Document", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
@@ -546,39 +557,17 @@ namespace CosmosManager
             textQuery.Text = Presenter.BeautifyQuery(textQuery.Text);
         }
 
-        //TODO: create buttons and actions
-
-        #region Indent / Outdent
-
-        private void Indent()
-        {
-            // we use this hack to send "Shift+Tab" to scintilla, since there is no known API to indent,
-            // although the indentation function exists. Pressing TAB with the editor focused confirms this.
-            GenerateKeystrokes("{TAB}");
-        }
-
-        private void Outdent()
-        {
-            // we use this hack to send "Shift+Tab" to scintilla, since there is no known API to outdent,
-            // although the indentation function exists. Pressing Shift+Tab with the editor focused confirms this.
-            GenerateKeystrokes("+{TAB}");
-        }
-
-        private void GenerateKeystrokes(string keys)
+        private void GenerateKeystrokes(string keys, Scintilla textbox)
         {
             //HotKeyManager.Enable = false;
-            textQuery.Focus();
+            textbox.Focus();
             SendKeys.Send(keys);
             //HotKeyManager.Enable = true;
         }
 
-        #endregion
 
-        #region Uppercase / Lowercase
-
-        private void Lowercase()
+        private void lowercaseTextButton_Click(object sender, EventArgs e)
         {
-
             // save the selection
             var start = textQuery.SelectionStart;
             var end = textQuery.SelectionEnd;
@@ -590,9 +579,8 @@ namespace CosmosManager
             textQuery.SetSelection(start, end);
         }
 
-        private void Uppercase()
+        private void textUppercaseButon_Click(object sender, EventArgs e)
         {
-
             // save the selection
             var start = textQuery.SelectionStart;
             var end = textQuery.SelectionEnd;
@@ -604,7 +592,50 @@ namespace CosmosManager
             textQuery.SetSelection(start, end);
         }
 
-        #endregion
+        private void textIndentButton_Click(object sender, EventArgs e)
+        {
+            GenerateKeystrokes("{TAB}", textQuery);
+        }
 
+        private void textOutdentButton_Click(object sender, EventArgs e)
+        {
+            GenerateKeystrokes("+{TAB}", textQuery);
+        }
+
+        private void resultLowercaseButton_Click(object sender, EventArgs e)
+        {
+            // save the selection
+            var start = textDocument.SelectionStart;
+            var end = textDocument.SelectionEnd;
+
+            // modify the selected text
+            textDocument.ReplaceSelection(textDocument.GetTextRange(start, end - start).ToLower());
+
+            // preserve the original selection
+            textDocument.SetSelection(start, end);
+        }
+
+        private void resultUppercaseButton_Click(object sender, EventArgs e)
+        {
+            // save the selection
+            var start = textDocument.SelectionStart;
+            var end = textDocument.SelectionEnd;
+
+            // modify the selected text
+            textDocument.ReplaceSelection(textDocument.GetTextRange(start, end - start).ToUpper());
+
+            // preserve the original selection
+            textDocument.SetSelection(start, end);
+        }
+
+        private void resultIndentButton_Click(object sender, EventArgs e)
+        {
+            GenerateKeystrokes("{TAB}", textDocument);
+        }
+
+        private void resultOutdentButton_Click(object sender, EventArgs e)
+        {
+            GenerateKeystrokes("+{TAB}", textDocument);
+        }
     }
 }

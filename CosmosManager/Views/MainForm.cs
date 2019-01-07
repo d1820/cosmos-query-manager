@@ -100,12 +100,13 @@ namespace CosmosManager
             var newSelected = e.Node;
             if (newSelected.Tag is DirectoryInfo)
             {
+                newSelected.ImageKey = "Folder";
                 if (newSelected.IsExpanded)
                 {
+                    newSelected.ImageKey = "FolderOpen";
                     var nodeDirInfo = (DirectoryInfo)newSelected.Tag;
                     Presenter.LoadSubDirsAndFiles(nodeDirInfo, newSelected);
                 }
-
             }
         }
 

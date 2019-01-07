@@ -63,6 +63,26 @@ namespace CosmosManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        public static System.Drawing.Bitmap _3floppy_mount_icon {
+            get {
+                object obj = ResourceManager.GetObject("3floppy-mount-icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap _3floppy_unmount_icon {
+            get {
+                object obj = ResourceManager.GetObject("3floppy-unmount-icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         public static System.Drawing.Bitmap add_16 {
             get {
                 object obj = ResourceManager.GetObject("add_16", resourceCulture);
@@ -123,9 +143,59 @@ namespace CosmosManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        public static System.Drawing.Bitmap Delete_file_icon__1_ {
+            get {
+                object obj = ResourceManager.GetObject("Delete-file-icon (1)", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         public static System.Drawing.Bitmap documents_delete {
             get {
                 object obj = ResourceManager.GetObject("documents_delete", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap Downloads_icon {
+            get {
+                object obj = ResourceManager.GetObject("Downloads-icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap export_icon {
+            get {
+                object obj = ResourceManager.GetObject("export-icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap format_font_size_less {
+            get {
+                object obj = ResourceManager.GetObject("format_font_size_less", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap format_font_size_more {
+            get {
+                object obj = ResourceManager.GetObject("format_font_size_more", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -163,6 +233,16 @@ namespace CosmosManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        public static System.Drawing.Bitmap json {
+            get {
+                object obj = ResourceManager.GetObject("json", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         public static System.Drawing.Bitmap move_waiting_down_alternative {
             get {
                 object obj = ResourceManager.GetObject("move_waiting_down_alternative", resourceCulture);
@@ -186,6 +266,66 @@ namespace CosmosManager.Properties {
         public static System.Drawing.Bitmap refresh__page_icon_32662__1_ {
             get {
                 object obj = ResourceManager.GetObject("refresh--page-icon-32662 (1)", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap Start_icon {
+            get {
+                object obj = ResourceManager.GetObject("Start-icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap text_indent {
+            get {
+                object obj = ResourceManager.GetObject("text_indent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap text_indent_remove {
+            get {
+                object obj = ResourceManager.GetObject("text_indent_remove", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap text_lowercase {
+            get {
+                object obj = ResourceManager.GetObject("text_lowercase", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap text_lowercase1 {
+            get {
+                object obj = ResourceManager.GetObject("text_lowercase1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap text_uppercase {
+            get {
+                object obj = ResourceManager.GetObject("text_uppercase", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -157,6 +157,11 @@
     <Compile Include="Presenters\MainFormPresenter.cs" />
     <Compile Include="Presenters\QueryWindowPresenter.cs" />
     <Compile Include="Interfaces\IQueryRunner.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="QueryRunners\UpdateByWhereQueryRunner.cs" />
     <Compile Include="QueryRunners\UpdateByIdQueryRunner.cs" />
     <Compile Include="QueryRunners\InsertQueryRunner.cs" />
@@ -168,6 +173,7 @@
     <Compile Include="Interfaces\ITransactionTask.cs" />
     <Compile Include="Stylers\BaseStyler.cs" />
     <Compile Include="Stylers\JsonDocumentStyler.cs" />
+    <Compile Include="Stylers\QueryWindowStyler.cs" />
     <Compile Include="Tasks\TransactionTask.cs" />
     <Compile Include="Views\AboutCosmosManager.cs">
       <SubType>Form</SubType>
@@ -224,6 +230,34 @@
     <Compile Include="Stores\DocumentExecuteContext.cs" />
     <Compile Include="Stores\StoredProcedureExecuteContext.cs" />
     <Compile Include="Domain\ThemeType.cs" />
+    <None Include="Resources\text_lowercase2.png" />
+    <None Include="Resources\Delete-file-icon %281%291.png" />
+    <None Include="Resources\json1.png" />
+    <None Include="Resources\3floppy-mount-icon1.png" />
+    <None Include="Resources\3floppy-unmount-icon1.png" />
+    <None Include="Resources\export-icon1.png" />
+    <None Include="Resources\Start-icon1.png" />
+    <None Include="Resources\Downloads-icon1.png" />
+    <None Include="Resources\format_font_size_more1.png" />
+    <None Include="Resources\format_font_size_less1.png" />
+    <None Include="Resources\text_indent1.png" />
+    <None Include="Resources\text_indent_remove1.png" />
+    <None Include="Resources\text_uppercase1.png" />
+    <None Include="Resources\text_lowercase1.png" />
+    <None Include="Resources\format_font_size_more.png" />
+    <None Include="Resources\format_font_size_less.png" />
+    <None Include="Resources\text_indent.png" />
+    <None Include="Resources\text_indent_remove.png" />
+    <None Include="Resources\text_uppercase.png" />
+    <None Include="Resources\text_lowercase.png" />
+    <None Include="Resources\Files-Download-File-icon.png" />
+    <None Include="Resources\Downloads-icon.png" />
+    <None Include="Resources\export-icon.png" />
+    <None Include="Resources\Delete-file-icon %281%29.png" />
+    <None Include="Resources\Start-icon.png" />
+    <None Include="Resources\3floppy-mount-icon.png" />
+    <None Include="Resources\3floppy-unmount-icon.png" />
+    <None Include="Resources\json.png" />
     <EmbeddedResource Include="Views\AboutCosmosManager.resx">
       <DependentUpon>AboutCosmosManager.cs</DependentUpon>
     </EmbeddedResource>
@@ -238,14 +272,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <EmbeddedResource Include="Views\NewFileForm.resx">
       <DependentUpon>NewFileForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -274,18 +303,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CosmosQueryEditorNew.ico" />
-    <None Include="Resources\arrow_more.gif" />
-    <None Include="Resources\app-json-icon %281%29.png" />
     <None Include="Resources\app-json-icon.png" />
     <None Include="Resources\refresh--page-icon-32662 %281%29.png" />
     <None Include="Resources\documents_delete.png" />
-    <None Include="Resources\add_16.png" />
-    <None Include="Resources\script_add.png" />
-    <None Include="Resources\page_delete.gif" />
-    <None Include="Resources\gbl_Save.gif" />
-    <None Include="Resources\move_waiting_down_alternative.png" />
-    <None Include="Resources\776907_document_512x512.png" />
-    <None Include="Resources\file_document_sync_synchronization_reload_refresh_update-128.png" />
     <None Include="Resources\arrow_undo.png" />
     <None Include="Resources\gb_font_smaller_d.png" />
     <None Include="Resources\gb_font_larger_d.png" />

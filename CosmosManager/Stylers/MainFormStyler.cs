@@ -29,7 +29,9 @@ namespace CosmosManager.Stylers
                     ApplyDarkMenuItemTheme(form.menuStrip1.Items);
                     form.statusStrip1.BackColor = Color.FromArgb(0, 122, 204);
                     form.splitContainer1.BackColor = Color.FromArgb(38, 38, 38);
-                    form.ForeColor = Color.FromArgb(60, 60, 60);
+                    form.splitContainer1.Panel1.BackColor = Color.FromArgb(38, 38, 38);
+                    form.splitContainer1.Panel2.BackColor = Color.FromArgb(38, 38, 38);
+                    //form.ForeColor = Color.FromArgb(60, 60, 60);
                     form.tabBackgroundPanel.BackColor = Color.FromArgb(30, 30, 30);
                     break;
             }
