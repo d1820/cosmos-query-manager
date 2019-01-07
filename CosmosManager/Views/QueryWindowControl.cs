@@ -105,8 +105,11 @@ namespace CosmosManager
             {
                 runQueryButton.Enabled = false;
                 _totalDocumentCount = 0;
+                textDocument.Text = string.Empty;
+                SetResultCountLabel();
                 resultListView.Groups.Clear();
                 resultListView.Items.Clear();
+                Application.DoEvents();
                 await Presenter.RunAsync();
             }
             finally
@@ -161,7 +164,6 @@ namespace CosmosManager
                     HeaderAlignment = HorizontalAlignment.Center
                 });
                 groupName = $"Query {queryStatementIndex}";
-                _totalDocumentCount += results.Count;
                 if (resultListView.Groups.Count == 1)
                 {
                     //first group set headers
@@ -189,7 +191,7 @@ namespace CosmosManager
                 resultListView.Columns[1].Text = headers.header1;
                 resultListView.Columns[2].Text = headers.header2;
             }
-
+            _totalDocumentCount += results.Count;
             foreach (var item in results)
             {
                 var fromObject = JObject.FromObject(item);
@@ -246,8 +248,13 @@ namespace CosmosManager
                 }
                 resultListView.Items.Add(listItem);
             }
-            resultCountTextbox.Text = $"{_totalDocumentCount} Documents";
+            SetResultCountLabel();
             resultListToolStrip.Refresh();
+        }
+
+        private void SetResultCountLabel()
+        {
+            resultCountTextbox.Text = $"{_totalDocumentCount} Documents";
         }
 
         private (string header1, string header2) SetResultListViewHeaders(object item, string textPartitionKeyPath)
