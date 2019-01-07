@@ -5,7 +5,8 @@ Cosmos Query Manager is a Windows based query manager for Azure DocumentDb/Cosmo
 
 * Develop, run, edit your DocumentDb/Cosmos DB SQL commands
 * Add, edit and delete documents
-* Work with multiple database
+* Work with multiple database and multiple environments
+* Transaction and Rollback support
 
 # Install
 
