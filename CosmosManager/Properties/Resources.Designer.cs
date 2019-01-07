@@ -83,39 +83,9 @@ namespace CosmosManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap add_16 {
-            get {
-                object obj = ResourceManager.GetObject("add_16", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         public static System.Drawing.Bitmap app_json_icon {
             get {
                 object obj = ResourceManager.GetObject("app-json-icon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        public static System.Drawing.Bitmap app_json_icon__1_ {
-            get {
-                object obj = ResourceManager.GetObject("app-json-icon (1)", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        public static System.Drawing.Bitmap arrow_more {
-            get {
-                object obj = ResourceManager.GetObject("arrow_more", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -203,59 +173,9 @@ namespace CosmosManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap gb_font_larger_d {
-            get {
-                object obj = ResourceManager.GetObject("gb_font_larger_d", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        public static System.Drawing.Bitmap gb_font_smaller_d {
-            get {
-                object obj = ResourceManager.GetObject("gb_font_smaller_d", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        public static System.Drawing.Bitmap gbl_Save {
-            get {
-                object obj = ResourceManager.GetObject("gbl_Save", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         public static System.Drawing.Bitmap json {
             get {
                 object obj = ResourceManager.GetObject("json", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        public static System.Drawing.Bitmap move_waiting_down_alternative {
-            get {
-                object obj = ResourceManager.GetObject("move_waiting_down_alternative", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        public static System.Drawing.Bitmap page_delete {
-            get {
-                object obj = ResourceManager.GetObject("page_delete", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -230,20 +230,6 @@
     <Compile Include="Stores\DocumentExecuteContext.cs" />
     <Compile Include="Stores\StoredProcedureExecuteContext.cs" />
     <Compile Include="Domain\ThemeType.cs" />
-    <None Include="Resources\text_lowercase2.png" />
-    <None Include="Resources\Delete-file-icon %281%291.png" />
-    <None Include="Resources\json1.png" />
-    <None Include="Resources\3floppy-mount-icon1.png" />
-    <None Include="Resources\3floppy-unmount-icon1.png" />
-    <None Include="Resources\export-icon1.png" />
-    <None Include="Resources\Start-icon1.png" />
-    <None Include="Resources\Downloads-icon1.png" />
-    <None Include="Resources\format_font_size_more1.png" />
-    <None Include="Resources\format_font_size_less1.png" />
-    <None Include="Resources\text_indent1.png" />
-    <None Include="Resources\text_indent_remove1.png" />
-    <None Include="Resources\text_uppercase1.png" />
-    <None Include="Resources\text_lowercase1.png" />
     <None Include="Resources\format_font_size_more.png" />
     <None Include="Resources\format_font_size_less.png" />
     <None Include="Resources\text_indent.png" />
@@ -253,7 +239,6 @@
     <None Include="Resources\Files-Download-File-icon.png" />
     <None Include="Resources\Downloads-icon.png" />
     <None Include="Resources\export-icon.png" />
-    <None Include="Resources\Delete-file-icon %281%29.png" />
     <None Include="Resources\Start-icon.png" />
     <None Include="Resources\3floppy-mount-icon.png" />
     <None Include="Resources\3floppy-unmount-icon.png" />
@@ -304,11 +289,8 @@
   <ItemGroup>
     <Content Include="CosmosQueryEditorNew.ico" />
     <None Include="Resources\app-json-icon.png" />
-    <None Include="Resources\refresh--page-icon-32662 %281%29.png" />
     <None Include="Resources\documents_delete.png" />
     <None Include="Resources\arrow_undo.png" />
-    <None Include="Resources\gb_font_smaller_d.png" />
-    <None Include="Resources\gb_font_larger_d.png" />
     <None Include="Resources\closeIcon.png" />
   </ItemGroup>
   <ItemGroup>
