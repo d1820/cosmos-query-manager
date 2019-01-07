@@ -62,9 +62,9 @@ namespace CosmosManager.Parsers
                 .Replace("\n", "|")
                 .Replace("\t", " ")
                 .Replace("\r", "")
-                .Trim()
                 .TrimStart('|')
-                .TrimEnd('|');
+                .TrimEnd('|')
+                .Trim();
             //get rid of all extra spaces
             cleanString = CleanExtraSpaces(cleanString);
             //get rid of all extra new lines
