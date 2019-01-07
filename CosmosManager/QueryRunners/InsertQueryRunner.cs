@@ -40,7 +40,7 @@ namespace CosmosManager.QueryRunners
                     return (false, null);
                 }
 
-                var jsonDocument = JsonConvert.DeserializeObject<dynamic>(queryParts.QueryBody);
+                var jsonDocument = JsonConvert.DeserializeObject<dynamic>(queryParts.CleanQueryBody);
                 var newDocs = await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                         async (IDocumentExecuteContext context) =>
                                         {

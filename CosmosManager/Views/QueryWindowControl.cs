@@ -151,6 +151,7 @@ namespace CosmosManager
                 _totalDocumentCount = 0;
             }
             var textPartitionKeyPath = await Presenter.LookupPartitionKeyPath();
+            var groupName = "Query 1";
             if (appendResults)
             {
                 resultListView.Groups.Add(new ListViewGroup
@@ -159,6 +160,7 @@ namespace CosmosManager
                     Name = $"Query{resultListView.Groups.Count}",
                     HeaderAlignment = HorizontalAlignment.Center
                 });
+                groupName = $"Query {queryStatementIndex}";
                 _totalDocumentCount += results.Count;
                 if (resultListView.Groups.Count == 1)
                 {
@@ -196,7 +198,7 @@ namespace CosmosManager
                 {
                     listItem.Group = resultListView.Groups[resultListView.Groups.Count - 1];
                 }
-                listItem.Tag = new DocumentResult { Document = fromObject, CollectionName = collectionName, Query = query };
+                listItem.Tag = new DocumentResult { Document = fromObject, CollectionName = collectionName, Query = query, GroupName = groupName };
                 JProperty col1Prop = null;
                 JToken col1Token = null;
                 var resultProps = fromObject.Properties();
@@ -280,7 +282,7 @@ namespace CosmosManager
                 }
 
             }
-            return (col1Prop.Name, col2Prop.Name);
+            return (col1Prop.Name, col2Prop?.Name);
         }
 
         private async void exportRecordToolStripMenuItem_Click(object sender, EventArgs e)
@@ -312,12 +314,23 @@ namespace CosmosManager
             {
                 return;
             }
+            var groupNamesNotSupported = new List<string>();
             foreach (var group in checklistItems.GroupBy(g => g.Query))
             {
                 var items = group.Select(s => s.Document);
-                var ids = items.Select(s => s[Constants.DocumentFields.ID]);
+                var ids = items.Where(w => w[Constants.DocumentFields.ID] != null).Select(s => s[Constants.DocumentFields.ID]);
+                if (ids.Count() == 0)
+                {
+                    var documentResult = group.First();
+                    groupNamesNotSupported.Add(documentResult.GroupName);
+                    continue;
+                }
                 var parts = group.Key;
-                MainPresenter.CreateTempQueryTab($"{Constants.QueryParsingKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryParsingKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryParsingKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryParsingKeywords.SET} {{{Environment.NewLine}{Environment.NewLine}}}");
+                MainPresenter.CreateTempQueryTab($"{Constants.QueryParsingKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryParsingKeywords.UPDATE} '{string.Join("','", ids)}'{Environment.NewLine}{Constants.QueryParsingKeywords.FROM} {parts.CollectionName}{Environment.NewLine}{Constants.QueryParsingKeywords.SET} {{{Environment.NewLine}{Environment.NewLine}}}");
+            }
+            if (groupNamesNotSupported.Count > 0)
+            {
+                ShowMessage($"The id column must be part of the select output in {string.Join(", ", groupNamesNotSupported)} to use this feature.", "Action Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -328,12 +341,24 @@ namespace CosmosManager
             {
                 return;
             }
+            var groupNamesNotSupported = new List<string>();
             foreach (var group in checklistItems.GroupBy(g => g.Query))
             {
                 var items = group.Select(s => s.Document);
-                var ids = items.Select(s => s[Constants.DocumentFields.ID]);
+
+                var ids = items.Where(w => w[Constants.DocumentFields.ID] != null).Select(s => s[Constants.DocumentFields.ID]);
+                if (ids.Count() == 0)
+                {
+                    var documentResult = group.First();
+                    groupNamesNotSupported.Add(documentResult.GroupName);
+                    continue;
+                }
                 var parts = group.Key;
                 MainPresenter.CreateTempQueryTab($"{Constants.QueryParsingKeywords.TRANSACTION}{Environment.NewLine} {Constants.QueryParsingKeywords.DELETE} '{string.Join("','", ids)}' {Environment.NewLine} {Constants.QueryParsingKeywords.FROM} {parts.CollectionName}");
+            }
+            if (groupNamesNotSupported.Count > 0)
+            {
+                ShowMessage($"The id column must be part of the select output in {string.Join(", ", groupNamesNotSupported)} to use this feature.", "Action Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
 
         }

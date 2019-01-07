@@ -107,7 +107,7 @@ namespace CosmosManager.Presenters
                 var queries = ConveryQueryTextToQueryParts(_view.Query);
 
                 //check all the queries for deletes without transactions
-                if (queries.Any(query => query.QueryType == Constants.QueryParsingKeywords.DELETE && !query.IsTransaction) && _view.ShowMessage("Are you sure you want to delete documents without a transaction. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+                if (queries.Any(query => query.CleanQueryType == Constants.QueryParsingKeywords.DELETE && !query.IsTransaction) && _view.ShowMessage("Are you sure you want to delete documents without a transaction. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
                 {
                     return;
                 }
@@ -117,7 +117,7 @@ namespace CosmosManager.Presenters
                 for (var i = 0; i < queries.Length; i++)
                 {
                     var queryParts = queries[i];
-                    var runner = _queryRunners.FirstOrDefault(f => f.CanRun(queryParts.OrginalQuery));
+                    var runner = _queryRunners.FirstOrDefault(f => f.CanRun(queryParts.CleanOrginalQuery));
                     if (runner != null)
                     {
                         if (queries.Length > 1)
@@ -130,7 +130,7 @@ namespace CosmosManager.Presenters
                         var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts, true, _logger);
                         if (!response.success)
                         {
-                            _view.ShowMessage($"Unable to execute query: {queryParts.OrginalQuery}. Verify query and try again.", "Query Execution Error");
+                            _view.ShowMessage($"Unable to execute query: {queryParts.CleanOrginalQuery}. Verify query and try again.", "Query Execution Error");
                             //on error stop loop and return
                             hasError = true;
                             break;
@@ -147,7 +147,7 @@ namespace CosmosManager.Presenters
                         //if we have comments then we can assume the whole query is a comment so skip and goto next
                         if (!queryParts.IsCommentOnly)
                         {
-                            _logger.LogError($"Unable to find a query processor for query type. query: {queryParts.OrginalQuery}");
+                            _logger.LogError($"Unable to find a query processor for query type. query: {queryParts.CleanOrginalQuery}");
                             //on error stop loop and return
                             hasError = true;
                             break;

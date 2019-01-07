@@ -1,6 +1,7 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CosmosManager.Parsers
@@ -213,7 +214,8 @@ namespace CosmosManager.Parsers
 
         public string ParseTransaction(string query)
         {
-            var fromBody = ParseFromBody(query).Replace(Constants.QueryParsingKeywords.FROM, "").Trim();
+            var collectionName = GetTransactionCollectionName(query);
+
             var rgx = new Regex($@"({Constants.QueryParsingKeywords.TRANSACTION})[\s\S]*(.*?)", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
@@ -225,7 +227,7 @@ namespace CosmosManager.Parsers
             {
                 throw new FormatException($"Invalid query. {Constants.QueryParsingKeywords.TRANSACTION} statement should be on a line by itself.");
             }
-            return $"{fromBody}_{DateTime.Now.ToString("yyyyMMdd_hhmmss")}_{Guid.NewGuid()}";
+            return $"{collectionName}_{DateTime.Now.ToString("yyyyMMdd_hhmmss")}_{Guid.NewGuid()}".Trim();
         }
 
         public string ParseOrderBy(string query)
@@ -288,6 +290,18 @@ namespace CosmosManager.Parsers
             //remove all comment blocks
             var cleanedQuery = rgx.Replace(query, "");
             return (matches, cleanedQuery);
+        }
+
+        private string GetTransactionCollectionName(string query)
+        {
+            var fromBody = ParseFromBody(query).Replace(Constants.QueryParsingKeywords.FROM, "").Trim();
+            var colNameParts = fromBody.Split(new[] { ' ' });
+            var colName = colNameParts.FirstOrDefault();
+            if (!string.IsNullOrEmpty(colName))
+            {
+                return colName.Trim().Replace("|","");
+            }
+            return "COLLECTION";
         }
     }
 }

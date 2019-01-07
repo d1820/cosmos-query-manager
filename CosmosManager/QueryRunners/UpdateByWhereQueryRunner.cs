@@ -26,11 +26,11 @@ namespace CosmosManager.QueryRunners
         public bool CanRun(string query)
         {
             var queryParts = _queryParser.Parse(query);
-            return queryParts.QueryType.Equals(Constants.QueryParsingKeywords.UPDATE, StringComparison.InvariantCultureIgnoreCase)
-                && queryParts.QueryBody.Equals("*")
-                && !string.IsNullOrEmpty(queryParts.QueryUpdateType)
-                && !string.IsNullOrEmpty(queryParts.QueryUpdateBody)
-                && !string.IsNullOrEmpty(queryParts.QueryWhere);
+            return queryParts.CleanQueryType.Equals(Constants.QueryParsingKeywords.UPDATE, StringComparison.InvariantCultureIgnoreCase)
+                && queryParts.CleanQueryBody.Equals("*")
+                && !string.IsNullOrEmpty(queryParts.CleanQueryUpdateType)
+                && !string.IsNullOrEmpty(queryParts.CleanQueryUpdateBody)
+                && !string.IsNullOrEmpty(queryParts.CleanQueryWhere);
         }
 
         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
@@ -76,7 +76,7 @@ namespace CosmosManager.QueryRunners
                 if (queryParts.IsTransaction)
                 {
                     logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
-                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, queryParts.OrginalQuery);
+                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, queryParts.CleanOrginalQuery);
                 }
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(connection.Database, queryParts.CollectionName);
 
@@ -100,7 +100,7 @@ namespace CosmosManager.QueryRunners
 
                                                                                             var partionKeyValue = document.SelectToken(partitionKeyPath).ToString();
 
-                                                                                            var partialDoc = JObject.Parse(queryParts.QueryUpdateBody);
+                                                                                            var partialDoc = JObject.Parse(queryParts.CleanQueryUpdateBody);
                                                                                             //ensure the partial update is not trying to update id or the partition key
                                                                                             var pToken = partialDoc.SelectToken(partitionKeyPath);
                                                                                             var idToken = partialDoc.SelectToken(Constants.DocumentFields.ID);

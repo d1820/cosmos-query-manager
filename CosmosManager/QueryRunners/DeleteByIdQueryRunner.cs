@@ -27,7 +27,7 @@ namespace CosmosManager.QueryRunners
         public bool CanRun(string query)
         {
             var queryParts = _queryParser.Parse(query);
-            return queryParts.QueryType.Equals(Constants.QueryParsingKeywords.DELETE, StringComparison.InvariantCultureIgnoreCase) && !queryParts.QueryBody.Equals("*");
+            return queryParts.CleanQueryType.Equals(Constants.QueryParsingKeywords.DELETE, StringComparison.InvariantCultureIgnoreCase) && !queryParts.CleanQueryBody.Equals("*");
         }
 
         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
@@ -46,12 +46,12 @@ namespace CosmosManager.QueryRunners
                     return (false, null);
                 }
 
-                var ids = queryParts.QueryBody.Split(new[] { ',' });
+                var ids = queryParts.CleanQueryBody.Split(new[] { ',' });
 
                 if (queryParts.IsTransaction)
                 {
                     logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
-                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, queryParts.OrginalQuery);
+                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, queryParts.CleanOrginalQuery);
                 }
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(connection.Database, queryParts.CollectionName);
 

@@ -5,24 +5,40 @@ namespace CosmosManager.Domain
 {
     public class QueryParts
     {
-        public string QueryType { get; set; }
-        public string QueryBody { get; set; }
+        public string QueryType { private get; set; }
+        public string QueryBody { private get; set; }
 
-        public string QueryFrom { get; set; }
-        public string QueryInto { get; set; }
+        public string QueryFrom { private get; set; }
+        public string QueryInto { private get; set; }
 
-        public string QueryUpdateBody { get; set; }
-        public string QueryUpdateType { get; set; }
+        public string QueryUpdateBody { private get; set; }
+        public string QueryUpdateType { private get; set; }
 
-        public string QueryWhere { get; set; }
-        public string QueryOrderBy { get; set; }
-        public string QueryJoin { get; set; }
+        public string QueryWhere { private get; set; }
+        public string QueryOrderBy { private get; set; }
+        public string QueryJoin { private get; set; }
 
         public MatchCollection Comments { get; set; }
 
-        public string OrginalQuery { get; set; }
+        public string OrginalQuery { private get; set; }
 
+        public string CleanQueryType => QueryType.Replace("|", " ").Trim();
+        public string CleanQueryBody => QueryBody.Replace("|", " ").Trim();
+
+        public string CleanQueryFrom => QueryFrom.Replace("|", " ").Trim();
+        public string CleanQueryInto => QueryInto.Replace("|", " ").Trim();
+
+        public string CleanQueryUpdateBody => QueryUpdateBody.Replace("|", " ").Trim();
+        public string CleanQueryUpdateType => QueryUpdateType.Replace("|", " ").Trim();
+
+        public string CleanQueryWhere => QueryWhere.Replace("|", " ").Trim();
+        public string CleanQueryOrderBy => QueryOrderBy.Replace("|", " ").Trim();
+        public string CleanQueryJoin => QueryJoin.Replace("|", " ").Trim();
+
+        public string CleanOrginalQuery  => OrginalQuery.Replace("|", " ").Trim();
+        
         public bool IsTransaction => !string.IsNullOrWhiteSpace(TransactionId);
+
         public string TransactionId { get; set; }
 
         public bool IsCommentOnly
@@ -52,9 +68,9 @@ namespace CosmosManager.Domain
         {
             get
             {
-                if (!string.IsNullOrWhiteSpace(QueryFrom))
+                if (!string.IsNullOrWhiteSpace(CleanQueryFrom))
                 {
-                    var cleanedColStr = QueryFrom.Replace(Constants.QueryParsingKeywords.FROM, "").Trim();
+                    var cleanedColStr = CleanQueryFrom.Replace(Constants.QueryParsingKeywords.FROM, "").Trim();
                     var colNameParts = cleanedColStr.Split(new[] { ' ' });
                     var colName = colNameParts.FirstOrDefault();
                     if (!string.IsNullOrEmpty(colName))
@@ -63,9 +79,9 @@ namespace CosmosManager.Domain
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(QueryInto))
+                if (!string.IsNullOrWhiteSpace(CleanQueryInto))
                 {
-                    var cleanedColStr = QueryInto.Replace(Constants.QueryParsingKeywords.INTO, "").Trim();
+                    var cleanedColStr = CleanQueryInto.Replace(Constants.QueryParsingKeywords.INTO, "").Trim();
                     var colNameParts = cleanedColStr.Split(new[] { ' ' });
                     var colName = colNameParts.FirstOrDefault();
                     if (!string.IsNullOrEmpty(colName))
@@ -77,26 +93,28 @@ namespace CosmosManager.Domain
             }
         }
 
-        public bool IsReplaceUpdateQuery() => !string.IsNullOrEmpty(QueryType) && QueryUpdateType == Constants.QueryParsingKeywords.REPLACE;
+        public bool IsReplaceUpdateQuery() => !string.IsNullOrEmpty(CleanQueryType) && QueryUpdateType == Constants.QueryParsingKeywords.REPLACE;
 
-        public bool IsValidQuery() => !string.IsNullOrEmpty(QueryType) &&
-                !string.IsNullOrEmpty(QueryBody) &&
-                !string.IsNullOrEmpty(QueryFrom);
+        public bool IsValidQuery() => !string.IsNullOrEmpty(CleanQueryType) &&
+                !string.IsNullOrEmpty(CleanQueryBody) &&
+                !string.IsNullOrEmpty(CleanQueryFrom);
 
-        public bool IsUpdateQuery() => !string.IsNullOrEmpty(QueryType) &&
+        public bool IsUpdateQuery() => !string.IsNullOrEmpty(CleanQueryType) &&
                 QueryType == Constants.QueryParsingKeywords.UPDATE &&
-                !string.IsNullOrEmpty(QueryBody) &&
-                !string.IsNullOrEmpty(QueryFrom);
+                !string.IsNullOrEmpty(CleanQueryBody) &&
+                !string.IsNullOrEmpty(CleanQueryFrom);
 
-        public bool IsValidInsertQuery() => !string.IsNullOrEmpty(QueryType) &&
-                !string.IsNullOrEmpty(QueryBody) &&
-                !string.IsNullOrEmpty(QueryInto);
+        public bool IsValidInsertQuery() => !string.IsNullOrEmpty(CleanQueryType) &&
+                !string.IsNullOrEmpty(CleanQueryBody) &&
+                !string.IsNullOrEmpty(CleanQueryInto);
 
-        public bool HasWhereClause() => !string.IsNullOrEmpty(QueryWhere);
+        public bool HasWhereClause() => !string.IsNullOrEmpty(CleanQueryWhere);
 
-        public bool HasOrderByClause() => !string.IsNullOrEmpty(QueryOrderBy);
+        public bool HasOrderByClause() => !string.IsNullOrEmpty(CleanQueryOrderBy);
 
-        public bool HasJoins() => !string.IsNullOrEmpty(QueryJoin);
+        public bool HasJoins() => !string.IsNullOrEmpty(CleanQueryJoin);
+
+
 
         public string ToRawQuery()
         {
@@ -150,5 +168,7 @@ namespace CosmosManager.Domain
 
             return baseString.Replace("|", " ");
         }
+
+
     }
 }
