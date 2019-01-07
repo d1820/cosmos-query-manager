@@ -133,7 +133,7 @@ namespace CosmosManager
 
         public void SetStatusBarMessage(string message, bool ignoreClearTimer = false)
         {
-            MainPresenter.SetStatusBarMessage(message);
+            MainPresenter.SetStatusBarMessage(message, ignoreClearTimer);
         }
 
         public void SetUpdatedResultDocument(object document)

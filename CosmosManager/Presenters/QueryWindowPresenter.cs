@@ -160,7 +160,7 @@ namespace CosmosManager.Presenters
                 {
                     ShowOutputTab();
                 }
-                _view.SetStatusBarMessage("", false);
+                _view.SetStatusBarMessage("Ready", false);
             }
             else
             {
