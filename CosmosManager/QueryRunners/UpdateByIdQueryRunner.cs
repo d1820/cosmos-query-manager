@@ -27,15 +27,20 @@ namespace CosmosManager.QueryRunners
         public bool CanRun(string query)
         {
             var queryParts = _queryParser.Parse(query);
-            return queryParts.QueryType.Equals(Constants.QueryKeywords.UPDATE, StringComparison.InvariantCultureIgnoreCase)
-                && !queryParts.QueryBody.Equals("*")
-                && !string.IsNullOrEmpty(queryParts.QueryUpdateBody)
-                && !string.IsNullOrEmpty(queryParts.QueryUpdateType);
+            return queryParts.CleanQueryType.Equals(Constants.QueryParsingKeywords.UPDATE, StringComparison.InvariantCultureIgnoreCase)
+                && !queryParts.CleanQueryBody.Equals("*")
+                && !string.IsNullOrEmpty(queryParts.CleanQueryUpdateBody)
+                && !string.IsNullOrEmpty(queryParts.CleanQueryUpdateType);
         }
 
         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
             var queryParts = _queryParser.Parse(queryStatement);
+            return await RunAsync(documentStore, connection, queryParts, logStats, logger);
+        }
+
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection,  QueryParts queryParts, bool logStats, ILogger logger)
+        {
             try
             {
                 if (!queryParts.IsValidQuery())
@@ -44,11 +49,11 @@ namespace CosmosManager.QueryRunners
                     return (false, null);
                 }
 
-                var ids = queryParts.QueryBody.Split(new[] { ',' });
+                var ids = queryParts.CleanQueryBody.Split(new[] { ',' });
 
-                if (queryParts.QueryUpdateType == Constants.QueryKeywords.REPLACE && ids.Length > 1)
+                if (queryParts.CleanQueryUpdateType == Constants.QueryParsingKeywords.REPLACE && ids.Length > 1)
                 {
-                    var errorMessage = $"{Constants.QueryKeywords.REPLACE} only supports replacing 1 document at a time.";
+                    var errorMessage = $"{Constants.QueryParsingKeywords.REPLACE} only supports replacing 1 document at a time.";
                     logger.LogError(errorMessage);
                     return (false, null);
                 }
@@ -56,7 +61,7 @@ namespace CosmosManager.QueryRunners
                 if (queryParts.IsTransaction)
                 {
                     logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
-                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, _queryParser.OrginalQuery);
+                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, queryParts.CleanOrginalQuery);
                 }
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(connection.Database, queryParts.CollectionName);
 
@@ -81,7 +86,7 @@ namespace CosmosManager.QueryRunners
 
                                                                                              if (queryParts.IsReplaceUpdateQuery())
                                                                                              {
-                                                                                                 var fullJObjectToUpdate = JObject.Parse(queryParts.QueryUpdateBody);
+                                                                                                 var fullJObjectToUpdate = JObject.Parse(queryParts.CleanQueryUpdateBody);
                                                                                                  var fullJObjectPartionKeyValue = fullJObjectToUpdate.SelectToken(partitionKeyPath).ToString();
                                                                                                  var fullJObjectUpdatedDoc = await context.UpdateAsync(fullJObjectToUpdate, new RequestOptions
                                                                                                  {
@@ -121,7 +126,7 @@ namespace CosmosManager.QueryRunners
                                                                                              }
                                                                                              var partionKeyValue = jDoc.SelectToken(partitionKeyPath).ToString();
 
-                                                                                             var partialDoc = JObject.Parse(queryParts.QueryUpdateBody);
+                                                                                             var partialDoc = JObject.Parse(queryParts.CleanQueryUpdateBody);
 
                                                                                              //ensure the partial update is not trying to update id or the partition key
                                                                                              var pToken = partialDoc.SelectToken(partitionKeyPath);
@@ -176,10 +181,10 @@ namespace CosmosManager.QueryRunners
             }
             catch (Exception ex)
             {
-                var errorMessage = $"Unable to run {Constants.QueryKeywords.UPDATE} query.";
-                if (queryParts.QueryUpdateType == Constants.QueryKeywords.REPLACE)
+                var errorMessage = $"Unable to run {Constants.QueryParsingKeywords.UPDATE} query.";
+                if (queryParts.CleanQueryUpdateType == Constants.QueryParsingKeywords.REPLACE)
                 {
-                    errorMessage += $"{Constants.QueryKeywords.REPLACE} only supports replacing 1 document at a time.";
+                    errorMessage += $"{Constants.QueryParsingKeywords.REPLACE} only supports replacing 1 document at a time.";
                 }
                 logger.Log(LogLevel.Error, new EventId(), errorMessage, ex);
                 return (false, null);

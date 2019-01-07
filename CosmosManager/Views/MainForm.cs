@@ -1,6 +1,7 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
+using CosmosManager.Stylers;
 using CosmosManager.Views;
 using System;
 using System.Drawing;
@@ -15,11 +16,15 @@ namespace CosmosManager
         private TabPage contextTabPage;
         private readonly IFormOpener _formManager;
 
+
         public IMainFormPresenter Presenter { private get; set; }
 
         public MainForm(IFormOpener formManager, IMainFormPresenter presenter)
         {
             InitializeComponent();
+
+            MainFormStyler.ApplyTheme(ThemeType.Dark, this);
+
             _formManager = formManager;
             presenter.InitializePresenter(new
             {
@@ -95,12 +100,13 @@ namespace CosmosManager
             var newSelected = e.Node;
             if (newSelected.Tag is DirectoryInfo)
             {
+                newSelected.ImageKey = "Folder";
                 if (newSelected.IsExpanded)
                 {
+                    newSelected.ImageKey = "FolderOpen";
                     var nodeDirInfo = (DirectoryInfo)newSelected.Tag;
                     Presenter.LoadSubDirsAndFiles(nodeDirInfo, newSelected);
                 }
-
             }
         }
 
@@ -137,30 +143,39 @@ namespace CosmosManager
 
         private void queryTabControl_DrawItem(object sender, DrawItemEventArgs e)
         {
-            var tabRect = queryTabControl.GetTabRect(e.Index);
-            var tabPage = queryTabControl.TabPages[e.Index];
-            var presenter = tabPage.Tag as QueryWindowPresenter;
-            var brushColor = Color.Transparent;
-            if (presenter.SelectedConnection != null)
+            var BackBrush = MainFormStyler.GetTabBrush(ThemeType.Dark);
+            e.Graphics.FillRectangle(BackBrush, queryTabControl.Bounds);
+
+            queryTabControl.SuspendLayout();
+            var list = (System.Collections.IList)queryTabControl.TabPages;
+            for (var i = 0; i < list.Count; i++)
             {
-                brushColor = Presenter.GetConnectionColor(presenter.SelectedConnection.Name);
+                var tabRect = queryTabControl.GetTabRect(i);
+                var tabPage = queryTabControl.TabPages[i];
+                var presenter = tabPage.Tag as QueryWindowPresenter;
+                var brushColor = Color.FromArgb(240, 240, 240);
+                if (presenter.SelectedConnection != null)
+                {
+                    brushColor = Presenter.GetConnectionColor(presenter.SelectedConnection.Name);
+                }
+
+                using (Brush br = new SolidBrush(brushColor))
+                {
+                    e.Graphics.FillRectangle(br, tabRect);
+                    var rect = tabRect;
+                    rect.Offset(0, 1);
+                    rect.Inflate(0, -1);
+                    e.Graphics.DrawRectangle(Pens.DarkGray, rect);
+                    e.DrawFocusRectangle();
+                }
+
+                tabRect.Inflate(-2, -2);
+                var closeImage = Properties.Resources.closeIcon;
+                e.Graphics.DrawImage(closeImage, (tabRect.Right - 10), tabRect.Top + (tabRect.Height - closeImage.Height) / 2, 10, 10);
+
+                TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font, tabRect, Color.Black, TextFormatFlags.Left);
             }
-
-            using (Brush br = new SolidBrush(brushColor))
-            {
-                e.Graphics.FillRectangle(br, tabRect);
-                var rect = tabRect;
-                rect.Offset(0, 1);
-                rect.Inflate(0, -1);
-                e.Graphics.DrawRectangle(Pens.DarkGray, rect);
-                e.DrawFocusRectangle();
-            }
-
-            tabRect.Inflate(-2, -2);
-            var closeImage = Properties.Resources.closeIcon;
-            e.Graphics.DrawImage(closeImage, (tabRect.Right - 10), tabRect.Top + (tabRect.Height - closeImage.Height) / 2, 10, 10);
-
-            TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font, tabRect, Color.Black, TextFormatFlags.Left);
+            queryTabControl.ResumeLayout();
         }
 
         private void queryTabControl_MouseDown(object sender, MouseEventArgs e)
@@ -171,6 +186,7 @@ namespace CosmosManager
             if (closeButton.Contains(e.Location))
             {
                 queryTabControl.TabPages.Remove(queryTabControl.SelectedTab);
+                queryTabControl.Visible = queryTabControl.TabPages.Count > 0;
             }
         }
 
@@ -260,11 +276,9 @@ namespace CosmosManager
             var tab = new TabPage(tabName + "   ");
             tab.Name = $"tab{queryTabControl.TabPages.Count + 1}";
 
-            var queryWindow = new QueryWindowControl();
+            var queryWindow = AppReferences.Container.GetInstance<IQueryWindowControl>();
             queryWindow.Dock = DockStyle.Fill;
             queryWindow.MainPresenter = Presenter;
-
-            //var presenter = new QueryWindowPresenter(queryWindow, queryTabControl.TabPages.Count);
 
             var presenter = AppReferences.Container.GetInstance<IQueryWindowPresenter>();
             presenter.InitializePresenter(new
@@ -286,9 +300,10 @@ namespace CosmosManager
                 presenter.SetConnections(Presenter.Connections);
             }
             tab.Tag = presenter;
-            tab.Controls.Add(queryWindow);
+            tab.Controls.Add(queryWindow as QueryWindowControl);
             queryTabControl.TabPages.Add(tab);
             queryTabControl.SelectedTab = tab;
+            queryTabControl.Visible = true;
         }
 
         private void guideToolStripMenuItem_Click(object sender, EventArgs e)
@@ -345,6 +360,19 @@ namespace CosmosManager
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void viewPreviousActionsLogToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _formManager.ShowModalForm<ActionLogForm>(form =>
+            {
+                var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
+                presenter.InitializePresenter(new
+                {
+                    ActionLogForm = form
+                });
+                presenter.RenderActionList();
+            });
         }
     }
 }

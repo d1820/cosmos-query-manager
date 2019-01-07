@@ -1,5 +1,6 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
+using CosmosManager.Views;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace CosmosManager.Presenters
     {
         private IMainForm _view;
         private string _rootDir;
+
 
         private List<Color> _colors = new List<Color>{
             Color.PaleGreen,
@@ -67,7 +69,7 @@ namespace CosmosManager.Presenters
                 _rootDir = rootDir;
                 rootNode = new TreeNode(info.Name);
                 rootNode.Tag = info;
-
+                rootNode.ImageKey = "FolderOpen";
                 GetDirectories(info.GetDirectories(), rootNode);
                 GetFiles(rootNode);
                 _view.AddFileNode(rootNode);
@@ -125,6 +127,8 @@ namespace CosmosManager.Presenters
 
         public void SetStatusBarMessage(string message, bool ignoreClearTimer = false)
         {
+             var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
+            presenter.AddToActionList(message);
             _view.SetStatusBarMessage(message);
             if (!ignoreClearTimer)
             {
@@ -195,6 +199,7 @@ namespace CosmosManager.Presenters
                 var hasFiles = subDir.GetFiles("*.csql", SearchOption.TopDirectoryOnly).Any();
                 if (hasFiles)
                 {
+                    aNode.ImageKey = "FolderOpen";
                     //add a fake node to show the plus sign
                     var tempNode = new TreeNode("TEMP", 1, 1);
                     aNode.Nodes.Add(tempNode);

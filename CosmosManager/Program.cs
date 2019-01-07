@@ -3,6 +3,7 @@ using CosmosManager.Interfaces;
 using CosmosManager.Managers;
 using CosmosManager.Parsers;
 using CosmosManager.Presenters;
+using CosmosManager.Stylers;
 using CosmosManager.Tasks;
 using CosmosManager.Views;
 using Microsoft.Extensions.Logging;
@@ -45,7 +46,15 @@ namespace CosmosManager
             container.Register<IQueryWindowPresenter, QueryWindowPresenter>();
             container.Register<IMainFormPresenter, MainFormPresenter>(Lifestyle.Singleton);
 
+            container.Register<IActionLogFormPresenter, ActionLogFormPresenter>(Lifestyle.Singleton);
+
             RegisterRunners(container);
+
+            container.Register<IQueryStyler, QueryTextStyler>(Lifestyle.Transient);
+            container.Register<IJsonStyler, JsonDocumentStyler>(Lifestyle.Transient);
+            container.Register<IQueryWindowControl, QueryWindowControl>(Lifestyle.Transient);
+
+
 
             container.Register<ITransactionTask, TransactionTask>();
             container.Register<IFormOpener, FormManager>(Lifestyle.Singleton);
@@ -55,7 +64,17 @@ namespace CosmosManager
             container.Register<HelpForm>();
             container.Register<NewFileForm>();
             container.Register<AboutCosmosManager>();
-            SuppressRegistrations(new List<Type> { typeof(HelpForm), typeof(AboutCosmosManager), typeof(NewFileForm) }, container, "Forms Controlled By Manager");
+            container.Register<ActionLogForm>();
+            SuppressRegistrations(new List<Type> {
+                typeof(QueryWindowControl)
+                }, container, "UserControls Managed");
+
+            SuppressRegistrations(new List<Type> {
+                typeof(HelpForm),
+                typeof(ActionLogForm),
+                typeof(AboutCosmosManager),
+                typeof(NewFileForm)
+                }, container, "Forms Controlled By Manager");
 
             // Optionally verify the container.
             container.Verify();

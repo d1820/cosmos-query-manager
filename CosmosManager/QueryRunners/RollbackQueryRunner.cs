@@ -32,9 +32,14 @@ namespace CosmosManager.QueryRunners
 
         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
+            var queryParts = _queryParser.Parse(queryStatement);
+            return await RunAsync(documentStore, connection, queryParts, logStats, logger);
+        }
+
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection,  QueryParts queryParts, bool logStats, ILogger logger)
+        {
             try
             {
-                var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsRollback)
                 {
                     return (false, null);
@@ -79,7 +84,7 @@ namespace CosmosManager.QueryRunners
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, new EventId(), $"Unable to execute {Constants.QueryKeywords.ROLLBACK}", ex);
+                logger.Log(LogLevel.Error, new EventId(), $"Unable to execute {Constants.QueryParsingKeywords.ROLLBACK}", ex);
                 return (false, null);
             }
         }

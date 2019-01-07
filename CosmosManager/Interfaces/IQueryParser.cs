@@ -1,4 +1,6 @@
-﻿namespace CosmosManager.Interfaces
+﻿using System.Text.RegularExpressions;
+
+namespace CosmosManager.Interfaces
 {
     public interface IQueryParser
     {
@@ -17,5 +19,9 @@
         string ParseIntoBody(string query);
 
         string ParseOrderBy(string query);
+
+        string ParseJoins(string query);
+
+        (MatchCollection comments, string commentFreeQuery) ParseAndCleanComments(string query);
     }
 }

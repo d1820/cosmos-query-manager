@@ -17,24 +17,28 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosManager.Tests.Unit", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Content", "Content", "{DDBABEA2-6AD8-41A4-B43B-30DD950B679E}"
 	ProjectSection(SolutionItems) = preProject
-		Content\CMBeautify.png = Content\CMBeautify.png
+		Content\3floppy-mount-icon.png = Content\3floppy-mount-icon.png
+		Content\3floppy-unmount-icon.png = Content\3floppy-unmount-icon.png
 		Content\CMConnectionChange.png = Content\CMConnectionChange.png
-		Content\CMDeleteDocument.png = Content\CMDeleteDocument.png
-		Content\CMDeleteSelected.png = Content\CMDeleteSelected.png
-		Content\CMDocumentOptions.png = Content\CMDocumentOptions.png
-		Content\CMExport.png = Content\CMExport.png
-		Content\CMFontSize.png = Content\CMFontSize.png
 		Content\CMNewQueryDoubleClickTabs.png = Content\CMNewQueryDoubleClickTabs.png
 		Content\CMNewQueryFile.png = Content\CMNewQueryFile.png
 		Content\CMNewQueryFileList.png = Content\CMNewQueryFileList.png
-		Content\CMQueryOptions.png = Content\CMQueryOptions.png
 		Content\CMQueryOutput.png = Content\CMQueryOutput.png
 		Content\CMResults.png = Content\CMResults.png
-		Content\CMRunQuery.png = Content\CMRunQuery.png
-		Content\CmSave.png = Content\CmSave.png
-		Content\CMUpdateSelected.png = Content\CMUpdateSelected.png
-		Content\CMWordWrap.png = Content\CMWordWrap.png
 		Content\CosmosManagerConnect.jpg = Content\CosmosManagerConnect.jpg
+		Content\Delete-file-icon.png = Content\Delete-file-icon.png
+		Content\Downloads-icon.png = Content\Downloads-icon.png
+		Content\export-icon.png = Content\export-icon.png
+		Content\Files-Download-File-icon.png = Content\Files-Download-File-icon.png
+		Content\format_font_size_less.png = Content\format_font_size_less.png
+		Content\format_font_size_more.png = Content\format_font_size_more.png
+		Content\json.png = Content\json.png
+		Content\refresh.png = Content\refresh.png
+		Content\Start-icon.png = Content\Start-icon.png
+		Content\text_indent.png = Content\text_indent.png
+		Content\text_indent_remove.png = Content\text_indent_remove.png
+		Content\text_lowercase.png = Content\text_lowercase.png
+		Content\text_uppercase.png = Content\text_uppercase.png
 	EndProjectSection
 EndProject
 Global

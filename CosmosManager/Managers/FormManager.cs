@@ -17,7 +17,7 @@ namespace CosmosManager.Managers
             openedForms = new Dictionary<Type, Form>();
         }
 
-        public void ShowModelessForm<TForm>() where TForm : Form
+        public void ShowModelessForm<TForm>(Action<Form> formInitializer = null) where TForm : Form
         {
             Form form;
             if (openedForms.ContainsKey(typeof(TForm)))
@@ -35,14 +35,15 @@ namespace CosmosManager.Managers
                 // Remove it from the cached instances so it can be recreated
                 form.Closed += (s, e) => openedForms.Remove(form.GetType());
             }
-
+            formInitializer?.Invoke(form);
             form.Show();
         }
 
-        public (DialogResult, TForm) ShowModalForm<TForm>() where TForm : Form
+        public (DialogResult, TForm) ShowModalForm<TForm>(Action<Form> formInitializer = null) where TForm : Form
         {
             using (var form = GetForm<TForm>())
             {
+                formInitializer?.Invoke(form);
                 return (form.ShowDialog(), (TForm)form);
             }
         }

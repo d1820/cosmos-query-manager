@@ -1,6 +1,6 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CosmosManager.Parsers
@@ -14,12 +14,12 @@ namespace CosmosManager.Parsers
             _queryParser = queryParser;
         }
 
-        public string OrginalQuery { get; private set; }
-
         public QueryParts Parse(string query)
         {
-            OrginalQuery = query;
-            var cleanQuery = CleanQuery(query);
+            var cleanQuery = CleanQueryText(query);
+
+            var result = _queryParser.ParseAndCleanComments(cleanQuery);
+            cleanQuery = result.commentFreeQuery;
 
             var typeAndBody = _queryParser.ParseQueryBody(cleanQuery);
             var updateTypeAndBody = _queryParser.ParseUpdateBody(cleanQuery);
@@ -34,36 +34,46 @@ namespace CosmosManager.Parsers
                 RollbackName = _queryParser.ParseRollback(cleanQuery).Trim(),
                 TransactionId = _queryParser.ParseTransaction(cleanQuery).Trim(),
                 QueryInto = _queryParser.ParseIntoBody(cleanQuery).Trim(),
-                QueryOrderBy = _queryParser.ParseOrderBy(cleanQuery).Trim()
+                QueryOrderBy = _queryParser.ParseOrderBy(cleanQuery).Trim(),
+                QueryJoin = _queryParser.ParseJoins(cleanQuery).Trim(),
+                Comments = result.comments,
+                OrginalQuery = query
             };
         }
 
-        public string CleanQuery(string query)
+        public string CleanExtraSpaces(string query)
         {
-            var cleanString = query.Replace('\n', ' ')
-                .Replace('\t', ' ')
-                .Replace('\r', ' ')
-                .Trim();
+            return Regex.Replace(query, @"\s+", " ", RegexOptions.Compiled);
+        }
 
-            var keyWords = new List<KeyValuePair<string, string>> {
-                new KeyValuePair<string, string>("from", Constants.QueryKeywords.FROM),
-                new KeyValuePair<string, string>("select", Constants.QueryKeywords.SELECT),
-                new KeyValuePair<string, string>("set", Constants.QueryKeywords.SET),
-                new KeyValuePair<string, string>("replace", Constants.QueryKeywords.REPLACE),
-                new KeyValuePair<string, string>("rollback", Constants.QueryKeywords.ROLLBACK),
-                new KeyValuePair<string, string>("astransaction", Constants.QueryKeywords.TRANSACTION),
-                new KeyValuePair<string, string>("where", Constants.QueryKeywords.WHERE),
-                new KeyValuePair<string, string>("update", Constants.QueryKeywords.UPDATE),
-                new KeyValuePair<string, string>("insert", Constants.QueryKeywords.INSERT),
-                new KeyValuePair<string, string>("into", Constants.QueryKeywords.INTO),
-                new KeyValuePair<string, string>("delete", Constants.QueryKeywords.DELETE),
-                new KeyValuePair<string, string>("order by", Constants.QueryKeywords.ORDERBY)
-            };
+        public string CleanExtraNewLines(string query)
+        {
 
-            foreach (var word in keyWords)
+            return Regex.Replace(query, @"\|+", "|", RegexOptions.Compiled);
+        }
+
+        public string CleanQueryText(string query)
+        {
+            if (string.IsNullOrEmpty(query))
             {
-                var pattern = $@"(?!\B[""\'][^""\']*){word.Key}(?![^""\']*[""\']\B)";
-                cleanString = Regex.Replace(cleanString, pattern, word.Value, RegexOptions.IgnoreCase);
+                return query;
+            }
+            var cleanString = query.Replace("\r\n", "|")
+                .Replace("\n", "|")
+                .Replace("\t", " ")
+                .Replace("\r", "")
+                .TrimStart('|')
+                .TrimEnd('|')
+                .Trim();
+            //get rid of all extra spaces
+            cleanString = CleanExtraSpaces(cleanString);
+            //get rid of all extra new lines
+            cleanString =  CleanExtraNewLines(cleanString);
+
+            foreach (var word in Constants.KeyWordList.Concat(Constants.BuiltInKeyWordList))
+            {
+                var pattern = $@"(?!\B[""\'][^""\']*)\b{word}\b(?![^""\']*[""\']\B)";
+                cleanString = Regex.Replace(cleanString, pattern, word.ToUpperInvariant(), RegexOptions.IgnoreCase | RegexOptions.Compiled);
             }
             return cleanString;
         }

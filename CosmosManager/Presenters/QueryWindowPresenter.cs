@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -105,14 +104,10 @@ namespace CosmosManager.Presenters
                 var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
 
                 //get each query and run it aggregating the results
-                var queries = SplitQueries();
+                var queries = ConveryQueryTextToQueryParts(_view.Query);
 
                 //check all the queries for deletes without transactions
-                if (queries.Any(a =>
-                {
-                    var query = _queryParser.Parse(a);
-                    return query.QueryType == Constants.QueryKeywords.DELETE && !query.IsTransaction;
-                }) && _view.ShowMessage("Are you sure you want to delete documents without a transaction. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+                if (queries.Any(query => query.CleanQueryType == Constants.QueryParsingKeywords.DELETE && !query.IsTransaction) && _view.ShowMessage("Are you sure you want to delete documents without a transaction. This can not be undone?", "Delete Document Confirmation", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
                 {
                     return;
                 }
@@ -121,11 +116,10 @@ namespace CosmosManager.Presenters
                 var hasError = false;
                 for (var i = 0; i < queries.Length; i++)
                 {
-                    var query = queries[i];
-                    var runner = _queryRunners.FirstOrDefault(f => f.CanRun(query));
+                    var queryParts = queries[i];
+                    var runner = _queryRunners.FirstOrDefault(f => f.CanRun(queryParts.CleanOrginalQuery));
                     if (runner != null)
                     {
-                        var queryParts = _queryParser.Parse(query);
                         if (queries.Length > 1)
                         {
                             AddToQueryOutput(new string('-', 300));
@@ -133,10 +127,10 @@ namespace CosmosManager.Presenters
                             AddToQueryOutput(new string('-', 300));
                         }
 
-                        var response = await runner.RunAsync(documentStore, SelectedConnection, query, true, _logger);
+                        var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts, true, _logger);
                         if (!response.success)
                         {
-                            _view.ShowMessage($"Unable to execute query: {query}. Verify query and try again.", "Query Execution Error");
+                            _view.ShowMessage($"Unable to execute query: {queryParts.CleanOrginalQuery}. Verify query and try again.", "Query Execution Error");
                             //on error stop loop and return
                             hasError = true;
                             break;
@@ -144,16 +138,20 @@ namespace CosmosManager.Presenters
                         else if (response.results != null)
                         {
                             //add a header row if more then 1 query needs to be ran
-                            RenderResults(response.results, queryParts.CollectionName, queries.Length > 1, i + 1);
+                            RenderResults(response.results, queryParts.CollectionName, queryParts, queries.Length > 1, i + 1);
                             hasResults = true;
                         }
                     }
                     else
                     {
-                        _logger.LogError($"Unable to find a query processor for query type. query: {query}");
-                        //on error stop loop and return
-                        hasError = true;
-                        break;
+                        //if we have comments then we can assume the whole query is a comment so skip and goto next
+                        if (!queryParts.IsCommentOnly)
+                        {
+                            _logger.LogError($"Unable to find a query processor for query type. query: {queryParts.CleanOrginalQuery}");
+                            //on error stop loop and return
+                            hasError = true;
+                            break;
+                        }
                     }
 
                 }
@@ -162,7 +160,7 @@ namespace CosmosManager.Presenters
                 {
                     ShowOutputTab();
                 }
-                _view.SetStatusBarMessage("", false);
+                _view.SetStatusBarMessage("Ready", false);
             }
             else
             {
@@ -222,15 +220,6 @@ namespace CosmosManager.Presenters
             }
         }
 
-        private string[] SplitQueries(string queryText = null)
-        {
-            var queryToParse = queryText ?? _view.Query;
-            var pattern = @"(?!\B[""\'][^""\']*);(?![^""\']*[""\']\B)";
-            var preCleanString = queryToParse.Replace('\n', ' ').Replace('\r', ' ').Replace('\t', ' ');
-            var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase);
-            return queries.Where(w => !string.IsNullOrEmpty(w.Trim())).ToArray();
-        }
-
         public async Task SaveQueryAsync()
         {
             using (var sw = new StreamWriter(CurrentFileInfo.FullName))
@@ -271,9 +260,9 @@ namespace CosmosManager.Presenters
             _view.SetStatusBarMessage($"{fileName} Exported");
         }
 
-        public void RenderResults(IReadOnlyCollection<object> results, string collectionName, bool appendResults, int queryStatementIndex)
+        public void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex)
         {
-            _view.RenderResults(results, collectionName, appendResults, queryStatementIndex);
+            _view.RenderResults(results, collectionName, query, appendResults, queryStatementIndex);
         }
 
         public void ShowOutputTab()
@@ -296,65 +285,59 @@ namespace CosmosManager.Presenters
             var cleanedQueries = new List<string>();
             try
             {
-                var queries = SplitQueries(queryText);
-
+                var queries = CleanAndSplitQueryText(queryText);
                 foreach (var query in queries)
                 {
-                    var queryParts = _queryParser.Parse(query);
-                    var sql = new StringBuilder();
-                    if (queryParts.IsTransaction)
+                    var trimmedQuery = query.Trim().TrimStart('|').TrimEnd('|');
+
+                    foreach (var newlineWord in Constants.NewLineKeywords)
                     {
-                        sql.AppendLine(Constants.QueryKeywords.TRANSACTION);
+                        trimmedQuery = Regex.Replace(trimmedQuery, $@"\s+({newlineWord})", $"|{newlineWord}");
                     }
-                    if (queryParts.IsValidInsertQuery())
+                    trimmedQuery = _queryParser.CleanExtraNewLines(trimmedQuery);
+                    trimmedQuery = _queryParser.CleanExtraSpaces(trimmedQuery);
+                    foreach (var indentKeyWord in Constants.IndentKeywords)
                     {
-                        sql.AppendLine(queryParts.QueryType);
-                        sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryBody), Formatting.Indented));
-                        sql.AppendLine(queryParts.QueryInto);
-                        cleanedQueries.Add(sql.ToString());
-                        continue;
+                        trimmedQuery = Regex.Replace(trimmedQuery, $@"\|[\t]*({indentKeyWord})", $"|\t{indentKeyWord}");
                     }
 
-                    if (queryParts.IsRollback)
+                    var formattedQuery = trimmedQuery.Replace("|", Environment.NewLine);
+
+                    if (queries.Count() > 1)
                     {
-                        sql.AppendLine($"ROLLBACK {queryParts.RollbackName}");
-                        cleanedQueries.Add(sql.ToString());
-                        continue;
+                        formattedQuery += ";";
                     }
-
-                    if (queryParts.IsValidQuery())
-                    {
-                        sql.AppendLine($"{queryParts.QueryType} {queryParts.QueryBody}");
-                        sql.AppendLine($"{queryParts.QueryFrom}");
-                        if (queryParts.HasWhereClause())
-                        {
-                            sql.AppendLine(queryParts.QueryWhere);
-                        }
-
-                        if (queryParts.IsUpdateQuery())
-                        {
-                            sql.AppendLine(queryParts.QueryUpdateType);
-                            sql.AppendLine(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(queryParts.QueryUpdateBody), Formatting.Indented));
-                            cleanedQueries.Add(sql.ToString());
-                            continue;
-                        }
-
-                        if (queryParts.HasOrderByClause())
-                        {
-                            sql.AppendLine(queryParts.QueryOrderBy);
-                        }
-                        cleanedQueries.Add(sql.ToString());
-                        continue;
-                    }
+                    cleanedQueries.Add(formattedQuery);
                 }
-
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return queryText;
             }
-            return string.Join($";{Environment.NewLine}{Environment.NewLine}", cleanedQueries);
-            ;
+            return string.Join($"{Environment.NewLine}{Environment.NewLine}", cleanedQueries);
+
+        }
+
+        private QueryParts[] ConveryQueryTextToQueryParts(string queryToParse)
+        {
+            if (string.IsNullOrEmpty(queryToParse))
+            {
+                return new QueryParts[0];
+            }
+            var queries = CleanAndSplitQueryText(queryToParse);
+            return queries.Select(_queryParser.Parse).Where(w => !w.IsCommentOnly).ToArray();
+        }
+
+        private IEnumerable<string> CleanAndSplitQueryText(string queryToParse)
+        {
+
+            var preCleanString = _queryParser.CleanQueryText(queryToParse);
+            //splits on semit-colon
+            const string pattern = @";(?!\s*(?=\*\/))";
+            var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+            //this removes empty lines, then converts to a QueryPart object
+            return queries.Where(w => !string.IsNullOrEmpty(w.Trim().Replace("|", "")));
         }
     }
 }

@@ -20,14 +20,19 @@ namespace CosmosManager.QueryRunners
         public bool CanRun(string query)
         {
             var queryParts = _queryParser.Parse(query);
-            return queryParts.QueryType.Equals(Constants.QueryKeywords.SELECT, StringComparison.InvariantCultureIgnoreCase);
+            return queryParts.CleanQueryType.Equals(Constants.QueryParsingKeywords.SELECT, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
+            var queryParts = _queryParser.Parse(queryStatement);
+            return await RunAsync(documentStore, connection, queryParts, logStats, logger);
+        }
+
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection,  QueryParts queryParts, bool logStats, ILogger logger)
+        {
             try
             {
-                var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsValidQuery())
                 {
                     logger.LogError("Invalid Query. Aborting Select.");
@@ -51,7 +56,7 @@ namespace CosmosManager.QueryRunners
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, new EventId(), $"Unable to run {Constants.QueryKeywords.SELECT} query", ex);
+                logger.Log(LogLevel.Error, new EventId(), $"Unable to run {Constants.QueryParsingKeywords.SELECT} query", ex);
                 return (false, null);
             }
         }

@@ -27,15 +27,20 @@ namespace CosmosManager.QueryRunners
 
         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
+            var queryParts = _queryParser.Parse(queryStatement);
+            return await RunAsync(documentStore, connection, queryParts, logStats, logger);
+        }
+
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection,  QueryParts queryParts, bool logStats, ILogger logger)
+        {
             try
             {
-                var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsValidInsertQuery())
                 {
                     return (false, null);
                 }
 
-                var jsonDocument = JsonConvert.DeserializeObject<dynamic>(queryParts.QueryBody);
+                var jsonDocument = JsonConvert.DeserializeObject<dynamic>(queryParts.CleanQueryBody);
                 var newDocs = await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                         async (IDocumentExecuteContext context) =>
                                         {
@@ -62,7 +67,7 @@ namespace CosmosManager.QueryRunners
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, new EventId(), $"Unable to run {Constants.QueryKeywords.INSERT} query", ex);
+                logger.Log(LogLevel.Error, new EventId(), $"Unable to run {Constants.QueryParsingKeywords.INSERT} query", ex);
                 return (false, null);
             }
         }

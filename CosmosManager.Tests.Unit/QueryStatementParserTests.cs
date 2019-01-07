@@ -2,13 +2,14 @@
 using CosmosManager.Parsers;
 using FluentAssertions;
 using Moq;
+using System;
 using Xunit;
 
 namespace CosmosManager.Tests.Unit
 {
     public class QueryStatementParserTests
     {
-        private readonly QueryStatementParser _parser;
+        private QueryStatementParser _parser;
 
         public QueryStatementParserTests()
         {
@@ -19,8 +20,8 @@ namespace CosmosManager.Tests.Unit
         [Fact]
         public void CleanQuery_RemovesTabs_NewLines_Returns()
         {
-            var query = @"astransaction \t\n\r";
-            var rawQuery = _parser.CleanQuery(query);
+            var query = "astransaction\t" + Environment.NewLine;
+            var rawQuery = _parser.CleanQueryText(query);
 
             rawQuery.Should().Be("ASTRANSACTION");
         }
@@ -29,7 +30,7 @@ namespace CosmosManager.Tests.Unit
         public void CleanQuery_Select_OnlyConvertsKeyWordsNotInSingleQuotes()
         {
             var query = "astransaction select * from Market where Market.Name = 'where'";
-            var rawQuery = _parser.CleanQuery(query);
+            var rawQuery = _parser.CleanQueryText(query);
 
             rawQuery.Contains("where").Should().BeTrue();
             rawQuery.Contains("WHERE").Should().BeTrue();
@@ -44,7 +45,7 @@ namespace CosmosManager.Tests.Unit
         public void CleanQuery_UpdateSet_OnlyConvertsKeyWordsNotInSingleQuotes()
         {
             var query = "astransaction update * from Market where Market.Name = 'where' set { 'first': 'from', 'last': 'update', 'middle': 'set'}";
-            var rawQuery = _parser.CleanQuery(query);
+            var rawQuery = _parser.CleanQueryText(query);
 
             rawQuery.Contains("where").Should().BeTrue();
             rawQuery.Contains("WHERE").Should().BeTrue();
@@ -65,7 +66,7 @@ namespace CosmosManager.Tests.Unit
         public void CleanQuery_UpdateReplace_OnlyConvertsKeyWordsNotInSingleQuotes()
         {
             var query = "astransaction update * from Market where Market.Name = 'where' Replace { 'first': 'from', 'last': 'update', 'middle': 'replace'}";
-            var rawQuery = _parser.CleanQuery(query);
+            var rawQuery = _parser.CleanQueryText(query);
 
             rawQuery.Contains("where").Should().BeTrue();
             rawQuery.Contains("WHERE").Should().BeTrue();
@@ -85,7 +86,7 @@ namespace CosmosManager.Tests.Unit
         public void CleanQuery_Insert_OnlyConvertsKeyWordsNotInSingleQuotes()
         {
             var query = "insert { 'first': 'from', 'last': 'update', 'middle': 'replace'} into Market";
-            var rawQuery = _parser.CleanQuery(query);
+            var rawQuery = _parser.CleanQueryText(query);
 
             rawQuery.Contains("update").Should().BeTrue();
             rawQuery.Contains("INTO").Should().BeTrue();
@@ -98,10 +99,26 @@ namespace CosmosManager.Tests.Unit
         public void CleanQuery_Rollback_OnlyConvertsKeyWordsNotInSingleQuotes()
         {
             var query = "Rollback RollbackName";
-            var rawQuery = _parser.CleanQuery(query);
+            var rawQuery = _parser.CleanQueryText(query);
 
             rawQuery.Contains("ROLLBACK").Should().BeTrue();
 
+        }
+
+        [Fact]
+        public void Parse_PutsCommentsBackInCorrectIndex()
+        {
+            _parser = new QueryStatementParser(new StringQueryParser());
+            var query = "||SELECT * FROM Cart |/*test*/|WHERE ((Cart.CreatedOn < \"2018-12-12T17:02:35.594738+00:00\") AND STARTSWITH(Cart.PartitionKey, \"sessioncart-\")) ";
+            var result = _parser.Parse(query);
+        }
+
+        [Fact]
+        public void Parse_MultiLineJoins()
+        {
+            _parser = new QueryStatementParser(new StringQueryParser());
+            var query = "SELECT pr.id, pr.PartitionKey,   ct.Tier,    ct.TierDesc,    ct.CostPerMonth,    ct.CostsByStateCode,    ct.IsActive,    ct[\"Order\"],    ct.Options|FROM ProductRegistry pr|JOIN   ct IN pr.CoverageTiers JOIN   restriction IN ct.Options.DependentsOptions.DependentRestrictions JOIN   relationship IN restriction.RelationshipTypes|WHERE IS_DEFINED(ct.Options.DependentsOptions.DependentRestrictions) AND relationship = \"child\" OR relationship = \"spouse\"";
+            var result = _parser.Parse(query);
         }
     }
 }

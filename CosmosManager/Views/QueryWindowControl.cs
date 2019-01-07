@@ -1,16 +1,15 @@
-﻿using CosmosManager.Controls;
-using CosmosManager.Domain;
+﻿using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
+using CosmosManager.Stylers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.ListViewItem;
 
@@ -18,14 +17,23 @@ namespace CosmosManager
 {
     public partial class QueryWindowControl : UserControl, IQueryWindowControl
     {
-        public QueryWindowControl()
+        private int _totalDocumentCount;
+
+        private CheckState _headerCheckState;
+
+        public QueryWindowControl(IQueryStyler queryTextStyler, IJsonStyler jsonStyler)
         {
             InitializeComponent();
+
+            QueryWindowStyler.ApplyTheme(ThemeType.Dark, this);
 
             resultListView.DoubleBuffered(true);
 
             //look for a connections string file
             selectConnections.Items.Add("Load Connection File");
+
+            queryTextStyler.SyntaxifyTextBox(textQuery);
+            jsonStyler.SyntaxifyTextBox(textDocument);
         }
 
         public object[] ConnectionsList
@@ -84,9 +92,11 @@ namespace CosmosManager
         {
             resultListView.Items.Clear();
             textDocument.Clear();
+            tabControlQueryOutput.SelectedIndex = 0;
         }
 
         public IQueryWindowPresenter Presenter { private get; set; }
+
         public IMainFormPresenter MainPresenter { private get; set; }
 
         private async void runQueryButton_Click_1(object sender, EventArgs e)
@@ -94,6 +104,12 @@ namespace CosmosManager
             try
             {
                 runQueryButton.Enabled = false;
+                _totalDocumentCount = 0;
+                textDocument.Text = string.Empty;
+                SetResultCountLabel();
+                resultListView.Groups.Clear();
+                resultListView.Items.Clear();
+                Application.DoEvents();
                 await Presenter.RunAsync();
             }
             finally
@@ -120,7 +136,7 @@ namespace CosmosManager
 
         public void SetStatusBarMessage(string message, bool ignoreClearTimer = false)
         {
-            MainPresenter.SetStatusBarMessage(message);
+            MainPresenter.SetStatusBarMessage(message, ignoreClearTimer);
         }
 
         public void SetUpdatedResultDocument(object document)
@@ -129,23 +145,53 @@ namespace CosmosManager
             ((DocumentResult)selectedItem.Tag).Document = JObject.FromObject(document);
         }
 
-        public async void RenderResults(IReadOnlyCollection<object> results, string collectionName, bool appendResults, int queryStatementIndex)
+        public async void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex)
         {
             if (!appendResults)
             {
                 resultListView.Groups.Clear();
                 resultListView.Items.Clear();
+                _totalDocumentCount = 0;
             }
             var textPartitionKeyPath = await Presenter.LookupPartitionKeyPath();
+            var groupName = "Query 1";
             if (appendResults)
             {
                 resultListView.Groups.Add(new ListViewGroup
                 {
-                    Header = $"Query {queryStatementIndex}",
+                    Header = $"Query {queryStatementIndex} ({results.Count} Documents)",
                     Name = $"Query{resultListView.Groups.Count}",
                     HeaderAlignment = HorizontalAlignment.Center
                 });
+                groupName = $"Query {queryStatementIndex}";
+                if (resultListView.Groups.Count == 1)
+                {
+                    //first group set headers
+                    var headers = SetResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
+                    resultListView.Columns[1].Text = headers.header1;
+                    resultListView.Columns[2].Text = headers.header2;
+                }
+                else
+                {
+                    var headers = SetResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
+                    //if the next query has a different select, then clear column headers
+                    if (resultListView.Columns[1].Text != headers.header1)
+                    {
+                        resultListView.Columns[1].Text = string.Empty;
+                    }
+                    if (resultListView.Columns[2].Text != headers.header2)
+                    {
+                        resultListView.Columns[2].Text = string.Empty;
+                    }
+                }
             }
+            else
+            {
+                var headers = SetResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
+                resultListView.Columns[1].Text = headers.header1;
+                resultListView.Columns[2].Text = headers.header2;
+            }
+            _totalDocumentCount += results.Count;
             foreach (var item in results)
             {
                 var fromObject = JObject.FromObject(item);
@@ -154,22 +200,96 @@ namespace CosmosManager
                 {
                     listItem.Group = resultListView.Groups[resultListView.Groups.Count - 1];
                 }
-                listItem.Tag = new DocumentResult { Document = fromObject, CollectionName = collectionName };
+                listItem.Tag = new DocumentResult { Document = fromObject, CollectionName = collectionName, Query = query, GroupName = groupName };
+                JProperty col1Prop = null;
+                JToken col1Token = null;
+                var resultProps = fromObject.Properties();
                 var subItem = new ListViewSubItem
                 {
-                    Text = fromObject[Constants.DocumentFields.ID]?.Value<string>()
+                    Text = String.Empty
                 };
+
+                col1Prop = resultProps.FirstOrDefault(f => f.Name == Constants.DocumentFields.ID);
+                if (col1Prop == null)
+                {
+                    col1Prop = resultProps.First();
+                }
+                col1Token = col1Prop.Value;
+                subItem.Text = col1Token?.Value<string>();
                 listItem.SubItems.Add(subItem);
 
-                subItem = new ListViewSubItem
+                if (resultProps.Count() > 1)
                 {
-                    Text = fromObject[textPartitionKeyPath]?.Value<string>()
-                };
-                listItem.SubItems.Add(subItem);
+                    subItem = new ListViewSubItem
+                    {
+                        Text = String.Empty
+                    };
+                    JProperty col2Prop = null;
+                    JToken col2Token = null;
+
+                    col2Prop = resultProps.FirstOrDefault(f => f.Name == textPartitionKeyPath);
+                    if (col2Prop == null)
+                    {
+                        var prop = resultProps.FirstOrDefault(f => f != col1Prop);
+                        if (prop != null)
+                        {
+                            col2Prop = prop;
+                            col2Token = prop.Value;
+
+                        }
+                    }
+                    col2Token = col2Prop?.Value;
+                    subItem.Text = col2Token?.Value<string>();
+
+                    if (!String.IsNullOrEmpty(subItem.Text))
+                    {
+                        listItem.SubItems.Add(subItem);
+                    }
+                }
                 resultListView.Items.Add(listItem);
             }
-            resultCountTextbox.Text = $"{results.Count} Documents";
+            SetResultCountLabel();
             resultListToolStrip.Refresh();
+        }
+
+        private void SetResultCountLabel()
+        {
+            resultCountTextbox.Text = $"{_totalDocumentCount} Documents";
+        }
+
+        private (string header1, string header2) SetResultListViewHeaders(object item, string textPartitionKeyPath)
+        {
+            if (item == null)
+            {
+                return (null, null);
+            }
+            var fromObject = JObject.FromObject(item);
+
+            JProperty col1Prop = null;
+            var resultProps = fromObject.Properties();
+            col1Prop = resultProps.FirstOrDefault(f => f.Name == Constants.DocumentFields.ID);
+            if (col1Prop == null)
+            {
+                col1Prop = resultProps.First();
+            }
+
+            JProperty col2Prop = null;
+            if (resultProps.Count() > 1)
+            {
+
+                col2Prop = resultProps.FirstOrDefault(f => f.Name == textPartitionKeyPath);
+                if (col2Prop == null)
+                {
+                    var prop = resultProps.FirstOrDefault(f => f != col1Prop);
+                    if (prop != null)
+                    {
+                        col2Prop = prop;
+
+                    }
+                }
+
+            }
+            return (col1Prop.Name, col2Prop?.Name);
         }
 
         private async void exportRecordToolStripMenuItem_Click(object sender, EventArgs e)
@@ -196,28 +316,58 @@ namespace CosmosManager
 
         private void selectedToUpdateButton_Click(object sender, EventArgs e)
         {
-            var items = GetCheckedListItems();
-            if (!items.Any())
+            var checklistItems = GetCheckedListItems();
+            if (!checklistItems.Any())
             {
                 return;
             }
-            var ids = items.Select(s => s[Constants.DocumentFields.ID]);
-            var parser = AppReferences.Container.GetInstance<IQueryStatementParser>();
-            var parts = parser.Parse(Query);
-            MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryKeywords.UPDATE} '{string.Join("','", ids)}' {Environment.NewLine}{Constants.QueryKeywords.FROM} {parts.CollectionName} {Environment.NewLine}{Constants.QueryKeywords.SET} {{{Environment.NewLine}{Environment.NewLine}}}");
+            var groupNamesNotSupported = new List<string>();
+            foreach (var group in checklistItems.GroupBy(g => g.Query))
+            {
+                var items = group.Select(s => s.Document);
+                var ids = items.Where(w => w[Constants.DocumentFields.ID] != null).Select(s => s[Constants.DocumentFields.ID]);
+                if (ids.Count() == 0)
+                {
+                    var documentResult = group.First();
+                    groupNamesNotSupported.Add(documentResult.GroupName);
+                    continue;
+                }
+                var parts = group.Key;
+                MainPresenter.CreateTempQueryTab($"{Constants.QueryParsingKeywords.TRANSACTION}{Environment.NewLine}{Constants.QueryParsingKeywords.UPDATE} '{string.Join("','", ids)}'{Environment.NewLine}{Constants.QueryParsingKeywords.FROM} {parts.CollectionName}{Environment.NewLine}{Constants.QueryParsingKeywords.SET} {{{Environment.NewLine}{Environment.NewLine}}}");
+            }
+            if (groupNamesNotSupported.Count > 0)
+            {
+                ShowMessage($"The id column must be part of the select output in {string.Join(", ", groupNamesNotSupported)} to use this feature.", "Action Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
 
         private void selectedToDeleteButton_Click(object sender, EventArgs e)
         {
-            var items = GetCheckedListItems();
-            if (!items.Any())
+            var checklistItems = GetCheckedListItems();
+            if (!checklistItems.Any())
             {
                 return;
             }
-            var ids = items.Select(s => s[Constants.DocumentFields.ID]);
-            var parser = AppReferences.Container.GetInstance<IQueryStatementParser>();
-            var parts = parser.Parse(Query);
-            MainPresenter.CreateTempQueryTab($"{Constants.QueryKeywords.TRANSACTION}{Environment.NewLine} {Constants.QueryKeywords.DELETE} '{string.Join("','", ids)}' {Environment.NewLine} {Constants.QueryKeywords.FROM} {parts.CollectionName}");
+            var groupNamesNotSupported = new List<string>();
+            foreach (var group in checklistItems.GroupBy(g => g.Query))
+            {
+                var items = group.Select(s => s.Document);
+
+                var ids = items.Where(w => w[Constants.DocumentFields.ID] != null).Select(s => s[Constants.DocumentFields.ID]);
+                if (ids.Count() == 0)
+                {
+                    var documentResult = group.First();
+                    groupNamesNotSupported.Add(documentResult.GroupName);
+                    continue;
+                }
+                var parts = group.Key;
+                MainPresenter.CreateTempQueryTab($"{Constants.QueryParsingKeywords.TRANSACTION}{Environment.NewLine} {Constants.QueryParsingKeywords.DELETE} '{string.Join("','", ids)}' {Environment.NewLine} {Constants.QueryParsingKeywords.FROM} {parts.CollectionName}");
+            }
+            if (groupNamesNotSupported.Count > 0)
+            {
+                ShowMessage($"The id column must be part of the select output in {string.Join(", ", groupNamesNotSupported)} to use this feature.", "Action Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+
         }
 
         private async void saveQueryButton_Click(object sender, EventArgs e)
@@ -227,8 +377,9 @@ namespace CosmosManager
                 if (saveTempQueryDialog.ShowDialog() == DialogResult.OK)
                 {
                     await Presenter.SaveTempQueryAsync(saveTempQueryDialog.FileName);
-                    var fileName = new FileInfo(saveTempQueryDialog.FileName);
-                    MainPresenter.UpdateNewQueryTabName(fileName.Name);
+                    var fileInfo = new FileInfo(saveTempQueryDialog.FileName);
+                    Presenter.SetFile(fileInfo);
+                    MainPresenter.UpdateNewQueryTabName(fileInfo.Name);
                 }
                 return;
             }
@@ -251,92 +402,67 @@ namespace CosmosManager
 
         private void increaseFontButton_Click(object sender, EventArgs e)
         {
-            textQuery.ZoomFactor *= 1.25F;
+            textQuery.ZoomIn();
         }
 
         private void decreaseFontButton_Click(object sender, EventArgs e)
         {
-            if (textQuery.ZoomFactor > 0)
+            if (textQuery.Zoom > 0)
             {
-                textQuery.ZoomFactor /= 1.25F;
+                textQuery.ZoomOut();
             }
         }
 
         private void wordWrapToggleButton_Click(object sender, EventArgs e)
         {
-            textQuery.WordWrap = !textQuery.WordWrap;
+            if (textQuery.WrapMode == WrapMode.None)
+            {
+                textQuery.WrapMode = WrapMode.Word;
+            }
+            else
+            {
+                textQuery.WrapMode = WrapMode.None;
+            }
         }
 
         private void resultWordWrapButton_Click(object sender, EventArgs e)
         {
-            textDocument.WordWrap = !textDocument.WordWrap;
+            if (textDocument.WrapMode == WrapMode.None)
+            {
+                textDocument.WrapMode = WrapMode.Word;
+            }
+            else
+            {
+                textDocument.WrapMode = WrapMode.None;
+            }
         }
 
         private void resultFontSizeDecreaseButton_Click(object sender, EventArgs e)
         {
-            if (textDocument.ZoomFactor > 0)
+            if (textDocument.Zoom > 0)
             {
-                textDocument.ZoomFactor /= 1.25F;
+                textDocument.ZoomOut();
             }
         }
 
         private void resuleFontSizeIncreaseButton_Click(object sender, EventArgs e)
         {
-            textDocument.ZoomFactor *= 1.25F;
+            textDocument.ZoomIn();
         }
 
-        private List<JObject> GetCheckedListItems()
+        private List<DocumentResult> GetCheckedListItems()
         {
-            var objects = new List<JObject>();
+            var objects = new List<DocumentResult>();
             foreach (ListViewItem item in resultListView.Items)
             {
                 if (item.Tag is DocumentResult && item.Checked)
                 {
                     var result = (DocumentResult)item.Tag;
-                    objects.Add(result.Document);
+                    objects.Add(result);
                 }
             }
             return objects;
         }
-
-        private Task SetSyntaxHighlightAsync(JObject document, SyntaxRichTextBox textbox)
-        {
-            //https://www.codeproject.com/Articles/10675/Enabling-syntax-highlighting-in-a-RichTextBox
-
-            return Task.Run(() =>
-            {
-                if (textbox.InvokeRequired)
-                {
-                    textbox.BeginInvoke((Action)(() =>
-                    {
-                        // Set the colors that will be used.
-                        textbox.Settings.KeywordColor = Color.SlateBlue;
-                        textbox.Settings.CommentColor = Color.Green;
-                        textbox.Settings.StringColor = Color.DarkGray;
-                        textbox.Settings.IntegerColor = Color.Red;
-
-                        // Let's not process strings and integers.
-                        textbox.Settings.EnableComments = false;
-                        textbox.ProcessAllLines();
-                    }));
-                }
-                else
-                {
-                    // Set the colors that will be used.
-                    textbox.Settings.KeywordColor = Color.SlateBlue;
-                    textbox.Settings.CommentColor = Color.Green;
-                    textbox.Settings.StringColor = Color.DarkGray;
-                    textbox.Settings.IntegerColor = Color.Red;
-
-                    textbox.Settings.EnableComments = false;
-
-                    textbox.ProcessAllLines();
-                }
-            });
-
-        }
-
-        private CheckState headerCheckState = CheckState.Unchecked;
 
         private void resultListView_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
@@ -355,7 +481,7 @@ namespace CosmosManager
                 cck.SetBounds(e.Bounds.X, e.Bounds.Y, cck.GetPreferredSize(new Size(e.Bounds.Width, e.Bounds.Height)).Width, cck.GetPreferredSize(new Size(e.Bounds.Width, e.Bounds.Height)).Width);
                 cck.Size = new Size((cck.GetPreferredSize(new Size((e.Bounds.Width - 1), e.Bounds.Height)).Width + 1), e.Bounds.Height);
                 cck.Location = new Point(4, 0);
-                cck.CheckState = headerCheckState;
+                cck.CheckState = _headerCheckState;
                 resultListView.Controls.Add(cck);
                 cck.Show();
                 cck.BringToFront();
@@ -372,7 +498,7 @@ namespace CosmosManager
         private void resultListViewheaderCheckAll(object sender, EventArgs e)
         {
             var listboxCheckHeader = sender as CheckBox;
-            headerCheckState = listboxCheckHeader.CheckState;
+            _headerCheckState = listboxCheckHeader.CheckState;
             for (var i = 0; i < resultListView.Items.Count; i++)
             {
                 resultListView.Items[i].Checked = listboxCheckHeader.Checked;
@@ -391,6 +517,10 @@ namespace CosmosManager
 
         private async void saveExistingDocument_Click(object sender, EventArgs e)
         {
+            if (resultListView.SelectedItems.Count == 0)
+            {
+                return;
+            }
             var documentResult = (DocumentResult)resultListView.SelectedItems[0].Tag;
             var doc = JsonConvert.DeserializeObject<object>(textDocument.Text);
             documentResult.Document = JObject.FromObject(doc);
@@ -399,6 +529,10 @@ namespace CosmosManager
 
         private async void deleteDocumentButton_Click(object sender, EventArgs e)
         {
+            if (resultListView.SelectedItems.Count == 0)
+            {
+                return;
+            }
             var documentResult = (DocumentResult)resultListView.SelectedItems[0].Tag;
             var selectedDocument = documentResult.Document;
             if (MessageBox.Show(this, $"Are you sure you want to delete document {selectedDocument[Constants.DocumentFields.ID]}", "Delete Document", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
@@ -453,6 +587,87 @@ namespace CosmosManager
         private void beautifyQueryButton_Click(object sender, EventArgs e)
         {
             textQuery.Text = Presenter.BeautifyQuery(textQuery.Text);
+        }
+
+        private void GenerateKeystrokes(string keys, Scintilla textbox)
+        {
+            //HotKeyManager.Enable = false;
+            textbox.Focus();
+            SendKeys.Send(keys);
+            //HotKeyManager.Enable = true;
+        }
+
+
+        private void lowercaseTextButton_Click(object sender, EventArgs e)
+        {
+            // save the selection
+            var start = textQuery.SelectionStart;
+            var end = textQuery.SelectionEnd;
+
+            // modify the selected text
+            textQuery.ReplaceSelection(textQuery.GetTextRange(start, end - start).ToLower());
+
+            // preserve the original selection
+            textQuery.SetSelection(start, end);
+        }
+
+        private void textUppercaseButon_Click(object sender, EventArgs e)
+        {
+            // save the selection
+            var start = textQuery.SelectionStart;
+            var end = textQuery.SelectionEnd;
+
+            // modify the selected text
+            textQuery.ReplaceSelection(textQuery.GetTextRange(start, end - start).ToUpper());
+
+            // preserve the original selection
+            textQuery.SetSelection(start, end);
+        }
+
+        private void textIndentButton_Click(object sender, EventArgs e)
+        {
+            GenerateKeystrokes("{TAB}", textQuery);
+        }
+
+        private void textOutdentButton_Click(object sender, EventArgs e)
+        {
+            GenerateKeystrokes("+{TAB}", textQuery);
+        }
+
+        private void resultLowercaseButton_Click(object sender, EventArgs e)
+        {
+            // save the selection
+            var start = textDocument.SelectionStart;
+            var end = textDocument.SelectionEnd;
+
+            // modify the selected text
+            textDocument.ReplaceSelection(textDocument.GetTextRange(start, end - start).ToLower());
+
+            // preserve the original selection
+            textDocument.SetSelection(start, end);
+        }
+
+        private void resultUppercaseButton_Click(object sender, EventArgs e)
+        {
+            // save the selection
+            var start = textDocument.SelectionStart;
+            var end = textDocument.SelectionEnd;
+
+            // modify the selected text
+            textDocument.ReplaceSelection(textDocument.GetTextRange(start, end - start).ToUpper());
+
+            // preserve the original selection
+            textDocument.SetSelection(start, end);
+        }
+
+        private void resultIndentButton_Click(object sender, EventArgs e)
+        {
+            GenerateKeystrokes("{TAB}", textDocument);
+        }
+
+        private void resultOutdentButton_Click(object sender, EventArgs e)
+        {
+            GenerateKeystrokes("+{TAB}", textDocument);
         }
     }
 }

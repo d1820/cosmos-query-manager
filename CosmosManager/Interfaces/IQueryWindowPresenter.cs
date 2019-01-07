@@ -28,7 +28,7 @@ namespace CosmosManager.Interfaces
 
         Task<string> LookupPartitionKeyPath();
 
-        void RenderResults(IReadOnlyCollection<object> results, string collectionName,  bool appendResults, int queryStatementIndex);
+        void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex);
 
         void ResetQueryOutput();
 
@@ -47,5 +47,6 @@ namespace CosmosManager.Interfaces
         void SetTempQuery(string query);
 
         void ShowOutputTab();
+
     }
 }

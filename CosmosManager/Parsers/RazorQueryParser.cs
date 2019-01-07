@@ -8,7 +8,7 @@ namespace CosmosManager.Parsers
     {
         public (string queryType, string queryBody) ParseQueryBody(string query)
         {
-            var rgx = new Regex(@"\@(SELECT|UPDATE|DELETE)\{[\s\S]*?(.*?)\}\@");
+            var rgx = new Regex(@"\@(SELECT|UPDATE|DELETE)\{[\s\S]*?(.*?)\}\@", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -19,7 +19,7 @@ namespace CosmosManager.Parsers
             {
                 throw new FormatException("Invalid query. Query Type statement is not formatted correct. Please use @SELECT{ }@ or @UPDATE{ }@ or @DELETE{ }@ wrapping statement syntax.");
             }
-            var queryTypeRx = new Regex("(SELECT|UPDATE|DELETE)(.*?)");
+            var queryTypeRx = new Regex("(SELECT|UPDATE|DELETE)(.*?)", RegexOptions.Compiled);
 
             var queryTypeMatches = queryTypeRx.Matches(matches[0].Value);
             if (queryTypeMatches.Count == 0)
@@ -32,7 +32,7 @@ namespace CosmosManager.Parsers
 
         public string ParseFromBody(string query)
         {
-            var rgx = new Regex(@"\@(FROM)\{[\s\S]*?(.*?)\}\@");
+            var rgx = new Regex(@"\@(FROM)\{[\s\S]*?(.*?)\}\@", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -49,7 +49,7 @@ namespace CosmosManager.Parsers
 
         public string ParseUpdateBody(string query)
         {
-            var rgx = new Regex(@"\@(SET)\{[\s\S]*?(.*?)\}\@");
+            var rgx = new Regex(@"\@(SET)\{[\s\S]*?(.*?)\}\@", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -66,7 +66,7 @@ namespace CosmosManager.Parsers
 
         public string ParseWhere(string query)
         {
-            var rgx = new Regex(@"\@(WHERE)\{[\s\S]*?(.*?)\}\@");
+            var rgx = new Regex(@"\@(WHERE)\{[\s\S]*?(.*?)\}\@", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -83,7 +83,7 @@ namespace CosmosManager.Parsers
 
         public string ParseRollback(string query)
         {
-            var rgx = new Regex(@"\@(ROLLBACK)[\s\S]*(.*?)");
+            var rgx = new Regex(@"\@(ROLLBACK)[\s\S]*(.*?)", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -100,7 +100,7 @@ namespace CosmosManager.Parsers
 
         public string ParseTransaction(string query)
         {
-            var rgx = new Regex(@"(TRANSACTION)[\s\S]*(.*?)");
+            var rgx = new Regex(@"(TRANSACTION)[\s\S]*(.*?)", RegexOptions.Compiled);
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)

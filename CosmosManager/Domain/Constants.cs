@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace CosmosManager.Domain
 {
     public static class Constants
@@ -13,7 +15,7 @@ namespace CosmosManager.Domain
             public const string ID = "id";
         }
 
-        public static class QueryKeywords
+        public static class QueryParsingKeywords
         {
             public const string SELECT = "SELECT";
             public const string UPDATE = "UPDATE";
@@ -27,6 +29,113 @@ namespace CosmosManager.Domain
             public const string INTO = "INTO";
             public const string REPLACE = "REPLACE";
             public const string ORDERBY = "ORDER BY";
+            public const string JOIN = "JOIN";
         }
+
+        public static List<string> KeyWordList = new List<string>{
+                QueryParsingKeywords.FROM,
+                QueryParsingKeywords.SELECT,
+                QueryParsingKeywords.SET,
+                QueryParsingKeywords.REPLACE,
+                QueryParsingKeywords.ROLLBACK,
+                QueryParsingKeywords.TRANSACTION,
+                QueryParsingKeywords.WHERE,
+                QueryParsingKeywords.UPDATE,
+                QueryParsingKeywords.INSERT,
+                QueryParsingKeywords.INTO,
+                QueryParsingKeywords.DELETE,
+                QueryParsingKeywords.ORDERBY,
+                QueryParsingKeywords.JOIN,
+                "IN",
+                "AND",
+                "OR",
+                "BETWEEN",
+                "NOT",
+                "DESC",
+                "ASC",
+                "VALUE"
+            };
+
+        public static List<string> BuiltInKeyWordList = new List<string>{
+                "ABS",
+                "ACOS",
+                "ASIN",
+                "ATAN",
+                "ATN2",
+                "CEILING",
+                "COS",
+                "COT",
+                "DEGREES",
+                "EXP",
+                "FLOOR",
+                "LOG",
+                "LOG10",
+                "PI",
+                "POWER",
+                "RADIANS",
+                "ROUND",
+                "SIN",
+                "SQRT",
+                "SQUARE",
+                "SIGN",
+                "TANTRUNC",
+                "IS_ARRAY",
+                "IS_BOOL",
+                "IS_DEFINED",
+                "IS_NULL",
+                "IS_NUMBER",
+                "IS_OBJECT",
+                "IS_PRIMITIVE",
+                "IS_STRING",
+                "CONCAT",
+                "CONTAINS",
+                "ENDSWITH",
+                "INDEX_OF",
+                "LEFT",
+                "LENGTH",
+                "LOWER",
+                "LTRIM",
+                "REPLACE",
+                "REPLICATE",
+                "REVERSE",
+                "RIGHT",
+                "RTRIM",
+                "STARTSWITH",
+                "SUBSTRING",
+                "ToString",
+                "TRIM",
+                "UPPER",
+                "ARRAY_CONCAT",
+                "ARRAY_CONTAINS",
+                "ARRAY_LENGTH",
+                "ARRAY_SLICE",
+                "COUNT",
+                "SUM",
+                "MIN",
+                "MAX",
+                "AVG",
+
+            };
+
+        public static List<string> NewLineKeywords = new List<string> {
+                QueryParsingKeywords.FROM,
+                QueryParsingKeywords.SELECT,
+                QueryParsingKeywords.SET,
+                QueryParsingKeywords.REPLACE,
+                QueryParsingKeywords.ROLLBACK,
+                QueryParsingKeywords.TRANSACTION,
+                QueryParsingKeywords.WHERE,
+                QueryParsingKeywords.UPDATE,
+                QueryParsingKeywords.INSERT,
+                QueryParsingKeywords.INTO,
+                QueryParsingKeywords.DELETE,
+                QueryParsingKeywords.ORDERBY,
+                QueryParsingKeywords.JOIN
+         };
+
+        public static List<string> IndentKeywords = new List<string> {
+
+        };
+
     }
 }

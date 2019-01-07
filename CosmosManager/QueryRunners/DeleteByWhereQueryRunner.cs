@@ -27,15 +27,20 @@ namespace CosmosManager.QueryRunners
         {
             //this should only work on queries like:  DELETE * FROM Collection WHERE Collection.PartitionKey = 'test'
             var queryParts = _queryParser.Parse(query);
-            return queryParts.QueryType.Equals(Constants.QueryKeywords.DELETE, StringComparison.InvariantCultureIgnoreCase)
-                && queryParts.QueryBody.Equals("*") && !string.IsNullOrEmpty(queryParts.QueryWhere);
+            return queryParts.CleanQueryType.Equals(Constants.QueryParsingKeywords.DELETE, StringComparison.InvariantCultureIgnoreCase)
+                && queryParts.CleanQueryBody.Equals("*") && !string.IsNullOrEmpty(queryParts.CleanQueryWhere);
         }
 
         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
         {
+            var queryParts = _queryParser.Parse(queryStatement);
+            return await RunAsync(documentStore, connection, queryParts, logStats, logger);
+        }
+
+         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, QueryParts queryParts, bool logStats, ILogger logger)
+        {
             try
             {
-                var queryParts = _queryParser.Parse(queryStatement);
                 if (!queryParts.IsValidQuery())
                 {
                     logger.LogError("Invalid Query. Aborting Delete.");
@@ -64,7 +69,7 @@ namespace CosmosManager.QueryRunners
                 if (queryParts.IsTransaction)
                 {
                     logger.LogInformation($"Transaction Created. TransactionId: {queryParts.TransactionId}");
-                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, _queryParser.OrginalQuery);
+                    await _transactionTask.BackuQueryAsync(connection.Name, connection.Database, queryParts.CollectionName, queryParts.TransactionId, queryParts.CleanOrginalQuery);
                 }
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(connection.Database, queryParts.CollectionName);
 
@@ -123,7 +128,7 @@ namespace CosmosManager.QueryRunners
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, new EventId(), $"Unable to run {Constants.QueryKeywords.DELETE} query", ex);
+                logger.Log(LogLevel.Error, new EventId(), $"Unable to run {Constants.QueryParsingKeywords.DELETE} query", ex);
                 return (false, null);
             }
         }
