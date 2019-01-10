@@ -191,10 +191,15 @@ namespace CosmosManager
                 resultListView.Columns[1].Text = headers.header1;
                 resultListView.Columns[2].Text = headers.header2;
             }
-            _totalDocumentCount += results.Count;
+            var validResultCount = 0;
             foreach (var item in results)
             {
                 var fromObject = JObject.FromObject(item);
+                if (!fromObject.HasValues)
+                {
+                    continue;
+                }
+                validResultCount++;
                 var listItem = new ListViewItem();
                 if (appendResults && resultListView.Groups.Count > 0)
                 {
@@ -209,12 +214,15 @@ namespace CosmosManager
                     Text = String.Empty
                 };
 
-                col1Prop = resultProps.FirstOrDefault(f => f.Name == Constants.DocumentFields.ID);
-                if (col1Prop == null)
+                if (resultProps.Count() > 0)
                 {
-                    col1Prop = resultProps.First();
+                    col1Prop = resultProps.FirstOrDefault(f => f.Name == Constants.DocumentFields.ID);
+                    if (col1Prop == null)
+                    {
+                        col1Prop = resultProps.FirstOrDefault();
+                    }
+                    col1Token = col1Prop?.Value;
                 }
-                col1Token = col1Prop.Value;
                 subItem.Text = col1Token?.Value<string>();
                 listItem.SubItems.Add(subItem);
 
@@ -248,6 +256,7 @@ namespace CosmosManager
                 }
                 resultListView.Items.Add(listItem);
             }
+            _totalDocumentCount += validResultCount;
             SetResultCountLabel();
             resultListToolStrip.Refresh();
         }
