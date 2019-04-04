@@ -162,6 +162,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\IVariableInjectionTask.cs" />
     <Compile Include="QueryRunners\UpdateByWhereQueryRunner.cs" />
     <Compile Include="QueryRunners\UpdateByIdQueryRunner.cs" />
     <Compile Include="QueryRunners\InsertQueryRunner.cs" />
@@ -171,6 +172,7 @@
     <Compile Include="Parsers\QueryStatementParser.cs" />
     <Compile Include="QueryRunners\DeleteByWhereQueryRunner.cs" />
     <Compile Include="Interfaces\ITransactionTask.cs" />
+    <Compile Include="Tasks\VariableInjectionTask.cs" />
     <Compile Include="Stylers\BaseStyler.cs" />
     <Compile Include="Stylers\JsonDocumentStyler.cs" />
     <Compile Include="Stylers\QueryWindowStyler.cs" />

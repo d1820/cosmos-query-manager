@@ -14,10 +14,12 @@ namespace CosmosManager.QueryRunners
     public class SelectQueryRunner : IQueryRunner
     {
         private readonly IQueryStatementParser _queryParser;
+        private readonly IVariableInjectionTask _variableInjectionTask;
 
-        public SelectQueryRunner(IQueryStatementParser queryStatementParser)
+        public SelectQueryRunner(IQueryStatementParser queryStatementParser, IVariableInjectionTask variableInjectionTask)
         {
             _queryParser = queryStatementParser;
+            _variableInjectionTask = variableInjectionTask;
         }
 
         public bool CanRun(string query)
@@ -52,61 +54,9 @@ namespace CosmosManager.QueryRunners
                                                                               MaxItemCount = -1,
                                                                           };
                                                                           var rawQuery = queryParts.ToRawQuery();
-
                                                                           if (variables != null && variables.Any() && queryParts.HasVariablesInWhereClause())
                                                                           {
-                                                                              var variableRgx = new Regex(@"\@\w+", RegexOptions.Compiled);
-                                                                              var variableCount = variableRgx.Matches(rawQuery).Count;
-
-                                                                              var variableCheckRegEx = new Regex(@"\@\w+", RegexOptions.Compiled);
-                                                                              //if where does not contain an IN statement then its not to be used with a variable
-                                                                              var checkForInWithVariableRegEx = new Regex($@"\s(IN)\s\([\s]*\@\w+", RegexOptions.Compiled);
-                                                                              var inVariableStatementMatches = checkForInWithVariableRegEx.Matches(rawQuery);
-                                                                              //if we dont have any matches, check to see if we are trying to use variables wrong
-                                                                              if ( (inVariableStatementMatches.Count == 0 && variableCount > 0) ||
-                                                                                    (inVariableStatementMatches.Count > 0 && inVariableStatementMatches.Count != variableCount))
-                                                                              {
-                                                                                  throw new Exception("Variables have been found that are not part of an IN statement. Please check your query and variables and try again.");
-                                                                              }
-
-                                                                              foreach (Match match in inVariableStatementMatches)
-                                                                              {
-                                                                                  var varNameMatch = variableRgx.Match(match.Value);
-
-                                                                                  if (!varNameMatch.Success)
-                                                                                  {
-                                                                                      throw new Exception($"Variable {match.Value} has not been defined and set. Please check variable and try again.");
-                                                                                  }
-                                                                                  var dataResults = variables[varNameMatch.Value];
-                                                                                  if (dataResults == null || !dataResults.Any())
-                                                                                  {
-                                                                                      throw new Exception($"Variable {match.Value} has not been set. Please check variable and try again.");
-
-                                                                                  }
-                                                                                  //get the replace pattern to lookup from results
-                                                                                  var pathRegEx = new Regex($@"\{varNameMatch.Value}(.*?)(?=\s*\))");
-                                                                                  var docPathMatch = pathRegEx.Match(rawQuery);
-                                                                                  var docPath = docPathMatch.Value.Replace(varNameMatch.Value, "");
-                                                                                  var list = new List<object>();
-                                                                                  foreach (var doc in dataResults)
-                                                                                  {
-                                                                                      var jDoc = JObject.FromObject(doc);
-                                                                                      var prop = jDoc.SelectToken(docPath);
-                                                                                      var propValue = prop.Value<object>();
-                                                                                      if (propValue != null)
-                                                                                      {
-                                                                                          if (prop.Type == JTokenType.String)
-                                                                                          {
-                                                                                              list.Add($"'{prop.Value<string>()}'");
-                                                                                          }
-                                                                                          else
-                                                                                          {
-                                                                                              list.Add(propValue);
-                                                                                          }
-                                                                                      }
-                                                                                  }
-                                                                                  rawQuery = pathRegEx.Replace(rawQuery, string.Join(",", list.Distinct()));
-                                                                              }
+                                                                              rawQuery = _variableInjectionTask.InjectVariables(rawQuery, variables);
                                                                           }
                                                                           var query = context.QueryAsSql<object>(rawQuery, queryOptions);
                                                                           return await query.ConvertAndLogRequestUnits(logStats, logger);

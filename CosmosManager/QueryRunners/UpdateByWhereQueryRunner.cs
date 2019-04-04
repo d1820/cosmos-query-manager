@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -16,11 +17,13 @@ namespace CosmosManager.QueryRunners
         private int MAX_DEGREE_PARALLEL = 5;
         private IQueryStatementParser _queryParser;
         private readonly ITransactionTask _transactionTask;
+        private readonly IVariableInjectionTask _variableInjectionTask;
 
-        public UpdateByWhereQueryRunner(ITransactionTask transactionTask, IQueryStatementParser queryStatementParser)
+        public UpdateByWhereQueryRunner(ITransactionTask transactionTask, IQueryStatementParser queryStatementParser, IVariableInjectionTask variableInjectionTask)
         {
             _queryParser = queryStatementParser;
             _transactionTask = transactionTask;
+            _variableInjectionTask = variableInjectionTask;
         }
 
         public bool CanRun(string query)
@@ -67,6 +70,11 @@ namespace CosmosManager.QueryRunners
                                                                              MaxDegreeOfParallelism = MAX_DEGREE_PARALLEL,
                                                                              MaxItemCount = -1,
                                                                          };
+
+                                                                         if (variables != null && variables.Any() && queryParts.HasVariablesInWhereClause())
+                                                                         {
+                                                                             selectQuery = _variableInjectionTask.InjectVariables(selectQuery, variables);
+                                                                         }
 
                                                                          var query = context.QueryAsSql<object>(selectQuery, queryOptions);
                                                                          return await query.ConvertAndLogRequestUnits(false, logger);

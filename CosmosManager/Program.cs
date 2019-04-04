@@ -57,6 +57,7 @@ namespace CosmosManager
 
 
             container.Register<ITransactionTask, TransactionTask>();
+            container.Register<IVariableInjectionTask, VariableInjectionTask>();
             container.Register<IFormOpener, FormManager>(Lifestyle.Singleton);
             container.Register<IClientConnectionManager, ClientConnectionManager>(Lifestyle.Singleton);
 
