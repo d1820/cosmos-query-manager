@@ -8,6 +8,26 @@ namespace CosmosManager.Parsers
 {
     public class StringQueryParser : IQueryParser
     {
+
+        public string ParseVariables(string query)
+        {
+            var rgx = new Regex($@"^\@\w+[\s]*=[\s]*(SELECT)[\s\S]*(.*?)", RegexOptions.Compiled);
+            var matches = rgx.Matches(query);
+            if (matches.Count == 0)
+            {
+                return string.Empty;
+            }
+            if (matches.Count > 1)
+            {
+                throw new FormatException($"Invalid query. Only {Constants.QueryParsingKeywords.SELECT} statements can support variable assignment.");
+            }
+
+            //this is a select lets check for a variable
+            var variableRgx = new Regex(@"^\@\w+");
+            var match = variableRgx.Match(query);
+            return match.Value;
+        }
+
         public (string queryType, string queryBody) ParseQueryBody(string query)
         {
             var rgxInsert = new Regex($@"({Constants.QueryParsingKeywords.INSERT})[\s\S]*(.*?)(?={Constants.QueryParsingKeywords.INTO})", RegexOptions.Compiled);

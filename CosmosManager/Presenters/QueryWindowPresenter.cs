@@ -26,6 +26,8 @@ namespace CosmosManager.Presenters
         private dynamic _context;
         private readonly IClientConnectionManager _clientConnectionManager;
 
+        private Dictionary<string, IReadOnlyCollection<object>> _variables = new Dictionary<string, IReadOnlyCollection<object>>();
+
         public QueryWindowPresenter(IClientConnectionManager clientConnectionManager,
                                     IQueryStatementParser queryStatementParser,
                                     IQueryWindowPresenterLogger logger,
@@ -96,9 +98,11 @@ namespace CosmosManager.Presenters
         {
             _view.ResetResultsView();
             ResetQueryOutput();
+
             //execute th interpretor and run against cosmos and connection
             if (SelectedConnection is Connection && SelectedConnection != null)
             {
+                _variables.Clear();
                 _view.SetStatusBarMessage("Executing Query...", true);
 
                 var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
@@ -127,7 +131,7 @@ namespace CosmosManager.Presenters
                             AddToQueryOutput(new string('-', 300));
                         }
 
-                        var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts, true, _logger);
+                        var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts, true, _logger, _variables);
                         if (!response.success)
                         {
                             _view.ShowMessage($"Unable to execute query: {queryParts.CleanOrginalQuery}. Verify query and try again.", "Query Execution Error");
@@ -330,8 +334,11 @@ namespace CosmosManager.Presenters
 
         private IEnumerable<string> CleanAndSplitQueryText(string queryToParse)
         {
-
             var preCleanString = _queryParser.CleanQueryText(queryToParse);
+
+            //remove all the comments then parse
+            preCleanString = _queryParser.ParseAndCleanComments(preCleanString).commentFreeQuery;
+
             //splits on semit-colon
             const string pattern = @";(?!\s*(?=\*\/))";
             var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);

@@ -5,6 +5,7 @@ namespace CosmosManager.Domain
 {
     public class QueryParts
     {
+        public string VariableName { private get; set; }
         public string QueryType { private get; set; }
         public string QueryBody { private get; set; }
 
@@ -34,9 +35,10 @@ namespace CosmosManager.Domain
         public string CleanQueryWhere => QueryWhere.Replace("|", " ").Trim();
         public string CleanQueryOrderBy => QueryOrderBy.Replace("|", " ").Trim();
         public string CleanQueryJoin => QueryJoin.Replace("|", " ").Trim();
+        public string CleanVariableName => VariableName.Replace("|", " ").Trim();
 
-        public string CleanOrginalQuery  => OrginalQuery.Replace("|", " ").Trim();
-        
+        public string CleanOrginalQuery => OrginalQuery.Replace("|", " ").Trim();
+
         public bool IsTransaction => !string.IsNullOrWhiteSpace(TransactionId);
 
         public string TransactionId { get; set; }
@@ -114,7 +116,17 @@ namespace CosmosManager.Domain
 
         public bool HasJoins() => !string.IsNullOrEmpty(CleanQueryJoin);
 
+        public bool HasVariableAssignment() => !string.IsNullOrEmpty(VariableName);
 
+        public bool HasVariablesInWhereClause()
+        {
+            if (HasWhereClause())
+            {
+                var variableRgx = new Regex(@"\@\w+", RegexOptions.Compiled);
+                return variableRgx.Matches(CleanQueryWhere).Count > 0;
+            }
+            return false;
+        }
 
         public string ToRawQuery()
         {

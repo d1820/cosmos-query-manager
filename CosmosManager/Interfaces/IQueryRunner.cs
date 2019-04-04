@@ -9,9 +9,9 @@ namespace CosmosManager.Interfaces
     {
         bool CanRun(string query);
 
-        Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger);
+        Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger, Dictionary<string, IReadOnlyCollection<object>> variables = null);
 
-        Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, QueryParts queryParts, bool logStats, ILogger logger);
+        Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, QueryParts queryParts, bool logStats, ILogger logger, Dictionary<string, IReadOnlyCollection<object>> variables = null);
 
     }
 }

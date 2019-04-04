@@ -1,4 +1,5 @@
 ﻿using CosmosManager.Domain;
+using System.Text.RegularExpressions;
 
 namespace CosmosManager.Interfaces
 {
@@ -11,5 +12,7 @@ namespace CosmosManager.Interfaces
         string CleanExtraNewLines(string query);
 
         QueryParts Parse(string query);
+
+        (MatchCollection comments, string commentFreeQuery) ParseAndCleanComments(string query);
     }
 }

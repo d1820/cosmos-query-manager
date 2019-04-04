@@ -31,13 +31,13 @@ namespace CosmosManager.QueryRunners
                 && queryParts.CleanQueryBody.Equals("*") && !string.IsNullOrEmpty(queryParts.CleanQueryWhere);
         }
 
-        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger, Dictionary<string, IReadOnlyCollection<object>> variables = null)
         {
             var queryParts = _queryParser.Parse(queryStatement);
-            return await RunAsync(documentStore, connection, queryParts, logStats, logger);
+            return await RunAsync(documentStore, connection, queryParts, logStats, logger, variables);
         }
 
-         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, QueryParts queryParts, bool logStats, ILogger logger)
+         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, QueryParts queryParts, bool logStats, ILogger logger, Dictionary<string, IReadOnlyCollection<object>> variables = null)
         {
             try
             {

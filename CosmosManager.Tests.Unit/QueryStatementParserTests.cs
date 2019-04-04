@@ -16,6 +16,7 @@ namespace CosmosManager.Tests.Unit
             var mockParser = new Mock<IQueryParser>();
             _parser = new QueryStatementParser(mockParser.Object);
         }
+        #region CleanQuery
 
         [Fact]
         public void CleanQuery_RemovesTabs_NewLines_Returns()
@@ -102,6 +103,15 @@ namespace CosmosManager.Tests.Unit
             var rawQuery = _parser.CleanQueryText(query);
 
             rawQuery.Contains("ROLLBACK").Should().BeTrue();
+
+        }
+        #endregion
+
+        [Fact]
+        public void Parse_Variable_ReturnsVariableName()
+        {
+            var query = "astransaction @test = select * from Market where Market.Name = 'where'";
+            var rawQuery = _parser.Parse(query);
 
         }
 

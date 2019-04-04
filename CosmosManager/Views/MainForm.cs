@@ -340,7 +340,13 @@ namespace CosmosManager
         private void tabBackgroundPanel_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             //find the bounding box of the top tab area and if greater then last tab X/Y open new tab
-            var lastTab = queryTabControl.GetTabRect(queryTabControl.TabPages.Count - 1);
+            var TabPagesCount = queryTabControl.TabPages.Count - 1;
+            if(TabPagesCount < 0)
+            {
+                CreateTempQueryTab("");
+                return;
+            }
+            var lastTab = queryTabControl.GetTabRect(TabPagesCount);
             if (e.Location.X > lastTab.Right && e.Location.Y < lastTab.Bottom)
             {
                 CreateTempQueryTab("");
