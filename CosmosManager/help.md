@@ -128,7 +128,7 @@ When doing a full document replace only **one** document can be updated at a tim
 ```
 ASTransaction
 UPDATE '14e42d8c-7583-432f-8dd0-d80e699ef41f'
-from Marketplace
+from Market
 REPLACE {
     "id": "14e42d8c-7583-432f-8dd0-d80e699ef41f",
     "PartitionKey": "List",
@@ -166,7 +166,7 @@ This is based on the index of the array item. So items in the SET **MUST** be in
 ```
 ASTransaction
 UPDATE '14e42d8c-7583-432f-8dd0-d80e699ef41f'
-from Marketplace
+from Market
 SET {
     "Name": {
         "Key": "NewNameKey",
@@ -195,7 +195,7 @@ Cosmos Manager supports being able to run a group of queries at once.
 These query statements are ran synchronously and in the order written in the query window. 
 Each statement must be terminated with a semi-colon **(;)**
 
-While it is not currently possible to have the results of one query fill in the data source to the next query this functionality is on the road map for the future.
+See **Select Query Results Into Variables** below to see how the results of one query can be used to fill in criteria to the next query.
 
 ##### SQL/Cosmos syntax
 ```
@@ -222,5 +222,50 @@ WHERE Market.PartitionKey = 'List'
 
 ```
 
+### Select Query Results Into Variables
+Cosmos Manager supports being able to select results into a variable and use the variable in additional query WHERE clauses. 
+
+The result that is stored in the variable is an array of documents. Because the results are documents json dot notation can be used to access values and sub properties.
+
+Variable queries are still output to the application results window to data tracing can be done.
+
+#### Limitations
+- Variables can only be used with **IN()** statements 
+- Access sub arrays of a result document is not supported. However multiple variables can be created and used to accommodate sub array querying
+
+
+##### SQL/Cosmos syntax
+###### Selects
+```
+@userProfile = Select * from Market m Where Contains(m.PartitionKey, 'UserProfile');
+@product = Select * from Products p Where p.ProductLinkingId = '68cb0267-3087-4d40-84c5-ede71939e620';
+
+@planTokens = Select ct.ProductPlanToken from Market m 
+JOIN ct IN m.Products
+Where Contains(m.PartitionKey, 'User.Products') AND
+m.UserId IN (@userProfile.id)
+AND ct.ProductId IN (@product.id); 
+
+Select * from UserPayments w
+Where w.PToken IN (@planTokens.ProductPToken);
+
+```
+
+###### Update
+```
+@sublist = Select *
+ from Market m
+where m.PartitionKey = 'List' AND CONTAINS(m.Name.Key, 'type');
+
+astransaction
+UPDATE *
+ from Market m
+where m.PartitionKey = 'List' AND m.id IN (@sublist.id)
+SET {
+	"WesterId": 'update'
+}
+
+```
+
 ## Supported Applications
-- Cosmos Emulator Min Required Version 2.2.0. This requirement is due to the coupling of DocumentDB Nuget packages to the emulator installed locally. If you do not use the emulator this is not a requirement of using the application.
+- Cosmos Emulator Min Required Version 2.1.2. This requirement is due to the coupling of DocumentDB Nuget packages to the emulator installed locally. If you do not use the emulator this is not a requirement of using the application.
