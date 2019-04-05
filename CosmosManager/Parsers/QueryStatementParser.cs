@@ -25,6 +25,7 @@ namespace CosmosManager.Parsers
             var updateTypeAndBody = _queryParser.ParseUpdateBody(cleanQuery);
             return new QueryParts
             {
+                VariableName = _queryParser.ParseVariables(cleanQuery),
                 QueryBody = typeAndBody.queryBody.Trim(),
                 QueryType = typeAndBody.queryType.Trim(),
                 QueryFrom = _queryParser.ParseFromBody(cleanQuery).Trim(),
@@ -68,7 +69,7 @@ namespace CosmosManager.Parsers
             //get rid of all extra spaces
             cleanString = CleanExtraSpaces(cleanString);
             //get rid of all extra new lines
-            cleanString =  CleanExtraNewLines(cleanString);
+            cleanString = CleanExtraNewLines(cleanString);
 
             foreach (var word in Constants.KeyWordList.Concat(Constants.BuiltInKeyWordList))
             {
@@ -76,6 +77,11 @@ namespace CosmosManager.Parsers
                 cleanString = Regex.Replace(cleanString, pattern, word.ToUpperInvariant(), RegexOptions.IgnoreCase | RegexOptions.Compiled);
             }
             return cleanString;
+        }
+
+        public (MatchCollection comments, string commentFreeQuery) ParseAndCleanComments(string query)
+        {
+            return _queryParser.ParseAndCleanComments(query);
         }
     }
 }

@@ -103,7 +103,8 @@ namespace CosmosManager
         {
             try
             {
-                runQueryButton.Enabled = false;
+                runQueryButton.Visible = false;
+                stopQueryButton.Visible = true;
                 _totalDocumentCount = 0;
                 textDocument.Text = string.Empty;
                 SetResultCountLabel();
@@ -114,7 +115,8 @@ namespace CosmosManager
             }
             finally
             {
-                runQueryButton.Enabled = true;
+                runQueryButton.Visible = true;
+                stopQueryButton.Visible = false;
             }
         }
 
@@ -222,8 +224,24 @@ namespace CosmosManager
                         col1Prop = resultProps.FirstOrDefault();
                     }
                     col1Token = col1Prop?.Value;
+                    subItem.Text = col1Token?.Type != JTokenType.Object ? col1Token?.Value<string>() : "";
+                    if (col1Prop?.Type == JTokenType.Property)
+                    {
+                        var resultPropJToken = col1Prop?.Value;
+                        if(resultPropJToken?.Type == JTokenType.Object)
+                        {
+                            col1Token = resultPropJToken.SelectToken(Constants.DocumentFields.ID);
+                            if(col1Token?.Value<object>() == null)
+                            {
+                                subItem.Text = resultPropJToken.FirstOrDefault()?.FirstOrDefault()?.Value<dynamic>();
+                            }
+                            else
+                            {
+                                subItem.Text = col1Token?.Value<string>();
+                            }
+                        }
+                    }
                 }
-                subItem.Text = col1Token?.Value<string>();
                 listItem.SubItems.Add(subItem);
 
                 if (resultProps.Count() > 1)
@@ -677,6 +695,14 @@ namespace CosmosManager
         private void resultOutdentButton_Click(object sender, EventArgs e)
         {
             GenerateKeystrokes("+{TAB}", textDocument);
+        }
+
+        private void stopQueryButton_Click(object sender, EventArgs e)
+        {
+            runQueryButton.Visible = true;
+            stopQueryButton.Visible = false;
+            Application.DoEvents();
+            Presenter.StopQuery();
         }
     }
 }

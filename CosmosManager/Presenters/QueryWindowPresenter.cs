@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CosmosManager.Presenters
@@ -25,6 +26,9 @@ namespace CosmosManager.Presenters
         private IEnumerable<IQueryRunner> _queryRunners = new List<IQueryRunner>();
         private dynamic _context;
         private readonly IClientConnectionManager _clientConnectionManager;
+
+        private Dictionary<string, IReadOnlyCollection<object>> _variables = new Dictionary<string, IReadOnlyCollection<object>>();
+        private CancellationTokenSource _source;
 
         public QueryWindowPresenter(IClientConnectionManager clientConnectionManager,
                                     IQueryStatementParser queryStatementParser,
@@ -92,13 +96,33 @@ namespace CosmosManager.Presenters
             _view.Query = query;
         }
 
+        static ManualResetEventSlim mres = new ManualResetEventSlim(false);
+        public void StopQuery()
+        {
+            if (!_source.IsCancellationRequested)
+            {
+                _view.SetStatusBarMessage("Stopping Query...", true);
+                _source.Cancel();
+                try
+                {
+                    mres.Wait(_source.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    _view.SetStatusBarMessage("Ready");
+                }
+            }
+        }
         public async Task RunAsync()
         {
+            _source = new CancellationTokenSource();
             _view.ResetResultsView();
             ResetQueryOutput();
+
             //execute th interpretor and run against cosmos and connection
             if (SelectedConnection is Connection && SelectedConnection != null)
             {
+                _variables.Clear();
                 _view.SetStatusBarMessage("Executing Query...", true);
 
                 var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
@@ -116,6 +140,11 @@ namespace CosmosManager.Presenters
                 var hasError = false;
                 for (var i = 0; i < queries.Length; i++)
                 {
+                    if (_source.Token.IsCancellationRequested)
+                    {
+                        _logger.LogError($"Query has been requested to cancel.");
+                        break;
+                    }
                     var queryParts = queries[i];
                     var runner = _queryRunners.FirstOrDefault(f => f.CanRun(queryParts.CleanOrginalQuery));
                     if (runner != null)
@@ -127,7 +156,7 @@ namespace CosmosManager.Presenters
                             AddToQueryOutput(new string('-', 300));
                         }
 
-                        var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts, true, _logger);
+                        var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts, true, _logger, _source.Token, _variables);
                         if (!response.success)
                         {
                             _view.ShowMessage($"Unable to execute query: {queryParts.CleanOrginalQuery}. Verify query and try again.", "Query Execution Error");
@@ -160,7 +189,7 @@ namespace CosmosManager.Presenters
                 {
                     ShowOutputTab();
                 }
-                _view.SetStatusBarMessage("Ready", false);
+                _view.SetStatusBarMessage("Ready");
             }
             else
             {
@@ -175,7 +204,8 @@ namespace CosmosManager.Presenters
 
             try
             {
-                var result = await documentStore.ExecuteAsync(SelectedConnection.Database, documentResult.CollectionName, context => context.UpdateAsync(documentResult.Document));
+                var source = new CancellationTokenSource();
+                var result = await documentStore.ExecuteAsync(SelectedConnection.Database, documentResult.CollectionName, context => context.UpdateAsync(documentResult.Document), source.Token);
                 _view.SetStatusBarMessage("Document Saved");
                 _view.SetUpdatedResultDocument(result);
                 return result;
@@ -202,11 +232,12 @@ namespace CosmosManager.Presenters
 
             try
             {
+                var source = new CancellationTokenSource();
                 var document = documentResult.Document;
                 var partitionKeyPath = await documentStore.LookupPartitionKeyPath(SelectedConnection.Database, documentResult.CollectionName);
                 var partionKeyValue = document.SelectToken(partitionKeyPath).ToString();
                 var result = await documentStore.ExecuteAsync(SelectedConnection.Database, documentResult.CollectionName,
-                       context => context.DeleteAsync(document[Constants.DocumentFields.ID].ToString(), new RequestOptions() { PartitionKey = partionKeyValue }));
+                       context => context.DeleteAsync(document[Constants.DocumentFields.ID].ToString(), new RequestOptions() { PartitionKey = partionKeyValue }), source.Token);
 
                 _view.SetStatusBarMessage("Document Deleted");
                 _view.DocumentText = string.Empty;
@@ -330,8 +361,11 @@ namespace CosmosManager.Presenters
 
         private IEnumerable<string> CleanAndSplitQueryText(string queryToParse)
         {
-
             var preCleanString = _queryParser.CleanQueryText(queryToParse);
+
+            //remove all the comments then parse
+            preCleanString = _queryParser.ParseAndCleanComments(preCleanString).commentFreeQuery;
+
             //splits on semit-colon
             const string pattern = @";(?!\s*(?=\*\/))";
             var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);

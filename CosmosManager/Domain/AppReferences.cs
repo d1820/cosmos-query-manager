@@ -1,4 +1,5 @@
 ﻿using SimpleInjector;
+using System.Windows.Forms;
 
 namespace CosmosManager.Domain
 {

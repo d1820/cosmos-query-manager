@@ -42,8 +42,7 @@ To create the connections file view the Help Guide.
 ### Changing connections
 In the query options toolbar on the far right is a dropdown to change the connection string of where the query gets executed. Each connection string will color the current tab to a set color. This helps in keeping track of what environment a query has been ran against at a quick glance.
 
-![](/Content/CMConnectionChange.png)
-
+<img src="Content/CMConnectionChange.png" >
 
 ## Query Options
 
@@ -80,7 +79,7 @@ On selects we have options available to manipulate the results list
 ## Query Output
 In the output tab we can see all information related to the executed query. On selects we output all the cosmos metrics and costs, on other queries information related to the success of the query are displayed.
 
-![](/Content/CMQueryOutput.png)
+<img src="Content/CMQueryOutput.png">
 
 ## Transaction Cache
 The transaction cache is the storage location where rollback files are stored. The application never deletes from this folder so there is always a rollback 

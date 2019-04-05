@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CosmosManager.QueryRunners
@@ -25,13 +26,13 @@ namespace CosmosManager.QueryRunners
             return queryParts.IsValidInsertQuery();
         }
 
-        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
         {
             var queryParts = _queryParser.Parse(queryStatement);
-            return await RunAsync(documentStore, connection, queryParts, logStats, logger);
+            return await RunAsync(documentStore, connection, queryParts, logStats, logger, cancellationToken, variables);
         }
 
-        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection,  QueryParts queryParts, bool logStats, ILogger logger)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection,  QueryParts queryParts, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
         {
             try
             {
@@ -58,7 +59,8 @@ namespace CosmosManager.QueryRunners
                                             var singlaDoc = await context.CreateAsync(doc);
                                             jDocs.Add(singlaDoc);
                                             return jDocs;
-                                        });
+                                        }, cancellationToken);
+
                 foreach (var newDoc in newDocs)
                 {
                     logger.LogInformation($"Document {newDoc[Constants.DocumentFields.ID]} created.");

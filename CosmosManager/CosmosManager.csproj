@@ -22,7 +22,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>16</ApplicationRevision>
+    <ApplicationRevision>17</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -162,6 +162,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\IVariableInjectionTask.cs" />
     <Compile Include="QueryRunners\UpdateByWhereQueryRunner.cs" />
     <Compile Include="QueryRunners\UpdateByIdQueryRunner.cs" />
     <Compile Include="QueryRunners\InsertQueryRunner.cs" />
@@ -171,6 +172,7 @@
     <Compile Include="Parsers\QueryStatementParser.cs" />
     <Compile Include="QueryRunners\DeleteByWhereQueryRunner.cs" />
     <Compile Include="Interfaces\ITransactionTask.cs" />
+    <Compile Include="Tasks\VariableInjectionTask.cs" />
     <Compile Include="Stylers\BaseStyler.cs" />
     <Compile Include="Stylers\JsonDocumentStyler.cs" />
     <Compile Include="Stylers\QueryWindowStyler.cs" />
@@ -230,6 +232,7 @@
     <Compile Include="Stores\DocumentExecuteContext.cs" />
     <Compile Include="Stores\StoredProcedureExecuteContext.cs" />
     <Compile Include="Domain\ThemeType.cs" />
+    <None Include="Resources\Stop-red-icon.png" />
     <None Include="Resources\format_font_size_more.png" />
     <None Include="Resources\format_font_size_less.png" />
     <None Include="Resources\text_indent.png" />

@@ -16,7 +16,6 @@ namespace CosmosManager
         private TabPage contextTabPage;
         private readonly IFormOpener _formManager;
 
-
         public IMainFormPresenter Presenter { private get; set; }
 
         public MainForm(IFormOpener formManager, IMainFormPresenter presenter)
@@ -25,11 +24,23 @@ namespace CosmosManager
 
             MainFormStyler.ApplyTheme(ThemeType.Dark, this);
 
+            if (Properties.Settings.Default.UpdateSettings)
+            {
+                Properties.Settings.Default.Upgrade();
+                Properties.Settings.Default.UpdateSettings = false;
+                Properties.Settings.Default.Save();
+            }
+
             _formManager = formManager;
             presenter.InitializePresenter(new
             {
                 MainForm = this
             });
+
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.SelectedPath))
+            {
+                Presenter.PopulateTreeView(Properties.Settings.Default.SelectedPath);
+            }
         }
 
         protected override void WndProc(ref Message m)
@@ -116,6 +127,8 @@ namespace CosmosManager
             {
                 queryTabControl.TabPages.Clear();
                 Presenter.PopulateTreeView(folderBrowserDialog1.SelectedPath);
+                Properties.Settings.Default.SelectedPath = folderBrowserDialog1.SelectedPath;
+                Properties.Settings.Default.Save();
             }
         }
 
@@ -336,11 +349,16 @@ namespace CosmosManager
             CreateTempQueryTab("");
         }
 
-
         private void tabBackgroundPanel_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             //find the bounding box of the top tab area and if greater then last tab X/Y open new tab
-            var lastTab = queryTabControl.GetTabRect(queryTabControl.TabPages.Count - 1);
+            var TabPagesCount = queryTabControl.TabPages.Count - 1;
+            if (TabPagesCount < 0)
+            {
+                CreateTempQueryTab("");
+                return;
+            }
+            var lastTab = queryTabControl.GetTabRect(TabPagesCount);
             if (e.Location.X > lastTab.Right && e.Location.Y < lastTab.Bottom)
             {
                 CreateTempQueryTab("");

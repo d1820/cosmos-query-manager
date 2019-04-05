@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CosmosManager.Stores
@@ -17,12 +18,14 @@ namespace CosmosManager.Stores
         private readonly string _databaseName;
         private readonly string _collectionName;
         private readonly IDocumentClient _client;
+        private readonly CancellationToken _cancellationToken;
 
-        public DocumentExecuteContext(string databaseName, string collectionName, IDocumentClient client)
+        public DocumentExecuteContext(string databaseName, string collectionName, IDocumentClient client, CancellationToken cancellationToken)
         {
             _databaseName = databaseName;
             _collectionName = collectionName;
             _client = client;
+            _cancellationToken = cancellationToken;
         }
 
         public async Task<TResult> QueryById<TResult>(string id, Domain.RequestOptions options = null) where TResult : class
@@ -32,7 +35,7 @@ namespace CosmosManager.Stores
 
             try
             {
-                var response = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(_databaseName, _collectionName, id), options.ToRequestOptions());
+                var response = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(_databaseName, _collectionName, id), options.ToRequestOptions(), _cancellationToken);
                 if (response.StatusCode != HttpStatusCode.OK)
                 { return null; }
                 return (TResult)(dynamic)response.Resource;
@@ -103,7 +106,7 @@ namespace CosmosManager.Stores
 
             try
             {
-                var response = await _client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(_databaseName, _collectionName, id), options.ToRequestOptions());
+                var response = await _client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(_databaseName, _collectionName, id), options.ToRequestOptions(), _cancellationToken);
                 return response.StatusCode == HttpStatusCode.NoContent;
             }
             catch (DocumentClientException e)
@@ -125,7 +128,7 @@ namespace CosmosManager.Stores
 
             try
             {
-                var response = await _client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName), entity, options.ToRequestOptions(), true);
+                var response = await _client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName), entity, options.ToRequestOptions(), true, _cancellationToken);
                 if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
                 {
                     return entity;
@@ -151,7 +154,7 @@ namespace CosmosManager.Stores
 
             try
             {
-                var response = await _client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName), entity, options.ToRequestOptions(), true);
+                var response = await _client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName), entity, options.ToRequestOptions(), true, _cancellationToken);
                 if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
                 {
                     return entity;

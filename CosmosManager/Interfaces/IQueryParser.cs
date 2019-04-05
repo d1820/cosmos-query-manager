@@ -4,6 +4,8 @@ namespace CosmosManager.Interfaces
 {
     public interface IQueryParser
     {
+        string ParseVariables(string query);
+
         string ParseFromBody(string query);
 
         (string queryType, string queryBody) ParseQueryBody(string query);
