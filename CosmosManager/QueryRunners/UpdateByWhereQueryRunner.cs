@@ -36,13 +36,13 @@ namespace CosmosManager.QueryRunners
                 && !string.IsNullOrEmpty(queryParts.CleanQueryWhere);
         }
 
-        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger, Dictionary<string, IReadOnlyCollection<object>> variables = null)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
         {
             var queryParts = _queryParser.Parse(queryStatement);
-            return await RunAsync(documentStore, connection, queryParts, logStats, logger, variables);
+            return await RunAsync(documentStore, connection, queryParts, logStats, logger, cancellationToken, variables);
         }
 
-        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, QueryParts queryParts, bool logStats, ILogger logger, Dictionary<string, IReadOnlyCollection<object>> variables = null)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, QueryParts queryParts, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace CosmosManager.QueryRunners
 
                                                                          var query = context.QueryAsSql<object>(selectQuery, queryOptions);
                                                                          return await query.ConvertAndLogRequestUnits(false, logger);
-                                                                     });
+                                                                     }, cancellationToken);
 
                 var fromObjects = JArray.FromObject(results);
                 if (queryParts.IsTransaction)
@@ -94,6 +94,10 @@ namespace CosmosManager.QueryRunners
                                                                            await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                                                                         async (IDocumentExecuteContext context) =>
                                                                                         {
+                                                                                            if (cancellationToken.IsCancellationRequested)
+                                                                                            {
+                                                                                                throw new TaskCanceledException("Task has been requested to cancel.");
+                                                                                            }
                                                                                             var documentId = document[Constants.DocumentFields.ID].ToString();
 
                                                                                             if (queryParts.IsTransaction)
@@ -139,11 +143,12 @@ namespace CosmosManager.QueryRunners
                                                                                                 logger.LogInformation($"Document {documentId} unable to be updated.");
                                                                                             }
                                                                                             return true;
-                                                                                        });
+                                                                                        }, cancellationToken);
                                                                        },
                                                                        new ExecutionDataflowBlockOptions
                                                                        {
-                                                                           MaxDegreeOfParallelism = MAX_DEGREE_PARALLEL
+                                                                           MaxDegreeOfParallelism = MAX_DEGREE_PARALLEL,
+                                                                           CancellationToken = cancellationToken
                                                                        });
 
                 foreach (JObject doc in fromObjects)

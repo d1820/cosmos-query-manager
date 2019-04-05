@@ -203,6 +203,16 @@ namespace CosmosManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        public static System.Drawing.Bitmap Stop_red_icon {
+            get {
+                object obj = ResourceManager.GetObject("Stop-red-icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         public static System.Drawing.Bitmap text_indent {
             get {
                 object obj = ResourceManager.GetObject("text_indent", resourceCulture);

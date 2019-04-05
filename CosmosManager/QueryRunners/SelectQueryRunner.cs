@@ -2,11 +2,10 @@
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CosmosManager.QueryRunners
@@ -28,13 +27,13 @@ namespace CosmosManager.QueryRunners
             return queryParts.CleanQueryType.Equals(Constants.QueryParsingKeywords.SELECT, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger, Dictionary<string, IReadOnlyCollection<object>> variables = null)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
         {
             var queryParts = _queryParser.Parse(queryStatement);
-            return await RunAsync(documentStore, connection, queryParts, logStats, logger, variables);
+            return await RunAsync(documentStore, connection, queryParts, logStats, logger, cancellationToken, variables);
         }
 
-        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, QueryParts queryParts, bool logStats, ILogger logger, Dictionary<string, IReadOnlyCollection<object>> variables = null)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, QueryParts queryParts, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
         {
             try
             {
@@ -60,7 +59,7 @@ namespace CosmosManager.QueryRunners
                                                                           }
                                                                           var query = context.QueryAsSql<object>(rawQuery, queryOptions);
                                                                           return await query.ConvertAndLogRequestUnits(logStats, logger);
-                                                                      });
+                                                                      }, cancellationToken);
 
                 if (variables != null && !string.IsNullOrEmpty(queryParts.CleanVariableName))
                 {

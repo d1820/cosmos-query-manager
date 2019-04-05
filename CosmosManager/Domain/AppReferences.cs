@@ -1,4 +1,5 @@
 ﻿using SimpleInjector;
+using System.Windows.Forms;
 
 namespace CosmosManager.Domain
 {
@@ -7,5 +8,6 @@ namespace CosmosManager.Domain
         public static string AppDataFolder { get; internal set; }
         public static string TransactionCacheDataFolder { get; internal set; }
         public static Container Container { get; internal set; }
+        public static string AppSettingsFile => Application.UserAppDataPath + "\\appsettings.json";
     }
 }

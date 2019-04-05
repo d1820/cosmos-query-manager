@@ -103,7 +103,8 @@ namespace CosmosManager
         {
             try
             {
-                runQueryButton.Enabled = false;
+                runQueryButton.Visible = false;
+                stopQueryButton.Visible = true;
                 _totalDocumentCount = 0;
                 textDocument.Text = string.Empty;
                 SetResultCountLabel();
@@ -114,7 +115,8 @@ namespace CosmosManager
             }
             finally
             {
-                runQueryButton.Enabled = true;
+                runQueryButton.Visible = true;
+                stopQueryButton.Visible = false;
             }
         }
 
@@ -693,6 +695,14 @@ namespace CosmosManager
         private void resultOutdentButton_Click(object sender, EventArgs e)
         {
             GenerateKeystrokes("+{TAB}", textDocument);
+        }
+
+        private void stopQueryButton_Click(object sender, EventArgs e)
+        {
+            runQueryButton.Visible = true;
+            stopQueryButton.Visible = false;
+            Application.DoEvents();
+            Presenter.StopQuery();
         }
     }
 }

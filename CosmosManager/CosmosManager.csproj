@@ -232,6 +232,7 @@
     <Compile Include="Stores\DocumentExecuteContext.cs" />
     <Compile Include="Stores\StoredProcedureExecuteContext.cs" />
     <Compile Include="Domain\ThemeType.cs" />
+    <None Include="Resources\Stop-red-icon.png" />
     <None Include="Resources\format_font_size_more.png" />
     <None Include="Resources\format_font_size_less.png" />
     <None Include="Resources\text_indent.png" />

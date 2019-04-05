@@ -33,13 +33,13 @@ namespace CosmosManager.QueryRunners
                 && !string.IsNullOrEmpty(queryParts.CleanQueryUpdateType);
         }
 
-        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger, Dictionary<string, IReadOnlyCollection<object>> variables = null)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
         {
             var queryParts = _queryParser.Parse(queryStatement);
-            return await RunAsync(documentStore, connection, queryParts, logStats, logger, variables);
+            return await RunAsync(documentStore, connection, queryParts, logStats, logger, cancellationToken, variables);
         }
 
-        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection,  QueryParts queryParts, bool logStats, ILogger logger, Dictionary<string, IReadOnlyCollection<object>> variables = null)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection,  QueryParts queryParts, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
         {
             try
             {
@@ -72,6 +72,10 @@ namespace CosmosManager.QueryRunners
                                                                            await documentStore.ExecuteAsync(connection.Database, queryParts.CollectionName,
                                                                                          async (IDocumentExecuteContext context) =>
                                                                                          {
+                                                                                             if (cancellationToken.IsCancellationRequested)
+                                                                                             {
+                                                                                                 throw new TaskCanceledException("Task has been requested to cancel.");
+                                                                                             }
                                                                                              JObject jDoc = null;
                                                                                              if (queryParts.IsTransaction)
                                                                                              {
@@ -159,11 +163,12 @@ namespace CosmosManager.QueryRunners
                                                                                              }
 
                                                                                              return true;
-                                                                                         });
+                                                                                         }, cancellationToken);
                                                                        },
                                                                        new ExecutionDataflowBlockOptions
                                                                        {
-                                                                           MaxDegreeOfParallelism = MAX_DEGREE_PARALLEL
+                                                                           MaxDegreeOfParallelism = MAX_DEGREE_PARALLEL,
+                                                                           CancellationToken = cancellationToken
                                                                        });
 
                 foreach (var id in ids)

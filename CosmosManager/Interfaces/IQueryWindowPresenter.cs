@@ -34,6 +34,8 @@ namespace CosmosManager.Interfaces
 
         Task RunAsync();
 
+        void StopQuery();
+
         Task<object> SaveDocumentAsync(DocumentResult documentResult);
 
         Task SaveQueryAsync();

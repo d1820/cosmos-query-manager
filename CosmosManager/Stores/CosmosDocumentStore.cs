@@ -4,8 +4,8 @@ using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CosmosManager.Stores
@@ -35,7 +35,7 @@ namespace CosmosManager.Stores
             return keyValue;
         }
 
-        public async Task<TResult> ExecuteAsync<TResult>(string databaseName, string collectionName, Func<IDocumentExecuteContext, Task<TResult>> action)
+        public async Task<TResult> ExecuteAsync<TResult>(string databaseName, string collectionName, Func<IDocumentExecuteContext, Task<TResult>> action, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(databaseName))
             {
@@ -48,10 +48,10 @@ namespace CosmosManager.Stores
             }
 
             await EnsureDataStoreCreated(databaseName, collectionName);
-            return await action(new DocumentExecuteContext(databaseName, collectionName, _client));
+            return await action(new DocumentExecuteContext(databaseName, collectionName, _client, cancellationToken));
         }
 
-        public async Task<TResult> ExecuteAsync<TResult>(string databaseName, string collectionName, Func<IDocumentExecuteContext, TResult> action)
+        public async Task<TResult> ExecuteAsync<TResult>(string databaseName, string collectionName, Func<IDocumentExecuteContext, TResult> action, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(databaseName))
             {
@@ -64,10 +64,10 @@ namespace CosmosManager.Stores
             }
 
             await EnsureDataStoreCreated(databaseName, collectionName);
-            return action(new DocumentExecuteContext(databaseName, collectionName, _client));
+            return action(new DocumentExecuteContext(databaseName, collectionName, _client, cancellationToken));
         }
 
-        public async Task ExecuteAsync(string databaseName, string collectionName, Action<IDocumentExecuteContext> action)
+        public async Task ExecuteAsync(string databaseName, string collectionName, Action<IDocumentExecuteContext> action, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(databaseName))
             {
@@ -80,7 +80,7 @@ namespace CosmosManager.Stores
             }
 
             await EnsureDataStoreCreated(databaseName, collectionName);
-            action(new DocumentExecuteContext(databaseName, collectionName, _client));
+            action(new DocumentExecuteContext(databaseName, collectionName, _client, cancellationToken));
         }
 
         public async Task<TResult> ExecuteStoredProcedureAsync<TResult>(string databaseName, string collectionName, string storedProcedureName, Func<IStoredProcedureExecuteContext, TResult> action)
