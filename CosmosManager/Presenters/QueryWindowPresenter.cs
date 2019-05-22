@@ -1,5 +1,7 @@
 ﻿using CosmosManager.Domain;
+using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
+using CosmosManager.Parsers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -13,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace CosmosManager.Presenters
 {
+
     public class QueryWindowPresenter : IQueryWindowPresenter
     {
         private List<Connection> _currentConnections;
@@ -97,6 +100,7 @@ namespace CosmosManager.Presenters
         }
 
         static ManualResetEventSlim mres = new ManualResetEventSlim(false);
+
         public void StopQuery()
         {
             if (!_source.IsCancellationRequested)
@@ -113,6 +117,7 @@ namespace CosmosManager.Presenters
                 }
             }
         }
+
         public async Task RunAsync()
         {
             _source = new CancellationTokenSource();
@@ -126,7 +131,6 @@ namespace CosmosManager.Presenters
                 _view.SetStatusBarMessage("Executing Query...", true);
 
                 var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
-
                 //get each query and run it aggregating the results
                 var queries = ConveryQueryTextToQueryParts(_view.Query);
 
@@ -146,7 +150,7 @@ namespace CosmosManager.Presenters
                         break;
                     }
                     var queryParts = queries[i];
-                    var runner = _queryRunners.FirstOrDefault(f => f.CanRun(queryParts.CleanOrginalQuery));
+                    var runner = _queryRunners.FirstOrDefault(f => f.CanRun(queryParts));
                     if (runner != null)
                     {
                         if (queries.Length > 1)
@@ -159,7 +163,7 @@ namespace CosmosManager.Presenters
                         var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts, true, _logger, _source.Token, _variables);
                         if (!response.success)
                         {
-                            _view.ShowMessage($"Unable to execute query: {queryParts.CleanOrginalQuery}. Verify query and try again.", "Query Execution Error");
+                            _view.ShowMessage($"Unable to execute query: {queryParts.CleanOrginalQuery.TruncateTo(500)}. Verify query and try again.", "Query Execution Error");
                             //on error stop loop and return
                             hasError = true;
                             break;
@@ -218,11 +222,10 @@ namespace CosmosManager.Presenters
             }
         }
 
-        public Task<string> LookupPartitionKeyPath()
+        public Task<string> LookupPartitionKeyPath(string collectionName)
         {
             var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
-            var parts = _queryParser.Parse(_view.Query);
-            return documentStore.LookupPartitionKeyPath(SelectedConnection.Database, parts.CollectionName);
+            return documentStore.LookupPartitionKeyPath(SelectedConnection.Database, collectionName);
         }
 
         public async Task<bool> DeleteDocumentAsync(DocumentResult documentResult)
@@ -316,24 +319,42 @@ namespace CosmosManager.Presenters
             var cleanedQueries = new List<string>();
             try
             {
-                var queries = CleanAndSplitQueryText(queryText);
-                foreach (var query in queries)
+                var jsonTokenizer = new JsonTokenizer();
+                var commentTokenizer = new CommentTokenizer();
+                
+                var preCleanString = queryText;
+                preCleanString = commentTokenizer.TokenizeComments(preCleanString);
+                
+                if (preCleanString.EndsWith(";"))
                 {
-                    var trimmedQuery = query.Trim().TrimStart('|').TrimEnd('|');
+                    preCleanString = preCleanString.Remove(preCleanString.Length - 1, 1);
+                }
+                //splits on semi-colon
+                var pattern = $@"\s*;\s*[{Constants.NEWLINE}](?!\s*\*\/)";
+                var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-                    foreach (var newlineWord in Constants.NewLineKeywords)
+                //this removes empty lines
+                var filteredQueries = queries.Where(w => !string.IsNullOrEmpty(w.Trim().Replace(Constants.NEWLINE, "")));
+
+
+                var startMatchesAt = 0;
+                var commentedQueries = new List<string>();
+                foreach (var q in filteredQueries)
+                {
+                    var commentedQuery = q;
+                    while (commentedQuery.IndexOf(commentTokenizer.TOKEN) > -1)
                     {
-                        trimmedQuery = Regex.Replace(trimmedQuery, $@"\s+({newlineWord})", $"|{newlineWord}");
+                        commentedQuery = commentTokenizer.DetokenizeCommentsAt(commentedQuery, startMatchesAt);
+                        startMatchesAt++;
                     }
-                    trimmedQuery = _queryParser.CleanExtraNewLines(trimmedQuery);
-                    trimmedQuery = _queryParser.CleanExtraSpaces(trimmedQuery);
-                    foreach (var indentKeyWord in Constants.IndentKeywords)
-                    {
-                        trimmedQuery = Regex.Replace(trimmedQuery, $@"\|[\t]*({indentKeyWord})", $"|\t{indentKeyWord}");
-                    }
+                    commentedQueries.Add(commentedQuery);
+                }
 
-                    var formattedQuery = trimmedQuery.Replace("|", Environment.NewLine);
-
+                foreach (var query in commentedQueries)
+                {
+                    var trimmedQuery = query;
+                    trimmedQuery = _queryParser.CleanAndFormatQueryText(trimmedQuery, true, true);
+                    var formattedQuery = trimmedQuery.Replace(Constants.NEWLINE, Environment.NewLine);
                     if (queries.Count() > 1)
                     {
                         formattedQuery += ";";
@@ -341,12 +362,11 @@ namespace CosmosManager.Presenters
                     cleanedQueries.Add(formattedQuery);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return queryText;
             }
             return string.Join($"{Environment.NewLine}{Environment.NewLine}", cleanedQueries);
-
         }
 
         private QueryParts[] ConveryQueryTextToQueryParts(string queryToParse)
@@ -355,23 +375,25 @@ namespace CosmosManager.Presenters
             {
                 return new QueryParts[0];
             }
-            var queries = CleanAndSplitQueryText(queryToParse);
-            return queries.Select(_queryParser.Parse).Where(w => !w.IsCommentOnly).ToArray();
+            var queries = SplitQueryText(queryToParse);
+            return queries.Select(s => _queryParser.Parse(s)).Where(w => !w.IsCommentOnly).ToArray();
         }
 
-        private IEnumerable<string> CleanAndSplitQueryText(string queryToParse)
+        private IEnumerable<string> SplitQueryText(string queryToParse)
         {
-            var preCleanString = _queryParser.CleanQueryText(queryToParse);
+            //remove all the comments then split
+            var preCleanString = _queryParser.RemoveComments(queryToParse).Trim();
 
-            //remove all the comments then parse
-            preCleanString = _queryParser.ParseAndCleanComments(preCleanString).commentFreeQuery;
-
-            //splits on semit-colon
-            const string pattern = @";(?!\s*(?=\*\/))";
+            if (preCleanString.EndsWith(";"))
+            {
+                preCleanString = preCleanString.Remove(preCleanString.Length - 1, 1);
+            }
+            //splits on semi-colon
+            var pattern = $@"\s*;\s*[{Constants.NEWLINE}](?!\s*\*\/)";
             var queries = Regex.Split(preCleanString, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-            //this removes empty lines, then converts to a QueryPart object
-            return queries.Where(w => !string.IsNullOrEmpty(w.Trim().Replace("|", "")));
+            //this removes empty lines
+            return queries.Where(w => !string.IsNullOrEmpty(w.Trim().Replace(Constants.NEWLINE, "")));
         }
     }
 }

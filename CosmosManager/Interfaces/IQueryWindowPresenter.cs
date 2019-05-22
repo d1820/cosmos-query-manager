@@ -26,7 +26,7 @@ namespace CosmosManager.Interfaces
 
         Task ExportDocumentAsync(string fileName);
 
-        Task<string> LookupPartitionKeyPath();
+        Task<string> LookupPartitionKeyPath(string collectionName);
 
         void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex);
 

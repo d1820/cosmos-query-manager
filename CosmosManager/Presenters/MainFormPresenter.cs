@@ -127,7 +127,8 @@ namespace CosmosManager.Presenters
 
         public void SetStatusBarMessage(string message, bool ignoreClearTimer = false)
         {
-             var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
+            statusTimer.Stop(); //stop runner and show new message
+            var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
             presenter.AddToActionList(message);
             _view.SetStatusBarMessage(message);
             if (!ignoreClearTimer)

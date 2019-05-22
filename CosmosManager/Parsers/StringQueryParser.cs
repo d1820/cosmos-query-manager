@@ -1,4 +1,6 @@
-﻿using CosmosManager.Domain;
+﻿using CosmosManager.Builders;
+using CosmosManager.Domain;
+using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using System;
 using System.Linq;
@@ -8,10 +10,16 @@ namespace CosmosManager.Parsers
 {
     public class StringQueryParser : IQueryParser
     {
+        private readonly RegExBuilder _builder;
+
+        public StringQueryParser()
+        {
+            _builder = new RegExBuilder();
+        }
 
         public string ParseVariables(string query)
         {
-            var rgx = new Regex($@"^\@\w+[\s]*=[\s]*(SELECT)[\s\S]*(.*?)", RegexOptions.Compiled);
+            var rgx = _builder.Reset().WithVariable().Build();
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
             {
@@ -23,21 +31,32 @@ namespace CosmosManager.Parsers
             }
 
             //this is a select lets check for a variable
-            var variableRgx = new Regex(@"^\@\w+");
-            var match = variableRgx.Match(query);
-            return match.Value;
+            var variableRgx = new Regex(@"^[\s]*\@\w+");
+            var match = variableRgx.Match(matches[0].Value);
+            return match.Value.Trim();
         }
 
         public (string queryType, string queryBody) ParseQueryBody(string query)
         {
-            var rgxInsert = new Regex($@"({Constants.QueryParsingKeywords.INSERT})[\s\S]*(.*?)(?={Constants.QueryParsingKeywords.INTO})", RegexOptions.Compiled);
+            var rgxInsert = _builder.Reset()
+                                        .HasStartingKeywords(Constants.QueryParsingKeywords.INSERT)
+                                        .GrabUntil()
+                                        .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.INTO)
+                                        .Build();
+
             var matches = rgxInsert.Matches(query);
             if (matches.Count == 1)
             {
-                return (Constants.QueryParsingKeywords.INSERT, matches[0].Value.Replace(Constants.QueryParsingKeywords.INSERT, "").Trim());
+                return (Constants.QueryParsingKeywords.INSERT, matches[0].Value.ReplaceWith(Constants.QueryParsingKeywords.INSERT, "").Trim());
             }
 
-            var rgx = new Regex($@"({Constants.QueryParsingKeywords.SELECT}|{Constants.QueryParsingKeywords.DELETE}|{Constants.QueryParsingKeywords.UPDATE})[\s\S]*(.*?)(?={Constants.QueryParsingKeywords.FROM})", RegexOptions.Compiled);
+            var rgx = _builder.Reset()
+                                .HasStartingKeywords(Constants.QueryParsingKeywords.SELECT, Constants.QueryParsingKeywords.DELETE, Constants.QueryParsingKeywords.UPDATE)
+                                .GrabUntil()
+                                .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.FROM)
+                                .Build();
+
+
             matches = rgx.Matches(query);
             if (matches.Count == 0)
             {
@@ -47,7 +66,9 @@ namespace CosmosManager.Parsers
             {
                 throw new FormatException($"Invalid query. Only {Constants.QueryParsingKeywords.SELECT}, {Constants.QueryParsingKeywords.DELETE}, {Constants.QueryParsingKeywords.INSERT}, {Constants.QueryParsingKeywords.UPDATE} statement syntax supported.");
             }
-            var queryTypeRgx = new Regex($"({Constants.QueryParsingKeywords.SELECT}|{Constants.QueryParsingKeywords.DELETE}|{Constants.QueryParsingKeywords.UPDATE})(.*?)", RegexOptions.Compiled);
+            var queryTypeRgx = _builder.Reset()
+                .HasStartingKeywords(Constants.QueryParsingKeywords.SELECT, Constants.QueryParsingKeywords.DELETE, Constants.QueryParsingKeywords.UPDATE)
+                .Build();
 
             var queryTypeMatches = queryTypeRgx.Matches(matches[0].Value);
             if (queryTypeMatches.Count == 0)
@@ -55,21 +76,30 @@ namespace CosmosManager.Parsers
                 return (string.Empty, string.Empty);
             }
 
-            return (queryTypeMatches[0].Value, matches[0].Value.Replace(Constants.QueryParsingKeywords.SELECT, "")
-                .Replace(Constants.QueryParsingKeywords.UPDATE, "")
-                .Replace(Constants.QueryParsingKeywords.DELETE, "").Trim());
+            return (queryTypeMatches[0].Value, matches[0].Value.ReplaceWith(Constants.QueryParsingKeywords.SELECT, "")
+                .ReplaceWith(Constants.QueryParsingKeywords.UPDATE, "")
+                .ReplaceWith(Constants.QueryParsingKeywords.DELETE, "").Trim());
         }
 
         public string ParseIntoBody(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryParsingKeywords.INTO})[\s\S]*(.*?)", RegexOptions.Compiled);
+            //strip out the body
+            var removeBodyRegEx = _builder.Reset().WithJSONContent().Build();
+            var cleanedQuery = removeBodyRegEx.Replace(query, "");
 
-            var matches = rgx.Matches(query);
+            var rgx = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.INTO)
+                                .GrabUntilEnd()
+                                .Build();
+
+            var matches = rgx.Matches(cleanedQuery);
             if (matches.Count == 0)
             {
                 return string.Empty;
             }
-            if (matches.Count > 1)
+
+            var dupCountRegEx = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.INTO).Build();
+            var dupMatches = dupCountRegEx.Matches(cleanedQuery);
+            if (dupMatches.Count > 1)
             {
                 throw new FormatException($"Invalid query. Query {Constants.QueryParsingKeywords.INTO} statement is not formatted correct.");
             }
@@ -96,55 +126,75 @@ namespace CosmosManager.Parsers
         public string ParseFromBody(string query)
         {
             //check if we have JOINS
-            var rgx = new Regex($@"({Constants.QueryParsingKeywords.FROM})[\s\S].*?(?={Constants.QueryParsingKeywords.JOIN})", RegexOptions.Compiled);
+            var rgx = _builder.Reset()
+                                .HasStartingKeywords(Constants.QueryParsingKeywords.FROM)
+                                .GrabUntil()
+                                .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.JOIN)
+                                .Build();
 
             var matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
-                return matches[0].Value;
+                return matches[0].Value.Trim();
             }
 
             //if no joins look for a where clause
-            rgx = new Regex($@"({Constants.QueryParsingKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryParsingKeywords.WHERE})", RegexOptions.Compiled);
+            rgx = _builder.Reset()
+                                .HasStartingKeywords(Constants.QueryParsingKeywords.FROM)
+                                .GrabUntil()
+                                .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.WHERE)
+                                .Build();
 
             matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
-                return matches[0].Value;
+                return matches[0].Value.Trim();
             }
 
-            //query = RemoveOrderBy(query);
-            var rgxSelect = new Regex($"({Constants.QueryParsingKeywords.SELECT})");
+            var rgxSelect = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.SELECT).Build();
             if (rgxSelect.Matches(query).Count > 0)
             {
-                rgx = new Regex($@"({Constants.QueryParsingKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryParsingKeywords.ORDERBY})", RegexOptions.Compiled);
+                rgx = _builder.Reset()
+                                .HasStartingKeywords(Constants.QueryParsingKeywords.FROM)
+                                .GrabUntil()
+                                .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.ORDERBY)
+                                .Build();
+
                 matches = rgx.Matches(query);
                 if (matches.Count == 1)
                 {
-                    return matches[0].Value;
+                    return matches[0].Value.Trim();
                 }
             }
 
             //its not a WHERE check then look for only SET/REPLACE
             //these are only allowed from an update
-            var rgxUpdate = new Regex($"({Constants.QueryParsingKeywords.UPDATE})", RegexOptions.Compiled);
+            var rgxUpdate = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.UPDATE).Build();
             if (rgxUpdate.Matches(query).Count > 0)
             {
-                rgx = new Regex($@"({Constants.QueryParsingKeywords.FROM})[\s\S]*(.*?)(?={Constants.QueryParsingKeywords.REPLACE}|{Constants.QueryParsingKeywords.SET})", RegexOptions.Compiled);
+                rgx = _builder.Reset()
+                                .HasStartingKeywords(Constants.QueryParsingKeywords.FROM)
+                                .GrabUntil()
+                                .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.REPLACE, Constants.QueryParsingKeywords.SET)
+                                .Build();
+
                 matches = rgx.Matches(query);
                 if (matches.Count == 1)
                 {
-                    return matches[0].Value;
+                    return matches[0].Value.Trim();
                 }
             }
 
             //lets check if its only a FROM and then end
-            rgx = new Regex($@"({Constants.QueryParsingKeywords.FROM})[\s\S]*(.*?)", RegexOptions.Compiled);
+            rgx = _builder.Reset()
+                                .HasStartingKeywords(Constants.QueryParsingKeywords.FROM)
+                                .GrabUntilEnd()
+                                .Build();
 
             matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
-                return matches[0].Value;
+                return matches[0].Value.Trim();
             }
             if (matches.Count > 1)
             {
@@ -154,31 +204,46 @@ namespace CosmosManager.Parsers
             return string.Empty;
         }
 
-        private string RemoveOrderBy(string query)
-        {
-            var rgx = new Regex($@"({Constants.QueryParsingKeywords.ORDERBY})[\s\S]*(.*?)", RegexOptions.Compiled);
-            return rgx.Replace(query, "");
-        }
-
         public (string updateType, string updateBody) ParseUpdateBody(string query)
         {
-            query = RemoveOrderBy(query);
-
-
-            var rgx = new Regex($@"({Constants.QueryParsingKeywords.SET})[\s\S]*(.*?)", RegexOptions.Compiled);
-
-            var matches = rgx.Matches(query);
-            if (matches.Count == 1)
+            //ensure this is an update
+            var rgxUpdate = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.UPDATE).Build();
+            if (rgxUpdate.Matches(query).Count == 0)
             {
-                return (Constants.QueryParsingKeywords.SET, matches[0].Value.Replace(Constants.QueryParsingKeywords.SET, ""));
+                return (string.Empty, string.Empty);
             }
 
-            rgx = new Regex($@"({Constants.QueryParsingKeywords.REPLACE})[\s\S]*(.*?)", RegexOptions.Compiled);
-            matches = rgx.Matches(query);
+            //get the replace or set json body
+            var jsonRegex = _builder.Reset().WithJSONContent().Build();
+            var jsonMatches = jsonRegex.Matches(query);
+            if (jsonMatches.Count == 0)
+            {
+                throw new FormatException($"Invalid query. Queries using {Constants.QueryParsingKeywords.SET}/{Constants.QueryParsingKeywords.REPLACE} must provide valid JSON as the update content.");
+
+            }
+
+            var cleanedQuery = jsonRegex.Replace(query, "");
+            var rgx = _builder.Reset()
+                            .HasStartingKeywords(Constants.QueryParsingKeywords.SET)
+                            .GrabUntilEnd()
+                            .Build();
+
+            var matches = rgx.Matches(cleanedQuery);
+            if (matches.Count == 1)
+            {
+                return (Constants.QueryParsingKeywords.SET, jsonMatches[0].Value.Trim());
+            }
+
+            rgx = _builder.Reset()
+                            .HasStartingKeywords(Constants.QueryParsingKeywords.REPLACE)
+                            .GrabUntilEnd()
+                            .Build();
+
+            matches = rgx.Matches(cleanedQuery);
 
             if (matches.Count == 1)
             {
-                return (Constants.QueryParsingKeywords.REPLACE, matches[0].Value.Replace(Constants.QueryParsingKeywords.REPLACE, ""));
+                return (Constants.QueryParsingKeywords.REPLACE, jsonMatches[0].Value.Trim());
             }
 
             if (matches.Count > 1)
@@ -191,20 +256,54 @@ namespace CosmosManager.Parsers
 
         public string ParseWhere(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryParsingKeywords.WHERE})[\s\S]*(.*?)(?=({Constants.QueryParsingKeywords.SET}|{Constants.QueryParsingKeywords.ORDERBY}))", RegexOptions.Compiled);
-
-            var matches = rgx.Matches(query);
-            if (matches.Count == 1)
+            Regex rgx;
+            MatchCollection matches;
+            //if type is UPDATE check for REPLACE SET
+            var rgxType = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.UPDATE).Build();
+            if (rgxType.Matches(query).Count > 0)
             {
-                return matches[0].Value;
+                var jsonRegex = _builder.Reset().WithJSONContent().Build();
+                var cleanedQuery = jsonRegex.Replace(query, "");
+
+                rgx = _builder.Reset()
+                              .HasStartingKeywords(Constants.QueryParsingKeywords.WHERE)
+                              .GrabUntil() //we use this incase we have something like WHERE m.id='REPLACE' REPLACE  we want to get the last one
+                              .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.REPLACE, Constants.QueryParsingKeywords.SET)
+                              .Build();
+
+                matches = rgx.Matches(cleanedQuery);
+                if (matches.Count == 1)
+                {
+                    return matches[0].Value.Trim();
+                }
             }
 
+            rgxType = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.SELECT).Build();
+            if (rgxType.Matches(query).Count > 0)
+            {
+                //if type is SELECT check for ORDER BY
+                rgx = _builder.Reset()
+                                    .HasStartingKeywords(Constants.QueryParsingKeywords.WHERE)
+                                    .GrabUntil()
+                                    .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.ORDERBY, Constants.QueryParsingKeywords.OFFSET)
+                                    .Build();
+
+                matches = rgx.Matches(query);
+                if (matches.Count == 1)
+                {
+                    return matches[0].Value.Trim();
+                }
+            }
             //lets check if its only a FROM and then end
-            rgx = new Regex($@"({Constants.QueryParsingKeywords.WHERE})[\s\S]*(.*?)", RegexOptions.Compiled);
+            rgx = _builder.Reset()
+                                 .HasStartingKeywords(Constants.QueryParsingKeywords.WHERE)
+                                 .GrabUntilEnd()
+                                 .Build();
+
             matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
-                return matches[0].Value;
+                return matches[0].Value.Trim();
             }
 
             if (matches.Count > 1)
@@ -217,8 +316,7 @@ namespace CosmosManager.Parsers
 
         public string ParseRollback(string query)
         {
-            var rgx = new Regex($@"({Constants.QueryParsingKeywords.ROLLBACK})[\s\S]*(.*?)", RegexOptions.Compiled);
-
+            var rgx = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.ROLLBACK).GrabUntilEnd().Build();
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
             {
@@ -229,14 +327,14 @@ namespace CosmosManager.Parsers
                 throw new FormatException($"Invalid query. {Constants.QueryParsingKeywords.ROLLBACK} statement is not formatted correct.");
             }
 
-            return matches[0].Value.Replace(Constants.QueryParsingKeywords.ROLLBACK, "").Trim();
+            return matches[0].Value.ReplaceWith(Constants.QueryParsingKeywords.ROLLBACK, "").Trim();
         }
 
         public string ParseTransaction(string query)
         {
             var collectionName = GetTransactionCollectionName(query);
 
-            var rgx = new Regex($@"({Constants.QueryParsingKeywords.TRANSACTION})[\s\S]*(.*?)", RegexOptions.Compiled);
+            var rgx = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.TRANSACTION).Build();
 
             var matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -253,17 +351,32 @@ namespace CosmosManager.Parsers
         public string ParseOrderBy(string query)
         {
             //Orderby only allowed in a select
-            var rgxSelect = new Regex($"({Constants.QueryParsingKeywords.SELECT})", RegexOptions.Compiled);
+            var rgxSelect = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.SELECT).Build();
             if (rgxSelect.Matches(query).Count == 0)
             {
                 return string.Empty;
             }
 
-            var rgx = new Regex($@"({Constants.QueryParsingKeywords.ORDERBY})[\s\S]*(.*?)", RegexOptions.Compiled);
+
+            var rgx = _builder.Reset()
+                                .HasStartingKeywords(Constants.QueryParsingKeywords.ORDERBY)
+                                .GrabUntil()
+                                .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.OFFSET)
+                                .Build();
+
             var matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
-                return matches[0].Value;
+                return matches[0].Value.Trim();
+            }
+
+
+            rgx = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.ORDERBY).GrabUntilEnd().Build();
+
+            matches = rgx.Matches(query);
+            if (matches.Count == 1)
+            {
+                return matches[0].Value.Trim();
             }
 
             if (matches.Count > 1)
@@ -277,35 +390,71 @@ namespace CosmosManager.Parsers
         public string ParseJoins(string query)
         {
             //we can really use joins if its a select, where clause
-            var rgxSelectOrWhere = new Regex($"({Constants.QueryParsingKeywords.SELECT}|{Constants.QueryParsingKeywords.WHERE})", RegexOptions.Compiled);
+            var rgxSelectOrWhere = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.SELECT, Constants.QueryParsingKeywords.WHERE).Build();
             if (rgxSelectOrWhere.Matches(query).Count == 0)
             {
                 return string.Empty;
             }
 
-            var rgx = new Regex($@"({Constants.QueryParsingKeywords.JOIN})[\s\S]*(.*?)(?=({Constants.QueryParsingKeywords.WHERE}|{Constants.QueryParsingKeywords.ORDERBY}))", RegexOptions.Compiled);
+            var rgx = _builder.Reset()
+                                .HasStartingKeywords(Constants.QueryParsingKeywords.JOIN)
+                                .GrabUntil()
+                                .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.WHERE, Constants.QueryParsingKeywords.ORDERBY)
+                                .Build();
 
             var matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
-                return matches[0].Value;
+                return matches[0].Value.Trim();
             }
 
             //lets check if its only a JOIN and then end
-            rgx = new Regex($@"({Constants.QueryParsingKeywords.JOIN})[\s\S]*(.*?)", RegexOptions.Compiled);
+            rgx = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.JOIN).GrabUntilEnd().Build();
             matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
-                return matches[0].Value;
+                return matches[0].Value.Trim();
             }
 
             return string.Empty;
         }
 
-        public (MatchCollection comments, string commentFreeQuery) ParseAndCleanComments(string query)
+        public string ParseOffsetLimit(string query)
         {
-            var rgx = new Regex(@"(\/\*)[\\s\\S]*(.*?)(\*\/)[|\\s]*");
+            //Offset only allowed in a select
+            var rgxSelect = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.SELECT).Build();
+            if (rgxSelect.Matches(query).Count == 0)
+            {
+                return string.Empty;
+            }
 
+            var rgx = _builder.Reset()
+                                .HasStartingKeywords(Constants.QueryParsingKeywords.OFFSET)
+                                .GrabUntilEnd()
+                                .Build();
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 1)
+            {
+                var match = matches[0].Value.Trim();
+                if (match.IndexOf(Constants.QueryParsingKeywords.LIMIT) == -1)
+                {
+                    throw new FormatException($"Invalid query. Query {Constants.QueryParsingKeywords.OFFSET} statement is not formatted correct. Must contain a {Constants.QueryParsingKeywords.LIMIT}");
+                }
+                return match;
+            }
+
+            if (matches.Count > 1)
+            {
+                throw new FormatException($"Invalid query. Query {Constants.QueryParsingKeywords.OFFSET} statement is not formatted correct.");
+            }
+
+            return string.Empty;
+        }
+
+        public (MatchCollection comments, string commentFreeQuery) StripComments(string query)
+        {
+            var rgx = _builder.Reset().WithNoComments().Build();
             var matches = rgx.Matches(query);
             //remove all comment blocks
             var cleanedQuery = rgx.Replace(query, "");
@@ -314,12 +463,12 @@ namespace CosmosManager.Parsers
 
         private string GetTransactionCollectionName(string query)
         {
-            var fromBody = ParseFromBody(query).Replace(Constants.QueryParsingKeywords.FROM, "").Trim();
+            var fromBody = ParseFromBody(query).ReplaceWith(Constants.QueryParsingKeywords.FROM, "").Trim();
             var colNameParts = fromBody.Split(new[] { ' ' });
             var colName = colNameParts.FirstOrDefault();
             if (!string.IsNullOrEmpty(colName))
             {
-                return colName.Trim().Replace("|","");
+                return colName.Trim().Replace(Constants.NEWLINE, "");
             }
             return "COLLECTION";
         }

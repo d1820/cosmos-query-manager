@@ -1,18 +1,11 @@
 ﻿using CosmosManager.Domain;
-using System.Text.RegularExpressions;
 
 namespace CosmosManager.Interfaces
 {
     public interface IQueryStatementParser
     {
-        string CleanQueryText(string query);
-
-        string CleanExtraSpaces(string query);
-
-        string CleanExtraNewLines(string query);
-
+        string CleanAndFormatQueryText(string query, bool processNewLineKeywords = false, bool processIndentKeywords = false);
         QueryParts Parse(string query);
-
-        (MatchCollection comments, string commentFreeQuery) ParseAndCleanComments(string query);
+        string RemoveComments(string query);
     }
 }

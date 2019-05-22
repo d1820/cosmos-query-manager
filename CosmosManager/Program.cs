@@ -42,6 +42,7 @@ namespace CosmosManager
             container.Register<ILogger>(() => container.GetInstance<QueryOuputLogger>());
             container.Register<IQueryStatementParser, QueryStatementParser>(Lifestyle.Singleton);
             container.Register<IQueryParser, StringQueryParser>(Lifestyle.Singleton);
+            container.Register<IHashProvider, Crc32HashProvider>(Lifestyle.Singleton);
 
             container.Register<IQueryWindowPresenter, QueryWindowPresenter>();
             container.Register<IMainFormPresenter, MainFormPresenter>(Lifestyle.Singleton);

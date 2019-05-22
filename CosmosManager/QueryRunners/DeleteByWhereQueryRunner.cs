@@ -15,7 +15,7 @@ namespace CosmosManager.QueryRunners
     public class DeleteByWhereQueryRunner : IQueryRunner
     {
         private int MAX_DEGREE_PARALLEL = 5;
-        private IQueryStatementParser _queryParser;
+        private readonly IQueryStatementParser _queryParser;
         private readonly ITransactionTask _transactionTask;
         private readonly IVariableInjectionTask _variableInjectionTask;
 
@@ -26,21 +26,14 @@ namespace CosmosManager.QueryRunners
             _variableInjectionTask = variableInjectionTask;
         }
 
-        public bool CanRun(string query)
+        public bool CanRun(QueryParts queryParts)
         {
             //this should only work on queries like:  DELETE * FROM Collection WHERE Collection.PartitionKey = 'test'
-            var queryParts = _queryParser.Parse(query);
             return queryParts.CleanQueryType.Equals(Constants.QueryParsingKeywords.DELETE, StringComparison.InvariantCultureIgnoreCase)
                 && queryParts.CleanQueryBody.Equals("*") && !string.IsNullOrEmpty(queryParts.CleanQueryWhere);
         }
 
-        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
-        {
-            var queryParts = _queryParser.Parse(queryStatement);
-            return await RunAsync(documentStore, connection, queryParts, logStats, logger, cancellationToken, variables);
-        }
-
-         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, QueryParts queryParts, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
+        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, QueryParts queryParts, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
         {
             try
             {

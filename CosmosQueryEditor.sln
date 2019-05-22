@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		CreateRelease.bat = CreateRelease.bat
 		README.md = README.md
 		runsettings.runsettings = runsettings.runsettings
+		version.xml = version.xml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosManager", "CosmosManager\CosmosManager.csproj", "{9F9A2550-C280-49E1-B953-53AAA624FED6}"

@@ -113,6 +113,11 @@ namespace CosmosManager
                 Application.DoEvents();
                 await Presenter.RunAsync();
             }
+            catch(Exception ex)
+            {
+                ShowMessage(ex.Message);
+                SetStatusBarMessage("Ready");
+            }
             finally
             {
                 runQueryButton.Visible = true;
@@ -155,7 +160,7 @@ namespace CosmosManager
                 resultListView.Items.Clear();
                 _totalDocumentCount = 0;
             }
-            var textPartitionKeyPath = await Presenter.LookupPartitionKeyPath();
+            var textPartitionKeyPath = await Presenter.LookupPartitionKeyPath(query.CollectionName);
             var groupName = "Query 1";
             if (appendResults)
             {
