@@ -24,19 +24,12 @@ namespace CosmosManager.QueryRunners
             _transactionTask = transactionTask;
         }
 
-        public bool CanRun(string query)
+        public bool CanRun(QueryParts queryParts)
         {
-            var queryParts = _queryParser.Parse(query);
             return queryParts.CleanQueryType.Equals(Constants.QueryParsingKeywords.UPDATE, StringComparison.InvariantCultureIgnoreCase)
                 && !queryParts.CleanQueryBody.Equals("*")
                 && !string.IsNullOrEmpty(queryParts.CleanQueryUpdateBody)
                 && !string.IsNullOrEmpty(queryParts.CleanQueryUpdateType);
-        }
-
-        public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection, string queryStatement, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)
-        {
-            var queryParts = _queryParser.Parse(queryStatement);
-            return await RunAsync(documentStore, connection, queryParts, logStats, logger, cancellationToken, variables);
         }
 
         public async Task<(bool success, IReadOnlyCollection<object> results)> RunAsync(IDocumentStore documentStore, Connection connection,  QueryParts queryParts, bool logStats, ILogger logger, CancellationToken cancellationToken, Dictionary<string, IReadOnlyCollection<object>> variables = null)

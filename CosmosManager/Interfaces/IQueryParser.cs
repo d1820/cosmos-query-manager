@@ -24,6 +24,8 @@ namespace CosmosManager.Interfaces
 
         string ParseJoins(string query);
 
-        (MatchCollection comments, string commentFreeQuery) ParseAndCleanComments(string query);
+        string ParseOffsetLimit(string query);
+
+        (MatchCollection comments, string commentFreeQuery) StripComments(string query);
     }
 }

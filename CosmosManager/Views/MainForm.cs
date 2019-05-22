@@ -1,4 +1,5 @@
-﻿using CosmosManager.Domain;
+﻿using AutoUpdaterDotNET;
+using CosmosManager.Domain;
 using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
 using CosmosManager.Stylers;
@@ -81,7 +82,15 @@ namespace CosmosManager
 
         public void SetStatusBarMessage(string message)
         {
-            appStatusLabel.Text = message;
+            try
+            {
+                appStatusLabel.Text = message;
+            }
+            catch
+            {
+                //NO-OP
+            }
+
         }
 
         public void UpdateNewQueryTabName(string newTabName)
@@ -210,6 +219,7 @@ namespace CosmosManager
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 Presenter.SetupConnections(openFileDialog1.FileName);
+                lblCnnectionFile.Text = $"Loaded Connection File: {new FileInfo(openFileDialog1.FileName).Name}";
             }
         }
 
@@ -297,7 +307,7 @@ namespace CosmosManager
             presenter.InitializePresenter(new
             {
                 TabIndexReference = queryTabControl.TabPages.Count,
-                QueryWindowControl = queryWindow
+                QueryWindowControl = queryWindow,
             });
 
             if (fileInfo != null)
@@ -391,6 +401,16 @@ namespace CosmosManager
                 });
                 presenter.RenderActionList();
             });
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            checkForUpdatesToolStripMenuItem_Click(sender, e);
+        }
+
+        private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AutoUpdater.Start("https://raw.githubusercontent.com/d1820/cosmos-query-manager/master/version.xml");
         }
     }
 }

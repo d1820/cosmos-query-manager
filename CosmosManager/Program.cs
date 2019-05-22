@@ -5,6 +5,7 @@ using CosmosManager.Parsers;
 using CosmosManager.Presenters;
 using CosmosManager.Stylers;
 using CosmosManager.Tasks;
+using CosmosManager.Utilities;
 using CosmosManager.Views;
 using Microsoft.Extensions.Logging;
 using SimpleInjector;
@@ -42,6 +43,7 @@ namespace CosmosManager
             container.Register<ILogger>(() => container.GetInstance<QueryOuputLogger>());
             container.Register<IQueryStatementParser, QueryStatementParser>(Lifestyle.Singleton);
             container.Register<IQueryParser, StringQueryParser>(Lifestyle.Singleton);
+            container.Register<IHashProvider, Crc32HashProvider>(Lifestyle.Singleton);
 
             container.Register<IQueryWindowPresenter, QueryWindowPresenter>();
             container.Register<IMainFormPresenter, MainFormPresenter>(Lifestyle.Singleton);

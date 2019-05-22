@@ -54,6 +54,7 @@
             this.aboutCosmosManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.appStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblCnnectionFile = new System.Windows.Forms.ToolStripStatusLabel();
             this.transactionCacheSizeLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.fileTreeView = new System.Windows.Forms.TreeView();
@@ -68,6 +69,8 @@
             this.duplicateTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.checkForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -118,31 +121,31 @@
             // newFileQueryTabToolStripMenuItem
             // 
             this.newFileQueryTabToolStripMenuItem.Name = "newFileQueryTabToolStripMenuItem";
-            this.newFileQueryTabToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newFileQueryTabToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.newFileQueryTabToolStripMenuItem.Text = "New Query Tab";
             this.newFileQueryTabToolStripMenuItem.Click += new System.EventHandler(this.newFileQueryTabToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(153, 6);
             // 
             // openFolderToolStripMenuItem
             // 
             this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.openFolderToolStripMenuItem.Text = "Open Folder";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(153, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -212,7 +215,9 @@
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.guideToolStripMenuItem,
             this.reportABugToolStripMenuItem,
-            this.aboutCosmosManagerToolStripMenuItem});
+            this.aboutCosmosManagerToolStripMenuItem,
+            this.toolStripSeparator4,
+            this.checkForUpdatesToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "Help";
@@ -242,6 +247,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.appStatusLabel,
+            this.lblCnnectionFile,
             this.transactionCacheSizeLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 602);
             this.statusStrip1.Name = "statusStrip1";
@@ -257,14 +263,23 @@
             this.appStatusLabel.Size = new System.Drawing.Size(39, 17);
             this.appStatusLabel.Text = "Ready";
             // 
+            // lblCnnectionFile
+            // 
+            this.lblCnnectionFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.lblCnnectionFile.ForeColor = System.Drawing.Color.White;
+            this.lblCnnectionFile.Name = "lblCnnectionFile";
+            this.lblCnnectionFile.Size = new System.Drawing.Size(1039, 17);
+            this.lblCnnectionFile.Spring = true;
+            this.lblCnnectionFile.Text = "No Connection File Loaded";
+            // 
             // transactionCacheSizeLabel
             // 
             this.transactionCacheSizeLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.transactionCacheSizeLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.transactionCacheSizeLabel.ForeColor = System.Drawing.Color.White;
             this.transactionCacheSizeLabel.LinkColor = System.Drawing.Color.White;
             this.transactionCacheSizeLabel.Name = "transactionCacheSizeLabel";
-            this.transactionCacheSizeLabel.Size = new System.Drawing.Size(1175, 17);
-            this.transactionCacheSizeLabel.Spring = true;
+            this.transactionCacheSizeLabel.Size = new System.Drawing.Size(105, 17);
             this.transactionCacheSizeLabel.Text = "Transaction Cache";
             this.transactionCacheSizeLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.transactionCacheSizeLabel.DoubleClick += new System.EventHandler(this.transactionCacheSizeLabel_DoubleClick);
@@ -389,6 +404,18 @@
             this.fileSystemWatcher1.Created += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Created);
             this.fileSystemWatcher1.Deleted += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Deleted);
             // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(200, 6);
+            // 
+            // checkForUpdatesToolStripMenuItem
+            // 
+            this.checkForUpdatesToolStripMenuItem.Name = "checkForUpdatesToolStripMenuItem";
+            this.checkForUpdatesToolStripMenuItem.Size = new System.Drawing.Size(203, 22);
+            this.checkForUpdatesToolStripMenuItem.Text = "Check For Updates";
+            this.checkForUpdatesToolStripMenuItem.Click += new System.EventHandler(this.checkForUpdatesToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -401,6 +428,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "Cosmos Manager";
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
@@ -458,6 +486,9 @@
         public System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         public System.Windows.Forms.ToolStripMenuItem viewPreviousActionsLogToolStripMenuItem;
         public System.Windows.Forms.TreeView fileTreeView;
+        private System.Windows.Forms.ToolStripStatusLabel lblCnnectionFile;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem checkForUpdatesToolStripMenuItem;
     }
 }
 

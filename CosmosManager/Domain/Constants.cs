@@ -4,6 +4,8 @@ namespace CosmosManager.Domain
 {
     public static class Constants
     {
+        public const string NEWLINE = "\n";
+        public const char NEWLINE_CHAR = '\n';
         public static class EventId
         {
             public const int COSMOSDB = 99;
@@ -30,6 +32,8 @@ namespace CosmosManager.Domain
             public const string REPLACE = "REPLACE";
             public const string ORDERBY = "ORDER BY";
             public const string JOIN = "JOIN";
+            public const string OFFSET = "OFFSET";
+            public const string LIMIT = "LIMIT";
         }
 
         public static List<string> KeyWordList = new List<string>{
@@ -46,6 +50,8 @@ namespace CosmosManager.Domain
                 QueryParsingKeywords.DELETE,
                 QueryParsingKeywords.ORDERBY,
                 QueryParsingKeywords.JOIN,
+                QueryParsingKeywords.OFFSET,
+                QueryParsingKeywords.LIMIT,
                 "IN",
                 "AND",
                 "OR",
@@ -130,7 +136,8 @@ namespace CosmosManager.Domain
                 QueryParsingKeywords.INTO,
                 QueryParsingKeywords.DELETE,
                 QueryParsingKeywords.ORDERBY,
-                QueryParsingKeywords.JOIN
+                QueryParsingKeywords.JOIN,
+                QueryParsingKeywords.OFFSET
          };
 
         public static List<string> IndentKeywords = new List<string> {
