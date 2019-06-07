@@ -302,7 +302,7 @@ namespace CosmosManager
             col1Prop = resultProps.FirstOrDefault(f => f.Name == Constants.DocumentFields.ID);
             if (col1Prop == null)
             {
-                col1Prop = resultProps.First();
+                col1Prop = resultProps.FirstOrDefault();
             }
 
             JProperty col2Prop = null;
@@ -321,7 +321,7 @@ namespace CosmosManager
                 }
 
             }
-            return (col1Prop.Name, col2Prop?.Name);
+            return (col1Prop?.Name, col2Prop?.Name);
         }
 
         private async void exportRecordToolStripMenuItem_Click(object sender, EventArgs e)
