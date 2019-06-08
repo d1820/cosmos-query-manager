@@ -113,7 +113,7 @@ namespace CosmosManager
                 Application.DoEvents();
                 await Presenter.RunAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ShowMessage(ex.Message);
                 SetStatusBarMessage("Ready");
@@ -218,7 +218,7 @@ namespace CosmosManager
                 var resultProps = fromObject.Properties();
                 var subItem = new ListViewSubItem
                 {
-                    Text = String.Empty
+                    Text = string.Empty
                 };
 
                 if (resultProps.Count() > 0)
@@ -229,22 +229,9 @@ namespace CosmosManager
                         col1Prop = resultProps.FirstOrDefault();
                     }
                     col1Token = col1Prop?.Value;
-                    subItem.Text = col1Token?.Type != JTokenType.Object ? col1Token?.Value<string>() : "";
-                    if (col1Prop?.Type == JTokenType.Property)
+                    if (col1Token != null)
                     {
-                        var resultPropJToken = col1Prop?.Value;
-                        if(resultPropJToken?.Type == JTokenType.Object)
-                        {
-                            col1Token = resultPropJToken.SelectToken(Constants.DocumentFields.ID);
-                            if(col1Token?.Value<object>() == null)
-                            {
-                                subItem.Text = resultPropJToken.FirstOrDefault()?.FirstOrDefault()?.Value<dynamic>();
-                            }
-                            else
-                            {
-                                subItem.Text = col1Token?.Value<string>();
-                            }
-                        }
+                        subItem.Text = col1Token.Type.IsPrimitiveType() ? col1Token?.ToStringValue() : col1Token?.GetObjectValue(Constants.DocumentFields.ID);
                     }
                 }
                 listItem.SubItems.Add(subItem);
@@ -253,7 +240,7 @@ namespace CosmosManager
                 {
                     subItem = new ListViewSubItem
                     {
-                        Text = String.Empty
+                        Text = string.Empty
                     };
                     JProperty col2Prop = null;
                     JToken col2Token = null;
@@ -265,14 +252,16 @@ namespace CosmosManager
                         if (prop != null)
                         {
                             col2Prop = prop;
-                            col2Token = prop.Value;
 
                         }
                     }
                     col2Token = col2Prop?.Value;
-                    subItem.Text = col2Token?.Value<string>();
+                    if (col2Token != null)
+                    {
+                        subItem.Text = col2Token.Type.IsPrimitiveType() ? col2Token?.ToStringValue() : col2Token?.GetObjectValue("");
+                    }
 
-                    if (!String.IsNullOrEmpty(subItem.Text))
+                    if (!string.IsNullOrEmpty(subItem.Text))
                     {
                         listItem.SubItems.Add(subItem);
                     }

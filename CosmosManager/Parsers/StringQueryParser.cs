@@ -4,8 +4,10 @@ using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
+[assembly: InternalsVisibleTo("CosmosManager.Tests.Unit")]
 namespace CosmosManager.Parsers
 {
     public class StringQueryParser : IQueryParser
@@ -332,7 +334,7 @@ namespace CosmosManager.Parsers
 
         public string ParseTransaction(string query)
         {
-            var collectionName = GetTransactionCollectionName(query);
+            var collectionName = GetCollectionName(query);
 
             var rgx = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.TRANSACTION).Build();
 
@@ -461,16 +463,45 @@ namespace CosmosManager.Parsers
             return (matches, cleanedQuery);
         }
 
-        private string GetTransactionCollectionName(string query)
+        public string GetCollectionName(string query)
         {
-            var fromBody = ParseFromBody(query).ReplaceWith(Constants.QueryParsingKeywords.FROM, "").Trim();
-            var colNameParts = fromBody.Split(new[] { ' ' });
-            var colName = colNameParts.FirstOrDefault();
-            if (!string.IsNullOrEmpty(colName))
+            var cleanFromBody = ParseFromBody(query).Replace(Constants.QueryParsingKeywords.FROM, "").Trim();
+
+            if (!string.IsNullOrWhiteSpace(cleanFromBody))
             {
-                return colName.Trim().Replace(Constants.NEWLINE, "");
+                var indexIn = cleanFromBody.IndexOf(" IN ", StringComparison.InvariantCultureIgnoreCase);
+
+                var colNameParts = new string[0];
+
+                if (indexIn > -1)
+                {
+                    var InStatement = cleanFromBody.Substring(indexIn + 4);
+                    colNameParts = InStatement.Split(new[] { '.' });
+
+                }
+                else
+                {
+                    colNameParts = cleanFromBody.Split(new[] { ' ' });
+                }
+
+                var colName = colNameParts.FirstOrDefault();
+                if (!string.IsNullOrEmpty(colName))
+                {
+                    return colName.Trim().Replace(Constants.NEWLINE, "");
+                }
             }
-            return "COLLECTION";
+
+            var cleanQueryInto = ParseIntoBody(query).Replace(Constants.QueryParsingKeywords.INTO, "").Trim();
+            if (!string.IsNullOrWhiteSpace(cleanQueryInto))
+            {
+                var colNameParts = cleanQueryInto.Split(new[] { ' ' });
+                var colName = colNameParts.FirstOrDefault();
+                if (!string.IsNullOrEmpty(colName))
+                {
+                    return colName.Trim().Replace(Constants.NEWLINE, "");
+                }
+            }
+            return string.Empty;
         }
     }
 }
