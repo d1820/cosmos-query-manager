@@ -68,34 +68,7 @@ namespace CosmosManager.Domain
                 string.IsNullOrEmpty(QueryBody) &&
                 string.IsNullOrEmpty(QueryFrom);
 
-        public string CollectionName
-        {
-            get
-            {
-                if (!string.IsNullOrWhiteSpace(CleanQueryFrom))
-                {
-                    var cleanedColStr = CleanQueryFrom.Replace(Constants.QueryParsingKeywords.FROM, "").Trim();
-                    var colNameParts = cleanedColStr.Split(new[] { ' ' });
-                    var colName = colNameParts.FirstOrDefault();
-                    if (!string.IsNullOrEmpty(colName))
-                    {
-                        return colName;
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(CleanQueryInto))
-                {
-                    var cleanedColStr = CleanQueryInto.Replace(Constants.QueryParsingKeywords.INTO, "").Trim();
-                    var colNameParts = cleanedColStr.Split(new[] { ' ' });
-                    var colName = colNameParts.FirstOrDefault();
-                    if (!string.IsNullOrEmpty(colName))
-                    {
-                        return colName;
-                    }
-                }
-                return string.Empty;
-            }
-        }
+        public string CollectionName { get; set; }
 
         public bool IsReplaceUpdateQuery() => !string.IsNullOrEmpty(CleanQueryType) && QueryUpdateType == Constants.QueryParsingKeywords.REPLACE;
 

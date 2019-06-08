@@ -52,7 +52,7 @@ namespace CosmosManager.Tasks
                 {
                     var jDoc = JObject.FromObject(doc);
                     var prop = jDoc.SelectToken(docPath);
-                    var propValue = prop.Value<object>();
+                    var propValue = prop?.Value<object>();
                     if (propValue != null)
                     {
                         if (prop.Type == JTokenType.String)

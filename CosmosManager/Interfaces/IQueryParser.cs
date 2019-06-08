@@ -27,5 +27,7 @@ namespace CosmosManager.Interfaces
         string ParseOffsetLimit(string query);
 
         (MatchCollection comments, string commentFreeQuery) StripComments(string query);
+
+        string GetCollectionName(string query);
     }
 }

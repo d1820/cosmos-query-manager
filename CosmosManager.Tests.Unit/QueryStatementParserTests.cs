@@ -14,6 +14,7 @@ namespace CosmosManager.Tests.Unit
         {
             _parser = new QueryStatementParser(new StringQueryParser(), new Crc32HashProvider());
         }
+
         #region CleanQuery
 
         [Fact]
@@ -141,6 +142,7 @@ namespace CosmosManager.Tests.Unit
         }
         #endregion
 
+        #region Parse
         [Fact]
         public void Parse_Variable_ReturnsVariableName()
         {
@@ -150,10 +152,11 @@ namespace CosmosManager.Tests.Unit
         }
 
         [Fact]
-        public void Parse_PutsCommentsBackInCorrectIndex()
+        public void Parse_ExtractsComments()
         {
             var query = "||SELECT * FROM Cart |/*test*/|WHERE ((Cart.CreatedOn < \"2018-12-12T17:02:35.594738+00:00\") AND STARTSWITH(Cart.PartitionKey, \"sessioncart-\")) ";
             var result = _parser.Parse(query);
+            result.Comments.Count.Should().Be(1);
         }
 
         [Fact]
@@ -162,5 +165,7 @@ namespace CosmosManager.Tests.Unit
             var query = "SELECT pr.id, pr.PartitionKey,   ct.Tier,    ct.TierDesc,    ct.CostPerMonth,    ct.CostsByStateCode,    ct.IsActive,    ct[\"Order\"],    ct.Options|FROM ProductRegistry pr|JOIN   ct IN pr.CoverageTiers JOIN   restriction IN ct.Options.DependentsOptions.DependentRestrictions JOIN   relationship IN restriction.RelationshipTypes|WHERE IS_DEFINED(ct.Options.DependentsOptions.DependentRestrictions) AND relationship = \"child\" OR relationship = \"spouse\"";
             var result = _parser.Parse(query);
         }
+        #endregion
+        
     }
 }

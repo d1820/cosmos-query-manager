@@ -47,7 +47,8 @@ namespace CosmosManager.Parsers
                 QueryOrderBy = _queryParser.ParseOrderBy(cleanQuery).Trim(),
                 QueryJoin = _queryParser.ParseJoins(cleanQuery).Trim(),
                 Comments = commentResult.comments,
-                OrginalQuery = query
+                OrginalQuery = query,
+                CollectionName = _queryParser.GetCollectionName(cleanQuery)
             };
             switch (typeAndBody.queryType.Trim())
             {
@@ -79,7 +80,7 @@ namespace CosmosManager.Parsers
             return comments.commentFreeQuery;
         }
 
-        public string CleanAndFormatQueryText(string query, bool processNewLineKeywords = false, bool processIndentKeywords = false)
+        public string CleanAndFormatQueryText(string query, bool processNewLineKeywords = false, bool processIndentKeywords = false, bool reformatJson = false)
         {
             if (string.IsNullOrEmpty(query))
             {
@@ -124,7 +125,7 @@ namespace CosmosManager.Parsers
                 }
             }
 
-            cleanString = jsonTokenizer.DetokenJsonSections(cleanString);
+            cleanString = jsonTokenizer.DetokenJsonSections(cleanString, reformatJson);
             cleanString = commentTokenizer.DetokenizeComments(cleanString);
 
             return cleanString;

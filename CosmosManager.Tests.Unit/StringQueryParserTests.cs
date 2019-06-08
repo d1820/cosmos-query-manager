@@ -390,5 +390,41 @@ namespace CosmosManager.Tests.Unit
         }
 
         #endregion
+
+        #region GetTransactionCollectionName
+        [Fact]
+        public void GetTransactionCollectionName_ReturnsCollectionName_WhenStandardFromStatement()
+        {
+            var query = "SELECT * \nFROM Cart c\n WHERE ((Cart.CreatedOn < \"2018-12-12T17:02:35.594738+00:00\") AND STARTSWITH(Cart.PartitionKey, \"sessioncart-\")) ";
+            var result = _parser.GetCollectionName(query);
+            result.Should().Be("Cart");
+        }
+
+        [Fact]
+        public void GetTransactionCollectionName_ReturnsCollectionName_WhenFromInStatement()
+        {
+            var query = "SELECT * \nFROM c IN Cart.Items\n WHERE ((c.CreatedOn < \"2018-12-12T17:02:35.594738+00:00\") AND STARTSWITH(c.PartitionKey, \"sessioncart-\")) ";
+            var result = _parser.GetCollectionName(query);
+            result.Should().Be("Cart");
+        }
+
+
+        [Fact]
+        public void GetTransactionCollectionName_ReturnsCollectionName_WhenINtoStatement()
+        {
+            var query = "INSERT {} INTO Cart c ";
+            var result = _parser.GetCollectionName(query);
+            result.Should().Be("Cart");
+        }
+
+        [Fact]
+        public void GetTransactionCollectionName_ReturnsEmptyStirng_WhenFromCanNotBeParsed()
+        {
+            var query = "SELECT * FROM \n WHERE bla";
+            var result = _parser.GetCollectionName(query);
+            result.Should().Be("");
+        }
+
+        #endregion
     }
 }

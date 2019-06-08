@@ -321,10 +321,10 @@ namespace CosmosManager.Presenters
             {
                 var jsonTokenizer = new JsonTokenizer();
                 var commentTokenizer = new CommentTokenizer();
-                
+
                 var preCleanString = queryText;
                 preCleanString = commentTokenizer.TokenizeComments(preCleanString);
-                
+
                 if (preCleanString.EndsWith(";"))
                 {
                     preCleanString = preCleanString.Remove(preCleanString.Length - 1, 1);
@@ -353,7 +353,7 @@ namespace CosmosManager.Presenters
                 foreach (var query in commentedQueries)
                 {
                     var trimmedQuery = query;
-                    trimmedQuery = _queryParser.CleanAndFormatQueryText(trimmedQuery, true, true);
+                    trimmedQuery = _queryParser.CleanAndFormatQueryText(trimmedQuery, true, true, true);
                     var formattedQuery = trimmedQuery.Replace(Constants.NEWLINE, Environment.NewLine);
                     if (queries.Count() > 1)
                     {
