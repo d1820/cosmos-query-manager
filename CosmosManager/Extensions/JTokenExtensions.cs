@@ -26,7 +26,7 @@ namespace CosmosManager.Extensions
             }
             if(findFirstString && !token.Type.IsPrimitiveType() && token.Children().Count() > 0)
             {
-                return token.First().ToStringValue();
+                return token.First().ToStringValue(findFirstString);
             }
             return string.Empty;
         }
