@@ -1,4 +1,5 @@
 ﻿using CosmosManager.Domain;
+using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using CosmosManager.Utilities;
 using System.Linq;
@@ -103,7 +104,12 @@ namespace CosmosManager.Parsers
             var jsonTokenizer = new JsonTokenizer();
             cleanString = jsonTokenizer.TokenizeJsonSections(cleanString);
 
-            foreach (var word in Constants.KeyWordList.Concat(Constants.BuiltInKeyWordList))
+            foreach (var word in Constants.KeyWordList)
+            {
+                cleanString = cleanString.ReplaceWith(word, word.ToUpperInvariant());
+            }
+
+            foreach (var word in Constants.BuiltInKeyWordList)
             {
                 cleanString = Regex.Replace(cleanString, $@"({word}\()", $"{word.ToUpperInvariant()}(", RegexOptions.IgnoreCase);
             }

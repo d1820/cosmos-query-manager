@@ -34,6 +34,7 @@ namespace CosmosManager.Domain
             public const string JOIN = "JOIN";
             public const string OFFSET = "OFFSET";
             public const string LIMIT = "LIMIT";
+            public const string DATE_EQUALS = "DATE_EQUALS";
         }
 
         public static List<string> KeyWordList = new List<string>{
@@ -120,7 +121,7 @@ namespace CosmosManager.Domain
                 "MIN",
                 "MAX",
                 "AVG",
-
+                "DATE_EQUALS"
             };
 
         public static List<string> NewLineKeywords = new List<string> {
