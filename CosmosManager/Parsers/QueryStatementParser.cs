@@ -1,5 +1,4 @@
 ﻿using CosmosManager.Domain;
-using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using CosmosManager.Utilities;
 using System.Linq;
@@ -106,7 +105,7 @@ namespace CosmosManager.Parsers
 
             foreach (var word in Constants.KeyWordList)
             {
-                cleanString = cleanString.ReplaceWith(word, word.ToUpperInvariant());
+                cleanString = Regex.Replace(cleanString, $@"({word}\()", $"{word.ToUpperInvariant()}(", RegexOptions.IgnoreCase);
             }
 
             foreach (var word in Constants.BuiltInKeyWordList)
