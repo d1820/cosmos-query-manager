@@ -1,4 +1,5 @@
 ﻿using CosmosManager.Interfaces;
+using CosmosManager.Stylers;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -10,9 +11,10 @@ namespace CosmosManager.Views
 
         public IActionLogFormPresenter Presenter { private get; set; }
 
-        public ActionLogForm()
+        public ActionLogForm(ActionLogFormStyler actionLogFormStyler)
         {
             InitializeComponent();
+            actionLogFormStyler.ApplyTheme(Domain.ThemeType.Dark, this);
         }
 
         public void RenderActionList(List<string> actions)

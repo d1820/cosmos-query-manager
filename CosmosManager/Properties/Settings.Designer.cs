@@ -46,5 +46,17 @@ namespace CosmosManager.Properties {
                 this["SelectedPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TransactionCachePath {
+            get {
+                return ((string)(this["TransactionCachePath"]));
+            }
+            set {
+                this["TransactionCachePath"] = value;
+            }
+        }
     }
 }

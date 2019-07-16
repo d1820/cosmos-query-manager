@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace CosmosManager.Interfaces
 {
     public interface IVariableInjectionTask
     {
-        string InjectVariables(string query, Dictionary<string, IReadOnlyCollection<object>> variables);
+        string InjectVariables(string query, Dictionary<string, IReadOnlyCollection<object>> variables, ILogger logger);
     }
 }

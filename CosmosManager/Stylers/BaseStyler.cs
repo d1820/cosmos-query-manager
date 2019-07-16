@@ -1,5 +1,6 @@
 ﻿using ScintillaNET;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace CosmosManager.Stylers
 {
@@ -41,6 +42,15 @@ namespace CosmosManager.Stylers
             nums.Sensitive = true;
             nums.Mask = 0;
 
+        }
+
+        protected static void ApplyDarkMenuItemTheme(ToolStripItemCollection items)
+        {
+            foreach (ToolStripItem item in items)
+            {
+                item.ForeColor = Color.FromArgb(190, 190, 190);
+                item.BackColor = Color.FromArgb(60, 60, 60);
+            }
         }
     }
 }

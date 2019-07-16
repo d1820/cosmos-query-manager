@@ -58,7 +58,7 @@ namespace CosmosManager.QueryRunners
                                                                          };
                                                                          if (variables != null && variables.Any() && queryParts.HasVariablesInWhereClause())
                                                                          {
-                                                                             selectQuery = _variableInjectionTask.InjectVariables(selectQuery, variables);
+                                                                             selectQuery = _variableInjectionTask.InjectVariables(selectQuery, variables, logger);
                                                                          }
                                                                          var query = context.QueryAsSql<object>(selectQuery, queryOptions);
                                                                          return await query.ConvertAndLogRequestUnits(false, logger);

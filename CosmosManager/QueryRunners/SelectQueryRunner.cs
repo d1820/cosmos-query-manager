@@ -48,7 +48,7 @@ namespace CosmosManager.QueryRunners
                                                                           var rawQuery = queryParts.ToRawQuery();
                                                                           if (variables != null && variables.Any() && queryParts.HasVariablesInWhereClause())
                                                                           {
-                                                                              rawQuery = _variableInjectionTask.InjectVariables(rawQuery, variables);
+                                                                              rawQuery = _variableInjectionTask.InjectVariables(rawQuery, variables, logger);
                                                                           }
                                                                           var query = context.QueryAsSql<object>(rawQuery, queryOptions);
                                                                           return await query.ConvertAndLogRequestUnits(logStats, logger);

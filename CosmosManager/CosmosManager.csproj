@@ -23,7 +23,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>24</ApplicationRevision>
+    <ApplicationRevision>25</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -125,6 +125,7 @@
   <ItemGroup>
     <Compile Include="Decorators\QueryResultMetricDecorator.cs" />
     <Compile Include="Decorators\QueryResultTotalCostDecorator.cs" />
+    <Compile Include="Domain\AppPreferences.cs" />
     <Compile Include="Domain\Connection.cs" />
     <Compile Include="Domain\Constants.cs" />
     <Compile Include="Domain\DocumentQueryParameter.cs" />
@@ -145,6 +146,8 @@
     <Compile Include="Interfaces\ICosmosDocument.cs" />
     <Compile Include="Interfaces\IFormOpener.cs" />
     <Compile Include="Interfaces\IMainForm.cs" />
+    <Compile Include="Interfaces\IPreferencesForm.cs" />
+    <Compile Include="Interfaces\IPreferencesFormPresenter.cs" />
     <Compile Include="Interfaces\IPresenter.cs" />
     <Compile Include="Interfaces\IQueryWindowPresenter.cs" />
     <Compile Include="Domain\AppReferences.cs" />
@@ -156,6 +159,9 @@
     <Compile Include="Interfaces\IClientConnectionManager.cs" />
     <Compile Include="Builders\RegExBuilder.cs" />
     <Compile Include="Parsers\CommentTokenizer.cs" />
+    <Compile Include="Presenters\PreferencesFormPresenter.cs" />
+    <Compile Include="Stylers\ActionLogFormStyler.cs" />
+    <Compile Include="Stylers\PreferencesFormStyler.cs" />
     <Compile Include="Utilities\FixedLimitDictionary.cs" />
     <Compile Include="Parsers\JsonTokenizer.cs" />
     <Compile Include="Parsers\StringQueryParser.cs" />
@@ -189,6 +195,12 @@
     </Compile>
     <Compile Include="Views\AboutCosmosManager.Designer.cs">
       <DependentUpon>AboutCosmosManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PreferencesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\PreferencesForm.Designer.cs">
+      <DependentUpon>PreferencesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\ActionLogForm.cs">
       <SubType>Form</SubType>
@@ -255,6 +267,9 @@
     <None Include="Resources\json.png" />
     <EmbeddedResource Include="Views\AboutCosmosManager.resx">
       <DependentUpon>AboutCosmosManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\PreferencesForm.resx">
+      <DependentUpon>PreferencesForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ActionLogForm.resx">
       <DependentUpon>ActionLogForm.cs</DependentUpon>

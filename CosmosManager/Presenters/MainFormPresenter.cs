@@ -1,6 +1,5 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using CosmosManager.Views;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -50,7 +49,7 @@ namespace CosmosManager.Presenters
             _view = (IMainForm)context.MainForm;
             _view.Presenter = this;
 
-            InitializeUserAppData();
+            InitializeTransactionCache();
         }
 
         private void StatusTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -230,7 +229,7 @@ namespace CosmosManager.Presenters
             }
         }
 
-        private void InitializeUserAppData()
+        public void InitializeTransactionCache()
         {
             // The folder for the roaming current user
             var folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -239,7 +238,12 @@ namespace CosmosManager.Presenters
             AppReferences.AppDataFolder = Path.Combine(folder, "CosmosManager");
             Directory.CreateDirectory(AppReferences.AppDataFolder);
 
-            AppReferences.TransactionCacheDataFolder = Path.Combine(folder, "CosmosManager/TransactionCache");
+            var appPath = Path.Combine(folder, "CosmosManager/TransactionCache");
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.TransactionCachePath))
+            {
+                appPath = Properties.Settings.Default.TransactionCachePath;
+            }
+            AppReferences.TransactionCacheDataFolder = appPath;
             Directory.CreateDirectory(AppReferences.TransactionCacheDataFolder);
 
             var size = CalculateFolderSize(AppReferences.TransactionCacheDataFolder);

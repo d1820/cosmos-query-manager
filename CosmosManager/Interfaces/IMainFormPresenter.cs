@@ -35,5 +35,7 @@ namespace CosmosManager.Interfaces
         void UpdateTabHeaderColor();
 
         void UpdateTransactionFolderSize();
+
+        void InitializeTransactionCache();
     }
 }
