@@ -5,6 +5,7 @@ using CosmosManager.Interfaces;
 using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.RegularExpressions;
 
 [assembly: InternalsVisibleTo("CosmosManager.Tests.Unit")]
@@ -276,7 +277,7 @@ namespace CosmosManager.Parsers
                 matches = rgx.Matches(cleanedQuery);
                 if (matches.Count == 1)
                 {
-                    return matches[0].Value.Trim();
+                    return ParseDateEquals(matches[0].Value.Trim());
                 }
             }
 
@@ -293,7 +294,7 @@ namespace CosmosManager.Parsers
                 matches = rgx.Matches(query);
                 if (matches.Count == 1)
                 {
-                    return matches[0].Value.Trim();
+                    return ParseDateEquals(matches[0].Value.Trim());
                 }
             }
             //lets check if its only a FROM and then end
@@ -305,7 +306,7 @@ namespace CosmosManager.Parsers
             matches = rgx.Matches(query);
             if (matches.Count == 1)
             {
-                return matches[0].Value.Trim();
+                return ParseDateEquals(matches[0].Value.Trim());
             }
 
             if (matches.Count > 1)
@@ -502,6 +503,36 @@ namespace CosmosManager.Parsers
                 }
             }
             return string.Empty;
+        }
+
+        public string ParseDateEquals(string query)
+        {
+            var newQuery = query;
+            var rgx = new Regex($@"({Constants.QueryParsingKeywords.DATE_EQUALS}\([\W\w\s]*?\))", RegexOptions.Compiled | RegexOptions.Singleline);
+            var matches = rgx.Matches(newQuery);
+            while (matches.Count > 0)
+            {
+                var match = matches[0];
+                var methodParams = match.Value.Replace($"{Constants.QueryParsingKeywords.DATE_EQUALS}(", "").Replace(")", "");
+                var parts = methodParams.Split(new char[] { ',' });
+                if (parts.Length != 2)
+                {
+                    throw new FormatException($"Invalid query. Query containing {Constants.QueryParsingKeywords.DATE_EQUALS} statement has an invalid format.");
+                }
+                var field = parts[0].Trim();
+                var dateStr = parts[1].Trim().Replace("'", "");
+                DateTimeOffset dateOut;
+                if (!DateTimeOffset.TryParse(dateStr, out dateOut) || dateOut == DateTimeOffset.MinValue)
+                {
+                    throw new FormatException($"Invalid query. Query containing {Constants.QueryParsingKeywords.DATE_EQUALS} statement has an invalid date.");
+                }
+                var aStringBuilder = new StringBuilder(newQuery);
+                aStringBuilder.Remove(match.Index, match.Length);
+                aStringBuilder.Insert(match.Index, $"{field} >= '{dateOut.ToUniversalTime().ToString("s", System.Globalization.CultureInfo.InvariantCulture)}' AND {field} < '{dateOut.AddSeconds(1).ToUniversalTime().ToString("s", System.Globalization.CultureInfo.InvariantCulture)}' ");
+                newQuery = aStringBuilder.ToString();
+                matches = rgx.Matches(newQuery);
+            }
+            return newQuery;
         }
     }
 }

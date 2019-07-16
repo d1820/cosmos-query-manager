@@ -103,7 +103,12 @@ namespace CosmosManager.Parsers
             var jsonTokenizer = new JsonTokenizer();
             cleanString = jsonTokenizer.TokenizeJsonSections(cleanString);
 
-            foreach (var word in Constants.KeyWordList.Concat(Constants.BuiltInKeyWordList))
+            foreach (var word in Constants.KeyWordList)
+            {
+                cleanString = Regex.Replace(cleanString, $@"({word}\()", $"{word.ToUpperInvariant()}(", RegexOptions.IgnoreCase);
+            }
+
+            foreach (var word in Constants.BuiltInKeyWordList)
             {
                 cleanString = Regex.Replace(cleanString, $@"({word}\()", $"{word.ToUpperInvariant()}(", RegexOptions.IgnoreCase);
             }
