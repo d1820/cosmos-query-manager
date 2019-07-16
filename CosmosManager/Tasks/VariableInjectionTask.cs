@@ -1,4 +1,5 @@
 ﻿using CosmosManager.Interfaces;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace CosmosManager.Tasks
 {
     public class VariableInjectionTask : IVariableInjectionTask
     {
-        public string InjectVariables(string query, Dictionary<string, IReadOnlyCollection<object>> variables)
+        public string InjectVariables(string query, Dictionary<string, IReadOnlyCollection<object>> variables, ILogger logger)
         {
             if (variables == null || string.IsNullOrEmpty(query))
             {
@@ -35,13 +36,13 @@ namespace CosmosManager.Tasks
 
                 if (!varNameMatch.Success)
                 {
-                    throw new Exception($"Variable {match.Value} has not been defined and set. Please check variable and try again.");
+                    throw new Exception($"Variable {match.Value.Replace("IN (","")} has not been defined and set. Please check variable and try again.");
                 }
                 var dataResults = variables[varNameMatch.Value];
                 if (dataResults == null || !dataResults.Any())
                 {
-                    throw new Exception($"Variable {match.Value} has not been set. Please check variable and try again.");
-
+                    logger.LogInformation($"Variable {match.Value.Replace("IN (", "")} returned no results.");
+                    dataResults = new List<object>();
                 }
                 //get the replace pattern to lookup from results
                 var pathRegEx = new Regex($@"\{varNameMatch.Value}(.*?)(?=\s*\))");
@@ -64,6 +65,10 @@ namespace CosmosManager.Tasks
                             list.Add(propValue);
                         }
                     }
+                }
+                if (!list.Any())
+                {
+                    list.Add("''"); //this will result in no matches found
                 }
                 query = pathRegEx.Replace(query, string.Join(",", list.Distinct()));
             }

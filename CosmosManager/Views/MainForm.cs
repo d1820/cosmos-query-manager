@@ -19,11 +19,11 @@ namespace CosmosManager
 
         public IMainFormPresenter Presenter { private get; set; }
 
-        public MainForm(IFormOpener formManager, IMainFormPresenter presenter)
+        public MainForm(IFormOpener formManager, IMainFormPresenter presenter, MainFormStyler mainFormStyler)
         {
             InitializeComponent();
 
-            MainFormStyler.ApplyTheme(ThemeType.Dark, this);
+            mainFormStyler.ApplyTheme(ThemeType.Dark, this);
 
             if (Properties.Settings.Default.UpdateSettings)
             {
@@ -411,6 +411,20 @@ namespace CosmosManager
         private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AutoUpdater.Start("https://raw.githubusercontent.com/d1820/cosmos-query-manager/master/version.xml");
+        }
+
+        private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _formManager.ShowModalForm<PreferencesForm>(form =>
+            {
+                var presenter = AppReferences.Container.GetInstance<IPreferencesFormPresenter>();
+                presenter.InitializePresenter(new
+                {
+                    PreferencesForm = form,
+                    MainFormPresenter = Presenter
+                });
+                presenter.InitializeForm();
+            });
         }
     }
 }

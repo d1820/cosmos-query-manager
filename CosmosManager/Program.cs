@@ -49,12 +49,17 @@ namespace CosmosManager
             container.Register<IMainFormPresenter, MainFormPresenter>(Lifestyle.Singleton);
 
             container.Register<IActionLogFormPresenter, ActionLogFormPresenter>(Lifestyle.Singleton);
+            container.Register<IPreferencesFormPresenter, PreferencesFormPresenter>(Lifestyle.Singleton);
 
             RegisterRunners(container);
 
             container.Register<IQueryStyler, QueryTextStyler>(Lifestyle.Transient);
             container.Register<IJsonStyler, JsonDocumentStyler>(Lifestyle.Transient);
             container.Register<IQueryWindowControl, QueryWindowControl>(Lifestyle.Transient);
+
+            container.RegisterInstance(new MainFormStyler());
+            container.RegisterInstance(new ActionLogFormStyler());
+            container.RegisterInstance(new PreferencesFormStyler());
 
 
 

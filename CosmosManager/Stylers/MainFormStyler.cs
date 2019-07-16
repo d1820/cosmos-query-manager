@@ -1,10 +1,9 @@
 ﻿using CosmosManager.Domain;
 using System.Drawing;
-using System.Windows.Forms;
 
 namespace CosmosManager.Stylers
 {
-    public static class MainFormStyler
+    public class MainFormStyler: BaseStyler
     {
         public static Brush GetTabBrush(ThemeType themeType)
         {
@@ -16,7 +15,7 @@ namespace CosmosManager.Stylers
             return new SolidBrush(Color.Transparent);
         }
 
-        public static void ApplyTheme(ThemeType themeType, MainForm form)
+        public void ApplyTheme(ThemeType themeType, MainForm form)
         {
             switch (themeType)
             {
@@ -34,15 +33,6 @@ namespace CosmosManager.Stylers
                     //form.ForeColor = Color.FromArgb(60, 60, 60);
                     form.tabBackgroundPanel.BackColor = Color.FromArgb(30, 30, 30);
                     break;
-            }
-        }
-
-        private static void ApplyDarkMenuItemTheme(ToolStripItemCollection items)
-        {
-            foreach (ToolStripItem item in items)
-            {
-                item.ForeColor = Color.FromArgb(190, 190, 190);
-                item.BackColor = Color.FromArgb(60, 60, 60);
             }
         }
     }

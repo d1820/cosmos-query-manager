@@ -33,9 +33,9 @@
             this.logText = new System.Windows.Forms.RichTextBox();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
+            //
             // menuStrip1
-            // 
+            //
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.closeToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
@@ -44,16 +44,16 @@
             this.menuStrip1.Size = new System.Drawing.Size(520, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
-            // 
+            //
             // closeToolStripMenuItem
-            // 
+            //
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
             this.closeToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
-            // 
+            //
             // logText
-            // 
+            //
             this.logText.BackColor = System.Drawing.Color.White;
             this.logText.Dock = System.Windows.Forms.DockStyle.Fill;
             this.logText.Location = new System.Drawing.Point(0, 24);
@@ -63,9 +63,9 @@
             this.logText.TabIndex = 2;
             this.logText.Text = "";
             this.logText.WordWrap = false;
-            // 
+            //
             // ActionLogForm
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(520, 394);
@@ -89,8 +89,8 @@
         }
 
         #endregion
-        private System.Windows.Forms.MenuStrip menuStrip1;
+        public System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
-        private System.Windows.Forms.RichTextBox logText;
+        public System.Windows.Forms.RichTextBox logText;
     }
 }
