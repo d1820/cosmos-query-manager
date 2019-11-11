@@ -1,5 +1,6 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
+using CosmosManager.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,7 @@ namespace CosmosManager.Presenters
         private System.Timers.Timer statusTimer;
         private Dictionary<string, Color> _tabColors = new Dictionary<string, Color>();
         private dynamic _context;
+        private IPubSub _pubsub;
 
         public List<Connection> Connections { get; private set; }
 
@@ -48,8 +50,18 @@ namespace CosmosManager.Presenters
             _context = context;
             _view = (IMainForm)context.MainForm;
             _view.Presenter = this;
+            _pubsub = context.PubSub;
+            _pubsub.Subscribe(this, Constants.SubscriptionTypes.THEME_CHANGE);
 
             InitializeTransactionCache();
+        }
+
+        public void Receive(object sender, PubSubEventArgs e, int messageId)
+        {
+            if (messageId == Constants.SubscriptionTypes.THEME_CHANGE)
+            {
+                _view.RenderTheme();
+            }
         }
 
         private void StatusTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -276,6 +288,11 @@ namespace CosmosManager.Presenters
             var place = Convert.ToInt32(Math.Floor(Math.Log(newbytes, 1024)));
             var num = Math.Round(newbytes / Math.Pow(1024, place), 1);
             return (Math.Sign(bytes) * num).ToString() + suf[place];
+        }
+
+        public void Dispose()
+        {
+            _pubsub.Unsubscribe(this, Constants.SubscriptionTypes.THEME_CHANGE);
         }
     }
 }

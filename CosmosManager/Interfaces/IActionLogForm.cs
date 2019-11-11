@@ -6,5 +6,6 @@ namespace CosmosManager.Interfaces
     {
         void RenderActionList(List<string> actions);
         IActionLogFormPresenter Presenter { set; }
+        void RenderTheme();
     }
 }

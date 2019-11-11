@@ -20,20 +20,30 @@ namespace CosmosManager
         private int _totalDocumentCount;
 
         private CheckState _headerCheckState;
+        private readonly IQueryStyler _queryTextStyler;
+        private readonly IJsonStyler _jsonStyler;
 
         public QueryWindowControl(IQueryStyler queryTextStyler, IJsonStyler jsonStyler)
         {
             InitializeComponent();
 
-            QueryWindowStyler.ApplyTheme(ThemeType.Dark, this);
+            _queryTextStyler = queryTextStyler;
+            _jsonStyler = jsonStyler;
+
+            RenderTheme();
 
             resultListView.DoubleBuffered(true);
 
             //look for a connections string file
             selectConnections.Items.Add("Load Connection File");
 
-            queryTextStyler.SyntaxifyTextBox(textQuery);
-            jsonStyler.SyntaxifyTextBox(textDocument);
+        }
+
+        public void RenderTheme()
+        {
+            QueryWindowStyler.ApplyTheme(AppReferences.CurrentTheme, this);
+            _queryTextStyler.SyntaxifyTextBox(textQuery);
+            _jsonStyler.SyntaxifyTextBox(textDocument);
         }
 
         public object[] ConnectionsList

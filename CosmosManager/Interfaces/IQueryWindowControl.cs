@@ -34,5 +34,7 @@ namespace CosmosManager.Interfaces
 
         void SetUpdatedResultDocument(object document);
 
+        void RenderTheme();
+
     }
 }

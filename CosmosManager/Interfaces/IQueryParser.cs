@@ -22,6 +22,8 @@ namespace CosmosManager.Interfaces
 
         string ParseOrderBy(string query);
 
+        string ParseGroupBy(string query);
+
         string ParseJoins(string query);
 
         string ParseOffsetLimit(string query);

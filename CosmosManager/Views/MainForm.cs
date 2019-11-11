@@ -3,6 +3,7 @@ using CosmosManager.Domain;
 using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
 using CosmosManager.Stylers;
+using CosmosManager.Utilities;
 using CosmosManager.Views;
 using System;
 using System.Drawing;
@@ -15,16 +16,19 @@ namespace CosmosManager
     {
         private TreeNode _contextSelectedNode;
         private TabPage contextTabPage;
+        private MainFormStyler _mainFormStyler;
         private readonly IFormOpener _formManager;
+        private readonly IPubSub _pubsub;
 
         public IMainFormPresenter Presenter { private get; set; }
 
-        public MainForm(IFormOpener formManager, IMainFormPresenter presenter, MainFormStyler mainFormStyler)
+        public MainForm(IFormOpener formManager, IMainFormPresenter presenter, MainFormStyler mainFormStyler, IPubSub pubsub)
         {
             InitializeComponent();
 
-            mainFormStyler.ApplyTheme(ThemeType.Dark, this);
-
+            _mainFormStyler = mainFormStyler;
+            _pubsub = pubsub;
+            RenderTheme();
             if (Properties.Settings.Default.UpdateSettings)
             {
                 Properties.Settings.Default.Upgrade();
@@ -35,13 +39,16 @@ namespace CosmosManager
             _formManager = formManager;
             presenter.InitializePresenter(new
             {
-                MainForm = this
+                MainForm = this,
+                PubSub = _pubsub
             });
 
             if (!string.IsNullOrEmpty(Properties.Settings.Default.SelectedPath))
             {
                 Presenter.PopulateTreeView(Properties.Settings.Default.SelectedPath);
             }
+
+
         }
 
         protected override void WndProc(ref Message m)
@@ -50,6 +57,12 @@ namespace CosmosManager
             if (m.Msg == 0x128)
                 return;
             base.WndProc(ref m);
+        }
+
+        public void RenderTheme()
+        {
+            _mainFormStyler.ApplyTheme(AppReferences.CurrentTheme, this);
+            Refresh();
         }
 
         public void ClearFileTreeView()
@@ -165,7 +178,7 @@ namespace CosmosManager
 
         private void queryTabControl_DrawItem(object sender, DrawItemEventArgs e)
         {
-            var BackBrush = MainFormStyler.GetTabBrush(ThemeType.Dark);
+            var BackBrush = MainFormStyler.GetTabBrush(AppReferences.CurrentTheme);
             e.Graphics.FillRectangle(BackBrush, queryTabControl.Bounds);
 
             queryTabControl.SuspendLayout();
@@ -175,7 +188,7 @@ namespace CosmosManager
                 var tabRect = queryTabControl.GetTabRect(i);
                 var tabPage = queryTabControl.TabPages[i];
                 var presenter = tabPage.Tag as QueryWindowPresenter;
-                var brushColor = Color.FromArgb(240, 240, 240);
+                var brushColor = MainFormStyler.GetTabBackground(AppReferences.CurrentTheme);
                 if (presenter.SelectedConnection != null)
                 {
                     brushColor = Presenter.GetConnectionColor(presenter.SelectedConnection.Name);
@@ -207,6 +220,8 @@ namespace CosmosManager
             var closeButton = new Rectangle((tabRect.Right - 10), tabRect.Top + (tabRect.Height - closeImage.Height) / 2, 10, 10);
             if (closeButton.Contains(e.Location))
             {
+                var presenter = queryTabControl.SelectedTab.Tag as IQueryWindowPresenter;
+                presenter.Dispose();
                 queryTabControl.TabPages.Remove(queryTabControl.SelectedTab);
                 queryTabControl.Visible = queryTabControl.TabPages.Count > 0;
             }
@@ -308,6 +323,7 @@ namespace CosmosManager
             {
                 TabIndexReference = queryTabControl.TabPages.Count,
                 QueryWindowControl = queryWindow,
+                PubSub = _pubsub
             });
 
             if (fileInfo != null)
@@ -392,15 +408,22 @@ namespace CosmosManager
 
         private void viewPreviousActionsLogToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _formManager.ShowModalForm<ActionLogForm>(form =>
+            var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
+            var result = _formManager.ShowModalForm<ActionLogForm>(form =>
+           {
+
+               presenter.InitializePresenter(new
+               {
+                   ActionLogForm = form,
+                   PubSub = _pubsub
+               });
+               presenter.RenderActionList();
+           });
+
+            if (result.dialogResult == DialogResult.Cancel)
             {
-                var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
-                presenter.InitializePresenter(new
-                {
-                    ActionLogForm = form
-                });
-                presenter.RenderActionList();
-            });
+                presenter.Dispose();
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -415,13 +438,14 @@ namespace CosmosManager
 
         private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            var presenter = AppReferences.Container.GetInstance<IPreferencesFormPresenter>();
             _formManager.ShowModalForm<PreferencesForm>(form =>
             {
-                var presenter = AppReferences.Container.GetInstance<IPreferencesFormPresenter>();
                 presenter.InitializePresenter(new
                 {
                     PreferencesForm = form,
-                    MainFormPresenter = Presenter
+                    MainFormPresenter = Presenter,
+                    PubSub = _pubsub
                 });
                 presenter.InitializeForm();
             });

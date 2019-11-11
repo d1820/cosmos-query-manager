@@ -17,6 +17,11 @@ namespace CosmosManager.Domain
             public const string ID = "id";
         }
 
+        public static class SubscriptionTypes
+        {
+            public const int THEME_CHANGE = 1;
+        }
+
         public static class QueryParsingKeywords
         {
             public const string SELECT = "SELECT";
@@ -35,6 +40,7 @@ namespace CosmosManager.Domain
             public const string OFFSET = "OFFSET";
             public const string LIMIT = "LIMIT";
             public const string DATE_EQUALS = "DATE_EQUALS";
+            public const string GROUPBY = "GROUP BY";
         }
 
         public static List<string> KeyWordList = new List<string>{
@@ -53,6 +59,7 @@ namespace CosmosManager.Domain
                 QueryParsingKeywords.JOIN,
                 QueryParsingKeywords.OFFSET,
                 QueryParsingKeywords.LIMIT,
+                QueryParsingKeywords.GROUPBY,
                 "IN",
                 "AND",
                 "OR",
@@ -63,7 +70,9 @@ namespace CosmosManager.Domain
                 "VALUE"
             };
 
+        //https://docs.microsoft.com/en-us/azure/cosmos-db/sql-query-system-functions
         public static List<string> BuiltInKeyWordList = new List<string>{
+                //Math functions
                 "ABS",
                 "ACOS",
                 "ASIN",
@@ -85,7 +94,18 @@ namespace CosmosManager.Domain
                 "SQRT",
                 "SQUARE",
                 "SIGN",
-                "TANTRUNC",
+                "TAN",
+                "TRUNC",
+                //Spatial functions
+                "ST_DISTANCE",
+                "ST_INTERSECTS",
+                "ST_ISVALID",
+                "ST_ISVALIDDETAILED",
+                "ST_WITHIN",
+                //Datetime functions
+                "GetCurrentDateTime",
+                "GetCurrentTimestamp",
+                //Type Checking
                 "IS_ARRAY",
                 "IS_BOOL",
                 "IS_DEFINED",
@@ -94,6 +114,7 @@ namespace CosmosManager.Domain
                 "IS_OBJECT",
                 "IS_PRIMITIVE",
                 "IS_STRING",
+                //String functions
                 "CONCAT",
                 "CONTAINS",
                 "ENDSWITH",
@@ -108,19 +129,27 @@ namespace CosmosManager.Domain
                 "RIGHT",
                 "RTRIM",
                 "STARTSWITH",
+                "StringToArray",
+                "StringToBoolean",
+                "StringToNull",
+                "StringToNumber",
+                "StringToObject",
                 "SUBSTRING",
                 "ToString",
                 "TRIM",
                 "UPPER",
+                //Array functions
                 "ARRAY_CONCAT",
                 "ARRAY_CONTAINS",
                 "ARRAY_LENGTH",
                 "ARRAY_SLICE",
+                //Aggregates
                 "COUNT",
                 "SUM",
                 "MIN",
                 "MAX",
                 "AVG",
+                //Custom
                 "DATE_EQUALS"
             };
 
@@ -138,10 +167,12 @@ namespace CosmosManager.Domain
                 QueryParsingKeywords.DELETE,
                 QueryParsingKeywords.ORDERBY,
                 QueryParsingKeywords.JOIN,
-                QueryParsingKeywords.OFFSET
+                QueryParsingKeywords.OFFSET,
+                QueryParsingKeywords.GROUPBY
          };
 
-        public static List<string> IndentKeywords = new List<string> {
+        public static List<string> IndentKeywords = new List<string>
+        {
 
         };
 

@@ -92,10 +92,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>82AD85F6D8720DAA14C9D033EE8411E83DF77F64</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>FC4EC936457DDEB4AFA0A2D639F0D80ADFE226BB</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>CosmosManager_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>CosmosManager_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -130,6 +130,7 @@
     <Compile Include="Domain\Constants.cs" />
     <Compile Include="Domain\DocumentQueryParameter.cs" />
     <Compile Include="Domain\DocumentResult.cs" />
+    <Compile Include="Domain\PubSubEventArgs.cs" />
     <Compile Include="Domain\QueryOptions.cs" />
     <Compile Include="Domain\RequestOptions.cs" />
     <Compile Include="Domain\QueryOuputLogger.cs" />
@@ -190,6 +191,9 @@
     <Compile Include="Stylers\JsonDocumentStyler.cs" />
     <Compile Include="Stylers\QueryWindowStyler.cs" />
     <Compile Include="Tasks\TransactionTask.cs" />
+    <Compile Include="Interfaces\IPubSub.cs" />
+    <Compile Include="Interfaces\IReceiver.cs" />
+    <Compile Include="Utilities\PubSub.cs" />
     <Compile Include="Views\AboutCosmosManager.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -251,6 +255,7 @@
     <Compile Include="Stores\DocumentExecuteContext.cs" />
     <Compile Include="Stores\StoredProcedureExecuteContext.cs" />
     <Compile Include="Domain\ThemeType.cs" />
+    <None Include="CosmosManager_1_TemporaryKey.pfx" />
     <None Include="Resources\Stop-red-icon.png" />
     <None Include="Resources\format_font_size_more.png" />
     <None Include="Resources\format_font_size_less.png" />

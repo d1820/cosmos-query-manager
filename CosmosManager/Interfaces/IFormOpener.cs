@@ -7,6 +7,6 @@ namespace CosmosManager.Interfaces
     {
         void ShowModelessForm<TForm>(Action<Form> formInitializer = null) where TForm : Form;
 
-        (DialogResult, TForm) ShowModalForm<TForm>(Action<Form> formInitializer = null) where TForm : Form;
+        (DialogResult dialogResult, TForm form) ShowModalForm<TForm>(Action<Form> formInitializer = null) where TForm : Form;
     }
 }

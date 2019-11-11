@@ -8,6 +8,8 @@ namespace CosmosManager.Interfaces
 
         IMainFormPresenter Presenter { set; }
 
+        void RenderTheme();
+
         void ClearFileTreeView();
 
         void AddFileNode(TreeNode newNode);

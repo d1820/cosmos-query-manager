@@ -1,4 +1,5 @@
 ﻿using CosmosManager.Domain;
+using CosmosManager.Utilities;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -6,7 +7,7 @@ using System.Windows.Forms;
 
 namespace CosmosManager.Interfaces
 {
-    public interface IMainFormPresenter : IPresenter
+    public interface IMainFormPresenter : IPresenter, IReceiver<PubSubEventArgs>
     {
         List<Connection> Connections { get; }
 
