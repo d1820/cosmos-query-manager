@@ -54,6 +54,7 @@ namespace CosmosManager.Parsers
             {
                 case Constants.QueryParsingKeywords.SELECT:
                     qp.QueryOffset = _queryParser.ParseOffsetLimit(cleanQuery).Trim();
+                    qp.QueryGroupBy = _queryParser.ParseGroupBy(cleanQuery).Trim();
                     break;
                 case Constants.QueryParsingKeywords.UPDATE:
                     var updateTypeAndBody = _queryParser.ParseUpdateBody(cleanQuery);

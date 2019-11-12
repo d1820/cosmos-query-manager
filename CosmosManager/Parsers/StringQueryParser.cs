@@ -160,7 +160,7 @@ namespace CosmosManager.Parsers
                 rgx = _builder.Reset()
                                 .HasStartingKeywords(Constants.QueryParsingKeywords.FROM)
                                 .GrabUntil()
-                                .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.ORDERBY)
+                                .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.ORDERBY, Constants.QueryParsingKeywords.GROUPBY)
                                 .Build();
 
                 matches = rgx.Matches(query);
@@ -288,7 +288,7 @@ namespace CosmosManager.Parsers
                 rgx = _builder.Reset()
                                     .HasStartingKeywords(Constants.QueryParsingKeywords.WHERE)
                                     .GrabUntil()
-                                    .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.ORDERBY, Constants.QueryParsingKeywords.OFFSET)
+                                    .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.ORDERBY, Constants.QueryParsingKeywords.GROUPBY, Constants.QueryParsingKeywords.OFFSET)
                                     .Build();
 
                 matches = rgx.Matches(query);
@@ -385,6 +385,45 @@ namespace CosmosManager.Parsers
             if (matches.Count > 1)
             {
                 throw new FormatException($"Invalid query. Query {Constants.QueryParsingKeywords.ORDERBY} statement is not formatted correct.");
+            }
+
+            return string.Empty;
+        }
+
+        public string ParseGroupBy(string query)
+        {
+            //GroupBy only allowed after select, from, where clause
+            var rgxSelect = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.SELECT).Build();
+            if (rgxSelect.Matches(query).Count == 0)
+            {
+                return string.Empty;
+            }
+
+
+            var rgx = _builder.Reset()
+                                .HasStartingKeywords(Constants.QueryParsingKeywords.GROUPBY)
+                                .GrabUntil()
+                                .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.OFFSET)
+                                .Build();
+
+            var matches = rgx.Matches(query);
+            if (matches.Count == 1)
+            {
+                return matches[0].Value.Trim();
+            }
+
+
+            rgx = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.GROUPBY).GrabUntilEnd().Build();
+
+            matches = rgx.Matches(query);
+            if (matches.Count == 1)
+            {
+                return matches[0].Value.Trim();
+            }
+
+            if (matches.Count > 1)
+            {
+                throw new FormatException($"Invalid query. Query {Constants.QueryParsingKeywords.GROUPBY} statement is not formatted correct.");
             }
 
             return string.Empty;

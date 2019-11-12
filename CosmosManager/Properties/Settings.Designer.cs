@@ -34,7 +34,22 @@ namespace CosmosManager.Properties {
                 this["UpdateSettings"] = value;
             }
         }
-        
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseDarkTheme
+        {
+            get
+            {
+                return ((bool)(this["UseDarkTheme"]));
+            }
+            set
+            {
+                this["UseDarkTheme"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]

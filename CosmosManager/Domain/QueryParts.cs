@@ -19,6 +19,7 @@ namespace CosmosManager.Domain
         public string QueryOrderBy { private get; set; } = "";
         public string QueryJoin { private get; set; } = "";
         public string QueryOffset { private get; set; } = "";
+        public string QueryGroupBy { private get; set; } = "";
 
         public MatchCollection Comments { get; set; }
 
@@ -35,6 +36,7 @@ namespace CosmosManager.Domain
 
         public string CleanQueryWhere => QueryWhere.Replace(Constants.NEWLINE, " ").Trim();
         public string CleanQueryOrderBy => QueryOrderBy.Replace(Constants.NEWLINE, " ").Trim();
+        public string CleanQueryGroupBy => QueryGroupBy.Replace(Constants.NEWLINE, " ").Trim();
         public string CleanQueryJoin => QueryJoin.Replace(Constants.NEWLINE, " ").Trim();
         public string CleanVariableName => VariableName.Replace(Constants.NEWLINE, " ").Trim();
 
@@ -89,6 +91,8 @@ namespace CosmosManager.Domain
 
         public bool HasOrderByClause() => !string.IsNullOrEmpty(CleanQueryOrderBy);
 
+        public bool HasGroupByClause() => !string.IsNullOrEmpty(CleanQueryGroupBy);
+
         public bool HasJoins() => !string.IsNullOrEmpty(CleanQueryJoin);
 
         public bool HasVariableAssignment() => !string.IsNullOrEmpty(VariableName);
@@ -124,6 +128,11 @@ namespace CosmosManager.Domain
                 baseString += $" {QueryWhere}";
             }
 
+            if (!string.IsNullOrEmpty(QueryGroupBy))
+            {
+                baseString += $" {QueryGroupBy}";
+            }
+
             if (!string.IsNullOrEmpty(QueryOrderBy))
             {
                 baseString += $" {QueryOrderBy}";
@@ -153,6 +162,11 @@ namespace CosmosManager.Domain
             if (!string.IsNullOrEmpty(QueryWhere))
             {
                 baseString += $" {QueryWhere}";
+            }
+
+            if (!string.IsNullOrEmpty(QueryGroupBy))
+            {
+                baseString += $" {QueryGroupBy}";
             }
 
             if (!string.IsNullOrEmpty(QueryOrderBy))

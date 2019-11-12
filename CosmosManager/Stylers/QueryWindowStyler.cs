@@ -22,6 +22,20 @@ namespace CosmosManager.Stylers
                     form.selectConnections.BackColor = Color.FromArgb(60, 60, 60);
                     form.selectConnections.ForeColor = Color.FromArgb(190, 190, 190);
                     break;
+
+                case ThemeType.Light:
+                    form.BackColor = Color.FromArgb(255,255,255);
+                    form.queryToolStrip.BackColor = Color.FromArgb(243,243,243);
+                    form.resultListToolStrip.BackColor = Color.FromArgb(243, 243, 243);
+                    form.documentToolstrip.BackColor = Color.FromArgb(243, 243, 243);
+                    form.splitQueryResult.BackColor = Color.FromArgb(243, 243, 243);
+                    form.splitQueryResult.Panel1.BackColor = Color.FromArgb(221, 221, 221);
+                    form.splitQueryResult.Panel2.BackColor = Color.FromArgb(221, 221, 221);
+                    form.resultCountTextbox.BackColor = Color.FromArgb(243, 243, 243);
+                    form.resultCountTextbox.ForeColor = Color.FromArgb(122, 122, 122);
+                    form.selectConnections.BackColor = Color.FromArgb(221, 221, 221);
+                    form.selectConnections.ForeColor = Color.FromArgb(97, 97, 97);
+                    break;
             }
         }
     }

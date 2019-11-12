@@ -1,4 +1,5 @@
-﻿using CosmosManager.Interfaces;
+﻿using CosmosManager.Domain;
+using CosmosManager.Interfaces;
 using CosmosManager.Stylers;
 using System;
 using System.Collections.Generic;
@@ -8,13 +9,21 @@ namespace CosmosManager.Views
 {
     public partial class ActionLogForm : Form, IActionLogForm
     {
-
         public IActionLogFormPresenter Presenter { private get; set; }
+
+        private readonly ActionLogFormStyler _actionLogFormStyler;
 
         public ActionLogForm(ActionLogFormStyler actionLogFormStyler)
         {
             InitializeComponent();
-            actionLogFormStyler.ApplyTheme(Domain.ThemeType.Dark, this);
+            _actionLogFormStyler = actionLogFormStyler;
+            RenderTheme();
+        }
+
+        public void RenderTheme()
+        {
+            _actionLogFormStyler.ApplyTheme(AppReferences.CurrentTheme, this);
+            Refresh();
         }
 
         public void RenderActionList(List<string> actions)
@@ -26,5 +35,7 @@ namespace CosmosManager.Views
         {
             Close();
         }
+
+
     }
 }

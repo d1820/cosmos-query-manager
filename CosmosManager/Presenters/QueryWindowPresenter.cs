@@ -2,6 +2,7 @@
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using CosmosManager.Parsers;
+using CosmosManager.Utilities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -29,6 +30,7 @@ namespace CosmosManager.Presenters
         private IEnumerable<IQueryRunner> _queryRunners = new List<IQueryRunner>();
         private dynamic _context;
         private readonly IClientConnectionManager _clientConnectionManager;
+        private IPubSub _pubsub;
 
         private Dictionary<string, IReadOnlyCollection<object>> _variables = new Dictionary<string, IReadOnlyCollection<object>>();
         private CancellationTokenSource _source;
@@ -50,7 +52,17 @@ namespace CosmosManager.Presenters
             _context = context;
             _view = (IQueryWindowControl)context.QueryWindowControl;
             _view.Presenter = this;
+            _pubsub = context.PubSub;
+            _pubsub.Subscribe(this, Constants.SubscriptionTypes.THEME_CHANGE);
             TabIndexReference = (int)context.TabIndexReference;
+        }
+
+        public void Receive(object sender, PubSubEventArgs e, int messageId)
+        {
+            if (messageId == Constants.SubscriptionTypes.THEME_CHANGE)
+            {
+                _view.RenderTheme();
+            }
         }
 
         public string CurrentTabQuery
@@ -394,6 +406,11 @@ namespace CosmosManager.Presenters
 
             //this removes empty lines
             return queries.Where(w => !string.IsNullOrEmpty(w.Trim().Replace(Constants.NEWLINE, "")));
+        }
+
+        public void Dispose()
+        {
+            _pubsub.Unsubscribe(this, Constants.SubscriptionTypes.THEME_CHANGE);
         }
     }
 }

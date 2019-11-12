@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace CosmosManager.Stylers
 {
-    public class PreferencesFormStyler: BaseStyler
+    public class PreferencesFormStyler : BaseStyler
     {
         public static Brush GetTabBrush(ThemeType themeType)
         {
@@ -18,16 +18,25 @@ namespace CosmosManager.Stylers
 
         public void ApplyTheme(ThemeType themeType, PreferencesForm form)
         {
+            form.statusStrip1.BackColor = Color.FromArgb(0, 122, 204);
+            form.toolStripStatusLabel1.ForeColor = Color.FromArgb(255, 255, 255);
             switch (themeType)
             {
                 case ThemeType.Dark:
-
                     form.BackColor = Color.FromArgb(60, 60, 60);
                     form.menuStrip1.BackColor = Color.FromArgb(60, 60, 60);
                     ApplyDarkMenuItemTheme(form.menuStrip1.Items);
-                    form.statusStrip1.BackColor = Color.FromArgb(0, 122, 204);
+
+                    form.chkUseDarkTheme.ForeColor = Color.FromArgb(190, 190, 190);
                     form.label1.ForeColor = Color.FromArgb(190, 190, 190);
-                    form.toolStripStatusLabel1.ForeColor = Color.FromArgb(255, 255, 255);
+                    break;
+
+                case ThemeType.Light:
+                    form.BackColor = Color.FromArgb(243, 243, 243);
+                    form.menuStrip1.BackColor = Color.FromArgb(221, 221, 221);
+                    ApplyLightMenuItemTheme(form.menuStrip1.Items);
+                    form.label1.ForeColor = Color.FromArgb(97, 97, 97);
+                    form.chkUseDarkTheme.ForeColor = Color.FromArgb(97, 97, 97);
                     break;
             }
         }

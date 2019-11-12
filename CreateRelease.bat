@@ -1,6 +1,6 @@
 set version=%1
 
-echo Currently you must manually run Porject.Publish from context menu.
+echo Currently you must manually run Porject.Publish from context menu. Ensure Release and x86 are selected to succcessfully publish.
 echo Publishing Cosmos Manager...
 
 rem del /f ".\Releases\CosmosManagerInstaller-%version%.exe"

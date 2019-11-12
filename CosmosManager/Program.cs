@@ -12,6 +12,7 @@ using SimpleInjector;
 using SimpleInjector.Diagnostics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace CosmosManager
@@ -41,15 +42,17 @@ namespace CosmosManager
             container.Register<QueryOuputLogger>();
             container.Register<IQueryWindowPresenterLogger>(() => container.GetInstance<QueryOuputLogger>());
             container.Register<ILogger>(() => container.GetInstance<QueryOuputLogger>());
-            container.Register<IQueryStatementParser, QueryStatementParser>(Lifestyle.Singleton);
-            container.Register<IQueryParser, StringQueryParser>(Lifestyle.Singleton);
-            container.Register<IHashProvider, Crc32HashProvider>(Lifestyle.Singleton);
+            container.RegisterSingleton<IQueryStatementParser, QueryStatementParser>();
+            container.RegisterSingleton<IQueryParser, StringQueryParser>();
+            container.RegisterSingleton<IHashProvider, Crc32HashProvider>();
+
+            container.RegisterSingleton<IPubSub, PubSub>();
 
             container.Register<IQueryWindowPresenter, QueryWindowPresenter>();
-            container.Register<IMainFormPresenter, MainFormPresenter>(Lifestyle.Singleton);
+            container.RegisterSingleton<IMainFormPresenter, MainFormPresenter>();
 
-            container.Register<IActionLogFormPresenter, ActionLogFormPresenter>(Lifestyle.Singleton);
-            container.Register<IPreferencesFormPresenter, PreferencesFormPresenter>(Lifestyle.Singleton);
+            container.RegisterSingleton<IActionLogFormPresenter, ActionLogFormPresenter>();
+            container.RegisterSingleton<IPreferencesFormPresenter, PreferencesFormPresenter>();
 
             RegisterRunners(container);
 
@@ -66,15 +69,16 @@ namespace CosmosManager
             container.Register<ITransactionTask, TransactionTask>();
             container.Register<IVariableInjectionTask, VariableInjectionTask>();
             container.Register<IFormOpener, FormManager>(Lifestyle.Singleton);
-            container.Register<IClientConnectionManager, ClientConnectionManager>(Lifestyle.Singleton);
+            container.RegisterSingleton<IClientConnectionManager, ClientConnectionManager>();
 
-            container.Register<IMainForm, MainForm>(Lifestyle.Singleton);
+            container.RegisterSingleton<IMainForm, MainForm>();
             container.Register<HelpForm>();
             container.Register<NewFileForm>();
             container.Register<AboutCosmosManager>();
             container.Register<ActionLogForm>();
             SuppressRegistrations(new List<Type> {
-                typeof(QueryWindowControl)
+                typeof(QueryWindowControl),
+                typeof(QueryWindowPresenter)
                 }, container, "UserControls Managed");
 
             SuppressRegistrations(new List<Type> {
@@ -85,7 +89,10 @@ namespace CosmosManager
                 }, container, "Forms Controlled By Manager");
 
             // Optionally verify the container.
-            container.Verify();
+            if (Debugger.IsAttached)
+            {
+                container.Verify();
+            }
         }
 
         private static void RegisterRunners(Container container)

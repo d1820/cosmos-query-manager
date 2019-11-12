@@ -1,4 +1,5 @@
 ﻿using CosmosManager.Domain;
+using CosmosManager.Utilities;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 namespace CosmosManager.Interfaces
 {
 
-    public interface IQueryWindowPresenter : IPresenter
+    public interface IQueryWindowPresenter : IPresenter, IReceiver<PubSubEventArgs>
     {
         FileInfo CurrentFileInfo { get; }
         string CurrentTabQuery { get; }

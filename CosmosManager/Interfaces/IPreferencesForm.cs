@@ -6,5 +6,6 @@ namespace CosmosManager.Interfaces
     {
         IPreferencesFormPresenter Presenter { set; }
         void InitializeForm(AppPreferences preferences);
+        void RenderTheme();
     }
 }

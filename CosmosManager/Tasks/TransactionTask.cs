@@ -47,7 +47,7 @@ namespace CosmosManager.Tasks
 
                     if (docToBackup == null)
                     {
-                         logger.LogError($"Document{documentId}. Not Found");
+                        logger.LogError($"Document{documentId}. Not Found");
                         return (false, null);
                     }
 
@@ -59,6 +59,16 @@ namespace CosmosManager.Tasks
                 }
                 var formattedConnectionName = Regex.Replace(connectionName, @"(\s)", "_", RegexOptions.Compiled);
                 var cacheFileName = new FileInfo($"{AppReferences.TransactionCacheDataFolder}/{formattedConnectionName}/{databaseName}/{collectionName}/{transactionId}/{cosmosDocument[Constants.DocumentFields.ID].ToString().CleanId()}.json");
+                if (cacheFileName.FullName.Length > 256)
+                {
+                    logger.LogWarning($"Waring: Backup filename to long ({cacheFileName.FullName.Length}) to save to current cache folder. Converting {cacheFileName.FullName} to shortened name.");
+                    cacheFileName = new FileInfo($"{AppReferences.TransactionCacheDataFolder}/{formattedConnectionName}/{databaseName}/{collectionName}/{transactionId}/{cosmosDocument[Constants.DocumentFields.RID].ToString().CleanId()}.json");
+                    if (cacheFileName.FullName.Length > 256)
+                    {
+                        logger.LogError($"Shortened backup filename still to long to save: {cacheFileName.FullName}. Length: {cacheFileName.FullName.Length}. Aborting backup.");
+                        return (false, null);
+                    }
+                }
                 Directory.CreateDirectory(cacheFileName.Directory.FullName);
                 using (var sw = new StreamWriter(cacheFileName.FullName))
                 {

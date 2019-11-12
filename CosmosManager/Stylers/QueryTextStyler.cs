@@ -13,32 +13,46 @@ namespace CosmosManager.Stylers
         public void SyntaxifyTextBox(Scintilla textbox)
         {
             _textbox = textbox;
-            InitSyntaxColoring();
+            InitSyntaxColoring(AppReferences.CurrentTheme);
             InitNumberMargin(_textbox);
-            InitColors(_textbox);
+            InitColors(_textbox, AppReferences.CurrentTheme);
 
         }
 
-        private void InitSyntaxColoring()
+        private void InitSyntaxColoring(ThemeType themeType)
         {
 
             // Configure the default style
-            SetDefaultStyles(_textbox);
+            SetDefaultStyles(_textbox, AppReferences.CurrentTheme);
+
 
             // Configure the SQL lexer styles
-            _textbox.Styles[Style.Sql.Identifier].ForeColor = IntToColor(0xD0DAE2);
-            _textbox.Styles[Style.Sql.Comment].ForeColor = IntToColor(0x6A993E);
-            _textbox.Styles[Style.Sql.CommentLine].ForeColor = IntToColor(0x6A993E);
-            _textbox.Styles[Style.Sql.CommentDoc].ForeColor = IntToColor(0x6A993E);
-            _textbox.Styles[Style.Sql.Number].ForeColor = IntToColor(0xE685FF);
-            _textbox.Styles[Style.Sql.String].ForeColor = IntToColor(0xCE9178);
-            _textbox.Styles[Style.Sql.Character].ForeColor = IntToColor(0xE95454);
-            _textbox.Styles[Style.Sql.Operator].ForeColor = IntToColor(0xE0E0E0);
-            _textbox.Styles[Style.Sql.CommentLineDoc].ForeColor = IntToColor(0x77A7DB);
-            _textbox.Styles[Style.Sql.Word].ForeColor = IntToColor(0x48A8EE);
-            _textbox.Styles[Style.Sql.Word2].ForeColor = IntToColor(0xF98906);
+
+            _textbox.Styles[Style.Sql.Comment].ForeColor = Color.FromArgb(106, 153, 62);
+            _textbox.Styles[Style.Sql.CommentLine].ForeColor = Color.FromArgb(106, 153, 62);
+            _textbox.Styles[Style.Sql.CommentDoc].ForeColor = Color.FromArgb(106, 153, 62);
+            _textbox.Styles[Style.Sql.Number].ForeColor = Color.FromArgb(230, 133, 255);
+            _textbox.Styles[Style.Sql.String].ForeColor = Color.FromArgb(206, 145, 120);
+            _textbox.Styles[Style.Sql.Character].ForeColor = Color.FromArgb(233, 84, 84);
+
+            _textbox.Styles[Style.Sql.CommentLineDoc].ForeColor = Color.FromArgb(119, 167, 219);
+            _textbox.Styles[Style.Sql.Word].ForeColor = Color.FromArgb(72, 168, 238);
+            _textbox.Styles[Style.Sql.Word2].ForeColor = Color.FromArgb(249, 137, 6);
             _textbox.Styles[Style.Sql.CommentDocKeyword].ForeColor = Color.Gray;
             _textbox.Styles[Style.Sql.CommentDocKeywordError].ForeColor = Color.Gray;
+
+            switch (themeType)
+            {
+                case ThemeType.Dark:
+                    _textbox.Styles[Style.Sql.Operator].ForeColor = Color.FromArgb(224, 224, 224);
+                    _textbox.Styles[Style.Sql.Identifier].ForeColor = Color.FromArgb(208, 218, 226);
+                    break;
+                case ThemeType.Light:
+                    _textbox.Styles[Style.Sql.Operator].ForeColor = Color.FromArgb(51, 51, 51);
+                    _textbox.Styles[Style.Sql.Identifier].ForeColor = Color.FromArgb(51, 51, 51);
+                    break;
+            }
+
 
             _textbox.Lexer = Lexer.Sql;
             _textbox.SetKeywords(0, string.Join(" ", Constants.KeyWordList.Select(s => s.ToLowerInvariant()).Concat(Constants.KeyWordList.Select(s => s.ToUpperInvariant()))));

@@ -279,7 +279,7 @@ namespace CosmosManager.Tests.Unit
 
         #region ParseOrderBy
         [Fact]
-        public void ParseTransaction_ReturnsEmptyString_WhenNotASELECT()
+        public void ParseOrderBy_ReturnsEmptyString_WhenNotASELECT()
         {
             var query = "UPDATE '1234' FROM Market m SET { \"test\": \"test\"}";
             var rawQuery = _parser.ParseOrderBy(query);
@@ -287,11 +287,29 @@ namespace CosmosManager.Tests.Unit
         }
 
         [Fact]
-        public void ParseTransaction_ReturnsOrderBy_WhenProvided()
+        public void ParseOrderBy_ReturnsOrderBy_WhenProvided()
         {
             var query = "SELECT * FROM Market m ORDER BY m.id ";
             var rawQuery = _parser.ParseOrderBy(query);
             rawQuery.Should().Be("ORDER BY m.id");
+        }
+        #endregion
+
+        #region ParseGroupBy
+        [Fact]
+        public void ParseGroupBy_ReturnsEmptyString_WhenNotASELECT()
+        {
+            var query = "UPDATE '1234' FROM Market m SET { \"test\": \"test\"}";
+            var rawQuery = _parser.ParseGroupBy(query);
+            rawQuery.Should().Be("");
+        }
+
+        [Fact]
+        public void ParseGroupBy_ReturnsGroupBy_WhenProvided()
+        {
+            var query = "SELECT m.id FROM Market m GROUP BY m.id ";
+            var rawQuery = _parser.ParseGroupBy(query);
+            rawQuery.Should().Be("GROUP BY m.id");
         }
         #endregion
 
