@@ -15,6 +15,7 @@ namespace CosmosManager.Domain
         public static class DocumentFields
         {
             public const string ID = "id";
+            public const string RID = "_rid";
         }
 
         public static class SubscriptionTypes
