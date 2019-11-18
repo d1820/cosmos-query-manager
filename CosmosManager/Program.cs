@@ -1,4 +1,5 @@
-﻿using CosmosManager.Domain;
+﻿using CosmosManager.Configurations;
+using CosmosManager.Domain;
 using CosmosManager.Interfaces;
 using CosmosManager.Managers;
 using CosmosManager.Parsers;
@@ -7,30 +8,79 @@ using CosmosManager.Stylers;
 using CosmosManager.Tasks;
 using CosmosManager.Utilities;
 using CosmosManager.Views;
+using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using SimpleInjector;
 using SimpleInjector.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 
 namespace CosmosManager
 {
+
     internal static class Program
     {
         private static Container container;
+
+
+        private static string GetParent(string path, int levelsUp)
+        {
+            for (var i = 0; i <= levelsUp; i++)
+            {
+                var di = Directory.GetParent(path);
+                if (di != null)
+                {
+                    path = di.ToString();
+                }
+                else
+                {
+                    return path;
+                }
+            }
+            return path;
+        }
 
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main()
+        private static void Main(string[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
             Bootstrap();
-            Application.Run(container.GetInstance<MainForm>());
+
+            if (Debugger.IsAttached)
+            {
+                //args = new[] { "cosmgr", "exec", "" };
+            }
+
+            if (args != null && args.Length > 0)
+            {
+                var runDir = AppDomain.CurrentDomain.BaseDirectory;
+                var rootDir = GetParent(runDir, 6);
+
+                var app = new CommandLineApplication { Name = "cosmgr" };
+                app.Command("mp", command => CosmosManagerConfiguration.Configure(command, rootDir, args, container));
+                app.ThrowOnUnexpectedArgument = false;
+                app.HelpOption("-?|-h|-H|--help");
+                app.Execute(args);
+
+                //used to hold the process open while debugging locally.
+                if (Debugger.IsAttached)
+                {
+                    while (Console.ReadLine() != "q")
+                    {
+                    }
+                }
+            }
+            else
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(container.GetInstance<MainForm>());
+            }
         }
 
         private static void Bootstrap()
@@ -63,8 +113,6 @@ namespace CosmosManager
             container.RegisterInstance(new MainFormStyler());
             container.RegisterInstance(new ActionLogFormStyler());
             container.RegisterInstance(new PreferencesFormStyler());
-
-
 
             container.Register<ITransactionTask, TransactionTask>();
             container.Register<IVariableInjectionTask, VariableInjectionTask>();
