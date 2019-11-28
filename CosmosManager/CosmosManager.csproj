@@ -127,6 +127,7 @@
     <Compile Include="Decorators\QueryResultMetricDecorator.cs" />
     <Compile Include="Decorators\QueryResultTotalCostDecorator.cs" />
     <Compile Include="Domain\AppPreferences.cs" />
+    <Compile Include="Domain\CommandlineOptions.cs" />
     <Compile Include="Domain\Connection.cs" />
     <Compile Include="Domain\Constants.cs" />
     <Compile Include="Domain\DocumentQueryParameter.cs" />
@@ -156,12 +157,15 @@
     <Compile Include="Domain\AppReferences.cs" />
     <Compile Include="Interfaces\IQueryParser.cs" />
     <Compile Include="Interfaces\IQueryStatementParser.cs" />
-    <Compile Include="Interfaces\IQueryWindowPresenterLogger.cs" />
+    <Compile Include="Interfaces\IQueryPresenterLogger.cs" />
     <Compile Include="Managers\ClientConnectionManager.cs" />
     <Compile Include="Managers\FormManager.cs" />
     <Compile Include="Interfaces\IClientConnectionManager.cs" />
     <Compile Include="Builders\RegExBuilder.cs" />
+    <Compile Include="Managers\IQueryManager.cs" />
+    <Compile Include="Managers\QueryManager.cs" />
     <Compile Include="Parsers\CommentTokenizer.cs" />
+    <Compile Include="Presenters\ICommandlinePresenter.cs" />
     <Compile Include="Presenters\PreferencesFormPresenter.cs" />
     <Compile Include="Stylers\ActionLogFormStyler.cs" />
     <Compile Include="Stylers\PreferencesFormStyler.cs" />

@@ -1,4 +1,5 @@
 ﻿using CosmosManager.Interfaces;
+using CosmosManager.Presenters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Internal;
 using Newtonsoft.Json;
@@ -6,9 +7,9 @@ using System;
 
 namespace CosmosManager.Domain
 {
-    public class QueryOuputLogger : IQueryWindowPresenterLogger
+    public class QueryOuputLogger : IQueryPresenterLogger
     {
-        private IQueryWindowPresenter _presenter;
+        private BaseQueryPresenter _presenter;
 
         public IDisposable BeginScope<TState>(TState state) => throw new NotImplementedException();
 
@@ -44,7 +45,7 @@ namespace CosmosManager.Domain
             }
         }
 
-        public void SetPresenter(IQueryWindowPresenter presenter)
+        public void SetPresenter(BaseQueryPresenter presenter)
         {
             _presenter = presenter;
         }
