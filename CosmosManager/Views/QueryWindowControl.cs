@@ -172,6 +172,7 @@ namespace CosmosManager
             }
             var textPartitionKeyPath = await Presenter.LookupPartitionKeyPath(query.CollectionName);
             var groupName = "Query 1";
+            var headers = Presenter.LookupResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
             if (appendResults)
             {
                 resultListView.Groups.Add(new ListViewGroup
@@ -184,13 +185,11 @@ namespace CosmosManager
                 if (resultListView.Groups.Count == 1)
                 {
                     //first group set headers
-                    var headers = SetResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
                     resultListView.Columns[1].Text = headers.header1;
                     resultListView.Columns[2].Text = headers.header2;
                 }
                 else
                 {
-                    var headers = SetResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
                     //if the next query has a different select, then clear column headers
                     if (resultListView.Columns[1].Text != headers.header1)
                     {
@@ -204,7 +203,6 @@ namespace CosmosManager
             }
             else
             {
-                var headers = SetResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
                 resultListView.Columns[1].Text = headers.header1;
                 resultListView.Columns[2].Text = headers.header2;
             }
@@ -286,41 +284,6 @@ namespace CosmosManager
         private void SetResultCountLabel()
         {
             resultCountTextbox.Text = $"{_totalDocumentCount} Documents";
-        }
-
-        private (string header1, string header2) SetResultListViewHeaders(object item, string textPartitionKeyPath)
-        {
-            if (item == null)
-            {
-                return (null, null);
-            }
-            var fromObject = JObject.FromObject(item);
-
-            JProperty col1Prop = null;
-            var resultProps = fromObject.Properties();
-            col1Prop = resultProps.FirstOrDefault(f => f.Name == Constants.DocumentFields.ID);
-            if (col1Prop == null)
-            {
-                col1Prop = resultProps.FirstOrDefault();
-            }
-
-            JProperty col2Prop = null;
-            if (resultProps.Count() > 1)
-            {
-
-                col2Prop = resultProps.FirstOrDefault(f => f.Name == textPartitionKeyPath);
-                if (col2Prop == null)
-                {
-                    var prop = resultProps.FirstOrDefault(f => f != col1Prop);
-                    if (prop != null)
-                    {
-                        col2Prop = prop;
-
-                    }
-                }
-
-            }
-            return (col1Prop?.Name, col2Prop?.Name);
         }
 
         private async void exportRecordToolStripMenuItem_Click(object sender, EventArgs e)
@@ -627,7 +590,6 @@ namespace CosmosManager
             SendKeys.Send(keys);
             //HotKeyManager.Enable = true;
         }
-
 
         private void lowercaseTextButton_Click(object sender, EventArgs e)
         {

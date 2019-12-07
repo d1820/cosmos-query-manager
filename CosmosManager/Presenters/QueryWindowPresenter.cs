@@ -1,4 +1,5 @@
-﻿using CosmosManager.Domain;
+﻿using ConsoleTables;
+using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using CosmosManager.Managers;
@@ -19,6 +20,7 @@ namespace CosmosManager.Presenters
     public abstract class BaseQueryPresenter
     {
         protected readonly IQueryStatementParser _queryParser;
+        protected IClientConnectionManager _clientConnectionManager;
         protected Dictionary<string, IReadOnlyCollection<object>> _variables = new Dictionary<string, IReadOnlyCollection<object>>();
         public Connection SelectedConnection { get; set; }
 
@@ -92,9 +94,51 @@ namespace CosmosManager.Presenters
             return string.Join($"{Environment.NewLine}{Environment.NewLine}", cleanedQueries);
         }
 
+        public (string header1, string header2) LookupResultListViewHeaders(object item, string textPartitionKeyPath)
+        {
+            if (item == null)
+            {
+                return (null, null);
+            }
+            var fromObject = JObject.FromObject(item);
+
+            JProperty col1Prop = null;
+            var resultProps = fromObject.Properties();
+            col1Prop = resultProps.FirstOrDefault(f => f.Name == Constants.DocumentFields.ID);
+            if (col1Prop == null)
+            {
+                col1Prop = resultProps.FirstOrDefault();
+            }
+
+            JProperty col2Prop = null;
+            if (resultProps.Count() > 1)
+            {
+
+                col2Prop = resultProps.FirstOrDefault(f => f.Name == textPartitionKeyPath);
+                if (col2Prop == null)
+                {
+                    var prop = resultProps.FirstOrDefault(f => f != col1Prop);
+                    if (prop != null)
+                    {
+                        col2Prop = prop;
+
+                    }
+                }
+
+            }
+            return (col1Prop?.Name, col2Prop?.Name);
+        }
+
+        public Task<string> LookupPartitionKeyPath(string collectionName)
+        {
+            var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
+            return documentStore.LookupPartitionKeyPath(SelectedConnection.Database, collectionName);
+        }
+
         public abstract void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex);
         public abstract void SetConnections(List<Connection> connections);
         public abstract void AddToQueryOutput(string message);
+        public abstract void InitializePresenter(dynamic context);
     }
     public class CommandlinePresenter : BaseQueryPresenter, ICommandlinePresenter
     {
@@ -104,7 +148,6 @@ namespace CosmosManager.Presenters
         private CommandlineOptions _options;
         private StreamWriter _sw;
         private readonly IEnumerable<IQueryRunner> _queryRunners = new List<IQueryRunner>();
-        private readonly IClientConnectionManager _clientConnectionManager;
 
         public CommandlinePresenter(IClientConnectionManager clientConnectionManager,
                                     IQueryStatementParser queryStatementParser,
@@ -127,7 +170,140 @@ namespace CosmosManager.Presenters
                 _sw.Write(message);
             }
         }
-        public override void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex) { }
+
+        private int _totalDocumentCount;
+        private int _groupCount;
+        private ConsoleTable _table;
+        private ConsoleTable _summaryTable;
+        private Dictionary<string, List<string>> _documentsByGroup;
+
+        public override void InitializePresenter(dynamic context)
+        {
+            _totalDocumentCount = 0;
+            _groupCount = 0;
+            _table = new ConsoleTable();
+            _summaryTable = new ConsoleTable();
+            _summaryTable.AddColumn(new string[] { "Query Id", "Result Count", "Collection", "Query" });
+            _documentsByGroup = new Dictionary<string, List<string>>();
+        }
+
+        public override async void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex)
+        {
+            if (!appendResults)
+            {
+                _totalDocumentCount = 0;
+            }
+            var textPartitionKeyPath = await LookupPartitionKeyPath(query.CollectionName);
+            var column1Header = "";
+            var column2Header = "";
+            var groupHeader = "";
+
+            //table.AddRow(1, 2, 3)
+            //     .AddRow("this line should be longer", "yes it is", "oh");
+            _summaryTable.AddRow(queryStatementIndex, results.Count, collectionName, query);
+            groupHeader = $"Query {queryStatementIndex} ({results.Count} Documents)";
+            var headers = LookupResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
+            if (appendResults)
+            {
+                if (_groupCount == 1)
+                {
+                    //first group set headers
+                    column1Header = headers.header1;
+                    column2Header = headers.header2;
+                }
+                else
+                {
+                    //if the next query has a different select, then clear column headers
+                    if (column1Header != headers.header1)
+                    {
+                        column1Header = string.Empty;
+                    }
+                    if (column2Header != headers.header2)
+                    {
+                        column2Header = string.Empty;
+                    }
+                }
+            }
+            else
+            {
+                column1Header = headers.header1;
+                column2Header = headers.header2;
+            }
+            if (_table.Columns.Count != 2)
+            {
+                _table.AddColumn(new List<string> { column1Header, column2Header });
+            }
+            else
+            {
+                //reset headers
+                _table.Columns[0] = column1Header;
+                _table.Columns[1] = column2Header;
+            }
+            if (!string.IsNullOrEmpty(groupHeader))
+            {
+                _table.AddRow(groupHeader);
+            }
+            if (!_documentsByGroup.ContainsKey(groupHeader))
+            {
+                _documentsByGroup.Add(groupHeader, new List<string>());
+            }
+
+
+            var validResultCount = 0;
+            foreach (var item in results)
+            {
+                var fromObject = JObject.FromObject(item);
+                if (!fromObject.HasValues)
+                {
+                    continue;
+                }
+                _documentsByGroup[groupHeader].Add(fromObject.ToString());
+
+                validResultCount++;
+                JProperty col1Prop = null;
+                JToken col1Token = null;
+                var resultProps = fromObject.Properties();
+                var col1RowText = string.Empty;
+                var col2RowText = string.Empty;
+
+                if (resultProps.Count() > 0)
+                {
+                    col1Prop = resultProps.FirstOrDefault(f => f.Name == Constants.DocumentFields.ID);
+                    if (col1Prop == null)
+                    {
+                        col1Prop = resultProps.FirstOrDefault();
+                    }
+                    col1Token = col1Prop?.Value;
+                    if (col1Token != null)
+                    {
+                        col1RowText = col1Token.Type.IsPrimitiveType() ? col1Token?.ToStringValue() : col1Token?.GetObjectValue(Constants.DocumentFields.ID);
+                    }
+                }
+
+                if (resultProps.Count() > 1)
+                {
+                    JProperty col2Prop = null;
+                    JToken col2Token = null;
+
+                    col2Prop = resultProps.FirstOrDefault(f => f.Name == textPartitionKeyPath);
+                    if (col2Prop == null)
+                    {
+                        var prop = resultProps.FirstOrDefault(f => f != col1Prop);
+                        if (prop != null)
+                        {
+                            col2Prop = prop;
+                        }
+                    }
+                    col2Token = col2Prop?.Value;
+                    if (col2Token != null)
+                    {
+                        col2RowText = col2Token.Type.IsPrimitiveType() ? col2Token?.ToStringValue() : col2Token?.GetObjectValue("");
+                    }
+                }
+                _table.AddRow(new string[] { col1RowText, col2RowText });
+            }
+            _totalDocumentCount += validResultCount;
+        }
         public async Task<int> RunAsync(string query, CommandlineOptions options, CancellationToken cancelToken)
         {
             _options = options;
@@ -233,6 +409,11 @@ namespace CosmosManager.Presenters
                 _clientConnectionManager.Clear();
             }
         }
+
+        public void RenderTables()
+        {
+            //output to console and file
+        }
     }
     public class QueryWindowPresenter : BaseQueryPresenter, IQueryWindowPresenter
     {
@@ -248,7 +429,7 @@ namespace CosmosManager.Presenters
         private IQueryPresenterLogger _logger;
 
         private IEnumerable<IQueryRunner> _queryRunners = new List<IQueryRunner>();
-        private readonly IClientConnectionManager _clientConnectionManager;
+
         private IPubSub _pubsub;
 
         private CancellationTokenSource _source;
@@ -266,7 +447,7 @@ namespace CosmosManager.Presenters
             _queryManager = queryManager;
         }
 
-        public void InitializePresenter(dynamic context)
+        public override void InitializePresenter(dynamic context)
         {
             _view = (IQueryWindowControl)context.QueryWindowControl;
             _view.Presenter = this;
@@ -450,11 +631,7 @@ namespace CosmosManager.Presenters
             }
         }
 
-        public Task<string> LookupPartitionKeyPath(string collectionName)
-        {
-            var documentStore = _clientConnectionManager.CreateDocumentClientAndStore(SelectedConnection);
-            return documentStore.LookupPartitionKeyPath(SelectedConnection.Database, collectionName);
-        }
+
 
         public async Task<bool> DeleteDocumentAsync(DocumentResult documentResult)
         {

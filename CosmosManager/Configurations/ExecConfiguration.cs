@@ -1,4 +1,5 @@
 ﻿using CosmosManager.Domain;
+using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
 using McMaster.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
@@ -47,6 +48,10 @@ namespace CosmosManager.Configurations
             {
                 Description = "Flag to indicate whether to continue without accepting user input on prompts."
             };
+            var includeDocumentInOutput = new CommandOption("--includeDocumentInOutput", CommandOptionType.NoValue)
+            {
+                Description = "Flag to indicate whether to write the document results to the console and output file."
+            };
 
             deployCommand.Options.Add(connectToOption);
             deployCommand.Options.Add(connectionsOption);
@@ -55,6 +60,7 @@ namespace CosmosManager.Configurations
             deployCommand.Options.Add(folderOption);
             deployCommand.Options.Add(continueOnErrorOption);
             deployCommand.Options.Add(ignorePromptsOption);
+            deployCommand.Options.Add(includeDocumentInOutput);
 
             deployCommand.OnExecuteAsync(async (cancelToken) =>
            {
@@ -65,6 +71,7 @@ namespace CosmosManager.Configurations
                var presenter = container.GetInstance<ICommandlinePresenter>();
                presenter.SetConnections(connections);
                presenter.SelectedConnection = selectedConnection;
+               presenter.InitializePresenter(null);
                var scriptsToRun = new List<FileInfo>();
                if (!string.IsNullOrEmpty(scriptOption.Value()) && File.Exists(scriptOption.Value()))
                {
@@ -85,7 +92,8 @@ namespace CosmosManager.Configurations
                        {
                            ContinueOnError = continueOnErrorOption.HasValue(),
                            IgnorePrompts = ignorePromptsOption.HasValue(),
-                           OutputPath = outputOption.Value()
+                           OutputPath = outputOption.Value(),
+                           IncludeDocumentInOutput = includeDocumentInOutput.HasValue()
                        }, cancelToken);
                        if (result != 0 && !continueOnErrorOption.HasValue())
                        {
