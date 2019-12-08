@@ -9,24 +9,34 @@ namespace CosmosManager.Interfaces
     public interface IDisplayPresenter : IPresenter
     {
         string Beautify(string data);
+
         string BeautifyQuery(string query);
+
         Task<string> LookupPartitionKeyPath(string collectionName);
+
         void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex);
+
         (string header1, string header2) LookupResultListViewHeaders(object item, string textPartitionKeyPath);
+
         void AddToQueryOutput(string message);
     }
+
     public interface IConnectedPresenter
     {
         Connection SelectedConnection { get; set; }
+
         void SetConnections(List<Connection> connections);
     }
+
     public interface IQueryWindowPresenter : IDisplayPresenter, IConnectedPresenter, IReceiver<PubSubEventArgs>
     {
         FileInfo CurrentFileInfo { get; }
         string CurrentTabQuery { get; }
 
         int TabIndexReference { get; }
+
         Task RunAsync();
+
         Task<bool> DeleteDocumentAsync(DocumentResult documentResult);
 
         Task ExportAllToDocumentAsync(List<JObject> documents, string fileName);
@@ -48,7 +58,5 @@ namespace CosmosManager.Interfaces
         void SetTempQuery(string query);
 
         void ShowOutputTab();
-
-
     }
 }

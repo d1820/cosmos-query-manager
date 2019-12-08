@@ -36,7 +36,6 @@ namespace CosmosManager
 
             //look for a connections string file
             selectConnections.Items.Add("Load Connection File");
-
         }
 
         public void RenderTheme()
@@ -260,7 +259,6 @@ namespace CosmosManager
                         if (prop != null)
                         {
                             col2Prop = prop;
-
                         }
                     }
                     col2Token = col2Prop?.Value;
@@ -361,7 +359,6 @@ namespace CosmosManager
             {
                 ShowMessage($"The id column must be part of the select output in {string.Join(", ", groupNamesNotSupported)} to use this feature.", "Action Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
-
         }
 
         private async void saveQueryButton_Click(object sender, EventArgs e)
@@ -462,7 +459,6 @@ namespace CosmosManager
         {
             if (e.ColumnIndex == 0)
             {
-
                 var cck = new CheckBox();
                 // With...
                 Text = "";

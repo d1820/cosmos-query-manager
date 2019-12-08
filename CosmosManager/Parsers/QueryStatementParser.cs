@@ -2,7 +2,6 @@
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using CosmosManager.Utilities;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CosmosManager.Parsers
@@ -56,6 +55,7 @@ namespace CosmosManager.Parsers
                     qp.QueryOffset = _queryParser.ParseOffsetLimit(cleanQuery).Trim();
                     qp.QueryGroupBy = _queryParser.ParseGroupBy(cleanQuery).Trim();
                     break;
+
                 case Constants.QueryParsingKeywords.UPDATE:
                     var updateTypeAndBody = _queryParser.ParseUpdateBody(cleanQuery);
                     qp.QueryUpdateBody = updateTypeAndBody.updateBody.Trim();
@@ -63,6 +63,7 @@ namespace CosmosManager.Parsers
                     qp.QueryOrderBy = string.Empty;
                     qp.QueryJoin = string.Empty;
                     break;
+
                 case Constants.QueryParsingKeywords.INSERT:
                     qp.QueryInto = _queryParser.ParseIntoBody(cleanQuery).Trim();
                     qp.QueryFrom = string.Empty;

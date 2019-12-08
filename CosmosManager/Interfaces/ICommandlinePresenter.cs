@@ -1,12 +1,14 @@
-﻿using System.Threading;
+﻿using CosmosManager.Domain;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
-using CosmosManager.Domain;
 
 namespace CosmosManager.Interfaces
 {
-    public interface ICommandlinePresenter: IPresenter, IDisplayPresenter, IConnectedPresenter
+    public interface ICommandlinePresenter: IPresenter, IDisplayPresenter, IConnectedPresenter, IDisposable
     {
-        Task<int> RunAsync(string query, CommandlineOptions options, CancellationToken cancelToken);
-        void RenderTables();
+        Task<int> RunAsync(string query, CancellationToken cancelToken);
+
+        Task WriteToOutput();
     }
 }

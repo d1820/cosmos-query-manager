@@ -16,15 +16,12 @@ namespace CosmosManager.Stylers
             InitSyntaxColoring(AppReferences.CurrentTheme);
             InitNumberMargin(_textbox);
             InitColors(_textbox, AppReferences.CurrentTheme);
-
         }
 
         private void InitSyntaxColoring(ThemeType themeType)
         {
-
             // Configure the default style
             SetDefaultStyles(_textbox, AppReferences.CurrentTheme);
-
 
             // Configure the SQL lexer styles
 
@@ -47,19 +44,16 @@ namespace CosmosManager.Stylers
                     _textbox.Styles[Style.Sql.Operator].ForeColor = Color.FromArgb(224, 224, 224);
                     _textbox.Styles[Style.Sql.Identifier].ForeColor = Color.FromArgb(208, 218, 226);
                     break;
+
                 case ThemeType.Light:
                     _textbox.Styles[Style.Sql.Operator].ForeColor = Color.FromArgb(51, 51, 51);
                     _textbox.Styles[Style.Sql.Identifier].ForeColor = Color.FromArgb(51, 51, 51);
                     break;
             }
 
-
             _textbox.Lexer = Lexer.Sql;
             _textbox.SetKeywords(0, string.Join(" ", Constants.KeyWordList.Select(s => s.ToLowerInvariant()).Concat(Constants.KeyWordList.Select(s => s.ToUpperInvariant()))));
             _textbox.SetKeywords(1, string.Join(" ", Constants.BuiltInKeyWordList.Select(s => s.ToUpperInvariant()).Concat(Constants.BuiltInKeyWordList.Select(s => s.ToLowerInvariant()))));
-
         }
-
-
     }
 }

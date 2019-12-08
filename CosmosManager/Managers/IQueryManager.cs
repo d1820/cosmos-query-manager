@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CosmosManager.Domain;
+﻿using CosmosManager.Domain;
 
 namespace CosmosManager.Managers
 {

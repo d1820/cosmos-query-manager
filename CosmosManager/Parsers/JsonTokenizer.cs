@@ -10,7 +10,7 @@ namespace CosmosManager.Parsers
     public class JsonTokenizer
     {
         private MatchCollection _matches;
-        const string TOKEN = "@@";
+        private const string TOKEN = "@@";
 
         public int CurrentMatchCount { get; private set; }
 
@@ -23,6 +23,7 @@ namespace CosmosManager.Parsers
             CurrentMatchCount = _matches.Count;
             return jsonRegex.Replace(tokenQuery, TOKEN);
         }
+
         public string DetokenJsonSections(string query, bool reformatJson = false)
         {
             var tokenQuery = query;

@@ -1,6 +1,5 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using CosmosManager.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,7 +16,6 @@ namespace CosmosManager.Presenters
     {
         private IMainForm _view;
         private string _rootDir;
-
 
         private List<Color> _colors = new List<Color>{
             Color.PaleGreen,
@@ -206,7 +204,6 @@ namespace CosmosManager.Presenters
                 if (subSubDirs.Length != 0)
                 {
                     GetDirectories(subSubDirs, aNode);
-
                 }
                 var hasFiles = subDir.GetFiles("*.csql", SearchOption.TopDirectoryOnly).Any();
                 if (hasFiles)

@@ -3,7 +3,6 @@ using System.Linq;
 
 namespace CosmosManager.Extensions
 {
-
     public static class JTokenExtensions
     {
         public static string ToStringValue(this JToken token, bool findFirstString = false)

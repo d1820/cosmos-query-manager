@@ -20,11 +20,9 @@ using System.Windows.Forms;
 
 namespace CosmosManager
 {
-
     internal static class Program
     {
         private static Container container;
-
 
         private static string GetParent(string path, int levelsUp)
         {
@@ -47,26 +45,34 @@ namespace CosmosManager
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
-
-
             if (Debugger.IsAttached)
             {
-                //args = new[] { "cosmgr", "exec", "" };
+                args = new[] {  "exec",
+                    "--connections",
+                    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\connections.json",
+                    "--connectTo",
+                    "Local Cosmos",
+                    "--script",
+                    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\FindMyUserId.csql",
+                    "--output",
+                    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\output.cresult" };
             }
 
             if (args != null && args.Length > 0)
             {
+                AllocConsole();
                 Bootstrap(true);
                 var runDir = AppDomain.CurrentDomain.BaseDirectory;
                 var rootDir = GetParent(runDir, 6);
 
                 var app = new CommandLineApplication { Name = "cosmgr" };
-                app.Command("mp", command => CosmosManagerConfiguration.Configure(command, rootDir, args, container));
-                app.ThrowOnUnexpectedArgument = false;
+                app.Description = "Execute commands for script management for CosmosDB";
                 app.HelpOption("-?|-h|-H|--help");
-                app.Execute(args);
+                app.Command("exec", command => ExecConfiguration.ConfigureCommand(command, container));
+                app.ThrowOnUnexpectedArgument = true;
+                var intResult = app.Execute(args);
 
                 //used to hold the process open while debugging locally.
                 if (Debugger.IsAttached)
@@ -75,6 +81,7 @@ namespace CosmosManager
                     {
                     }
                 }
+                return intResult;
             }
             else
             {
@@ -82,8 +89,12 @@ namespace CosmosManager
                 Application.SetCompatibleTextRenderingDefault(false);
                 Bootstrap();
                 Application.Run(container.GetInstance<MainForm>());
+                return 0;
             }
         }
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        private static extern bool AllocConsole();
 
         private static void Bootstrap(bool bootCommandLine = false)
         {
@@ -112,6 +123,9 @@ namespace CosmosManager
             if (bootCommandLine)
             {
                 container.Register<ICommandlinePresenter, CommandlinePresenter>();
+                SuppressRegistrations(new List<Type> {
+                typeof(CommandlinePresenter)
+                }, container, "Presenters Managed");
             }
             else
             {

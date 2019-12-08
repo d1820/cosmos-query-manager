@@ -1,7 +1,5 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using SimpleInjector;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;

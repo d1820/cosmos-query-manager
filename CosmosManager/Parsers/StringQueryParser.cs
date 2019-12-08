@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 [assembly: InternalsVisibleTo("CosmosManager.Tests.Unit")]
+
 namespace CosmosManager.Parsers
 {
     public class StringQueryParser : IQueryParser
@@ -58,7 +59,6 @@ namespace CosmosManager.Parsers
                                 .GrabUntil()
                                 .HasEndingKeyWordsNotInQuotes(Constants.QueryParsingKeywords.FROM)
                                 .Build();
-
 
             matches = rgx.Matches(query);
             if (matches.Count == 0)
@@ -222,7 +222,6 @@ namespace CosmosManager.Parsers
             if (jsonMatches.Count == 0)
             {
                 throw new FormatException($"Invalid query. Queries using {Constants.QueryParsingKeywords.SET}/{Constants.QueryParsingKeywords.REPLACE} must provide valid JSON as the update content.");
-
             }
 
             var cleanedQuery = jsonRegex.Replace(query, "");
@@ -360,7 +359,6 @@ namespace CosmosManager.Parsers
                 return string.Empty;
             }
 
-
             var rgx = _builder.Reset()
                                 .HasStartingKeywords(Constants.QueryParsingKeywords.ORDERBY)
                                 .GrabUntil()
@@ -372,7 +370,6 @@ namespace CosmosManager.Parsers
             {
                 return matches[0].Value.Trim();
             }
-
 
             rgx = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.ORDERBY).GrabUntilEnd().Build();
 
@@ -399,7 +396,6 @@ namespace CosmosManager.Parsers
                 return string.Empty;
             }
 
-
             var rgx = _builder.Reset()
                                 .HasStartingKeywords(Constants.QueryParsingKeywords.GROUPBY)
                                 .GrabUntil()
@@ -411,7 +407,6 @@ namespace CosmosManager.Parsers
             {
                 return matches[0].Value.Trim();
             }
-
 
             rgx = _builder.Reset().HasStartingKeywords(Constants.QueryParsingKeywords.GROUPBY).GrabUntilEnd().Build();
 
@@ -517,7 +512,6 @@ namespace CosmosManager.Parsers
                 {
                     var InStatement = cleanFromBody.Substring(indexIn + 4);
                     colNameParts = InStatement.Split(new[] { '.' });
-
                 }
                 else
                 {

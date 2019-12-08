@@ -1,6 +1,5 @@
 ﻿using CosmosManager.Domain;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace CosmosManager.Interfaces
@@ -35,6 +34,5 @@ namespace CosmosManager.Interfaces
         void SetUpdatedResultDocument(object document);
 
         void RenderTheme();
-
     }
 }

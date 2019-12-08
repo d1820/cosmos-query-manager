@@ -20,12 +20,12 @@ namespace CosmosManager.Stylers
                     textbox.Styles[Style.Default].BackColor = Color.FromArgb(30, 30, 30);
                     textbox.Styles[Style.Default].ForeColor = Color.FromArgb(255, 255, 255);
                     break;
+
                 case ThemeType.Light:
                     textbox.Styles[Style.Default].BackColor = Color.FromArgb(255, 255, 255);
                     textbox.Styles[Style.Default].ForeColor = Color.FromArgb(0, 0, 0);
                     break;
             }
-
 
             textbox.StyleClearAll();
         }
@@ -44,6 +44,7 @@ namespace CosmosManager.Stylers
                 case ThemeType.Dark:
                     textbox.CaretForeColor = Color.White;
                     break;
+
                 case ThemeType.Light:
                     textbox.CaretForeColor = Color.FromArgb(51, 51, 51);
                     break;
@@ -55,7 +56,6 @@ namespace CosmosManager.Stylers
 
         protected void InitNumberMargin(Scintilla textbox)
         {
-
             textbox.Styles[Style.LineNumber].BackColor = Color.FromArgb(51, 51, 51);
             textbox.Styles[Style.LineNumber].ForeColor = Color.FromArgb(241, 220, 1);
             textbox.Styles[Style.IndentGuide].ForeColor = Color.FromArgb(241, 220, 1);
@@ -66,7 +66,6 @@ namespace CosmosManager.Stylers
             nums.Type = MarginType.Number;
             nums.Sensitive = true;
             nums.Mask = 0;
-
         }
 
         protected static void ApplyDarkMenuItemTheme(ToolStripItemCollection items)

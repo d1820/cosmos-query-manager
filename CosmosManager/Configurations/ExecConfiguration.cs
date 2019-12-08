@@ -1,21 +1,18 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using CosmosManager.Presenters;
 using McMaster.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
 using SimpleInjector;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CosmosManager.Configurations
 {
     public static class ExecConfiguration
     {
-        public static void Configure(CommandLineApplication deployCommand, Container container)
+        public static void ConfigureCommand(CommandLineApplication deployCommand, Container container)
         {
-
             deployCommand.ThrowOnUnexpectedArgument = false;
             deployCommand.Description = "Run scripts through Cosmos Manager to invoke against CosmosDB";
             deployCommand.HelpOption("-?|-h|-H|--help");
@@ -46,7 +43,7 @@ namespace CosmosManager.Configurations
             };
             var ignorePromptsOption = new CommandOption("--ignorePrompts", CommandOptionType.NoValue)
             {
-                Description = "Flag to indicate whether to continue without accepting user input on prompts."
+                Description = "Flag to indicate whether to continue without accepting user input on prompts. Used for executing data altering scripts without transactions."
             };
             var includeDocumentInOutput = new CommandOption("--includeDocumentInOutput", CommandOptionType.NoValue)
             {
@@ -62,48 +59,62 @@ namespace CosmosManager.Configurations
             deployCommand.Options.Add(ignorePromptsOption);
             deployCommand.Options.Add(includeDocumentInOutput);
 
+            //deployCommand.OnExecuteAsync(async (cancelToken) =>
             deployCommand.OnExecuteAsync(async (cancelToken) =>
            {
-               //setup all the code here
-               var jsonString = File.ReadAllText(connectionsOption.Value());
-               var connections = JsonConvert.DeserializeObject<List<Connection>>(jsonString);
-               var selectedConnection = connections.FirstOrDefault(f => f.Name.Equals(connectToOption.Value(), System.StringComparison.InvariantCultureIgnoreCase));
                var presenter = container.GetInstance<ICommandlinePresenter>();
-               presenter.SetConnections(connections);
-               presenter.SelectedConnection = selectedConnection;
-               presenter.InitializePresenter(null);
-               var scriptsToRun = new List<FileInfo>();
-               if (!string.IsNullOrEmpty(scriptOption.Value()) && File.Exists(scriptOption.Value()))
+               try
                {
-                   scriptsToRun.Add(new FileInfo(scriptOption.Value()));
-               }
-               if (!string.IsNullOrEmpty(folderOption.Value()) && Directory.Exists(folderOption.Value()))
-               {
-                   var di = new DirectoryInfo(folderOption.Value());
-                   var files = di.GetFiles("*.csql", SearchOption.AllDirectories);
-                   scriptsToRun.AddRange(files);
-               }
-               if (scriptsToRun.Any())
-               {
-                   foreach (var fi in scriptsToRun)
+                   //setup all the code here
+                   var jsonString = File.ReadAllText(connectionsOption.Value());
+                   var connections = JsonConvert.DeserializeObject<List<Connection>>(jsonString);
+                   var selectedConnection = connections.FirstOrDefault(f => f.Name.Equals(connectToOption.Value(), System.StringComparison.InvariantCultureIgnoreCase));
+
+                   presenter.SetConnections(connections);
+                   presenter.SelectedConnection = selectedConnection;
+                   presenter.InitializePresenter(
+                           new
+                           {
+                               Options = new CommandlineOptions
+                               {
+                                   ContinueOnError = continueOnErrorOption.HasValue(),
+                                   IgnorePrompts = ignorePromptsOption.HasValue(),
+                                   OutputPath = outputOption.Value(),
+                                   IncludeDocumentInOutput = includeDocumentInOutput.HasValue()
+                               }
+                           });
+                   var scriptsToRun = new List<FileInfo>();
+                   if (!string.IsNullOrEmpty(scriptOption.Value()) && File.Exists(scriptOption.Value()))
                    {
-                       var query = File.ReadAllText(fi.FullName);
-                       var result = await presenter.RunAsync(query, new CommandlineOptions
+                       scriptsToRun.Add(new FileInfo(scriptOption.Value()));
+                   }
+                   if (!string.IsNullOrEmpty(folderOption.Value()) && Directory.Exists(folderOption.Value()))
+                   {
+                       var di = new DirectoryInfo(folderOption.Value());
+                       var files = di.GetFiles("*.csql", SearchOption.AllDirectories);
+                       scriptsToRun.AddRange(files);
+                   }
+                   if (scriptsToRun.Any())
+                   {
+                       foreach (var fi in scriptsToRun)
                        {
-                           ContinueOnError = continueOnErrorOption.HasValue(),
-                           IgnorePrompts = ignorePromptsOption.HasValue(),
-                           OutputPath = outputOption.Value(),
-                           IncludeDocumentInOutput = includeDocumentInOutput.HasValue()
-                       }, cancelToken);
-                       if (result != 0 && !continueOnErrorOption.HasValue())
-                       {
-                           return result;
+                           var query = File.ReadAllText(fi.FullName);
+                           var result = await presenter.RunAsync(query, cancelToken);
+                           if (result != 0 && !continueOnErrorOption.HasValue())
+                           {
+                               await presenter.WriteToOutput();
+                               return result;
+                           }
                        }
                    }
+                   await presenter.WriteToOutput();
+                   return 0;
                }
-               return 0;
+               finally
+               {
+                   presenter.Dispose();
+               }
            });
         }
-
     }
 }

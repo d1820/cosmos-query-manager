@@ -63,6 +63,7 @@ namespace CosmosManager.Builders
             _jsonContent = null;
             return this;
         }
+
         public Regex Build()
         {
             if (!string.IsNullOrWhiteSpace(_variable))

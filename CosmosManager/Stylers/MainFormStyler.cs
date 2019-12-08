@@ -11,6 +11,7 @@ namespace CosmosManager.Stylers
             {
                 case ThemeType.Dark:
                     return new SolidBrush(Color.FromArgb(51, 51, 51));
+
                 case ThemeType.Light:
                     return new SolidBrush(Color.FromArgb(236, 236, 236));
             }
@@ -23,6 +24,7 @@ namespace CosmosManager.Stylers
             {
                 case ThemeType.Dark:
                     return Color.FromArgb(240, 240, 240);
+
                 case ThemeType.Light:
                     return Color.FromArgb(236, 236, 236);
             }
@@ -45,6 +47,7 @@ namespace CosmosManager.Stylers
                     form.splitContainer1.Panel2.BackColor = Color.FromArgb(38, 38, 38);
                     form.tabBackgroundPanel.BackColor = Color.FromArgb(30, 30, 30);
                     break;
+
                 case ThemeType.Light:
                     form.fileTreeView.BackColor = Color.FromArgb(243, 243, 243);
                     form.fileTreeView.ForeColor = Color.FromArgb(122, 122, 122);

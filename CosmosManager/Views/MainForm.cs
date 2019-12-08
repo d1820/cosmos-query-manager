@@ -3,7 +3,6 @@ using CosmosManager.Domain;
 using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
 using CosmosManager.Stylers;
-using CosmosManager.Utilities;
 using CosmosManager.Views;
 using System;
 using System.Drawing;
@@ -47,8 +46,6 @@ namespace CosmosManager
             {
                 Presenter.PopulateTreeView(Properties.Settings.Default.SelectedPath);
             }
-
-
         }
 
         protected override void WndProc(ref Message m)
@@ -103,7 +100,6 @@ namespace CosmosManager
             {
                 //NO-OP
             }
-
         }
 
         public void UpdateNewQueryTabName(string newTabName)
@@ -411,7 +407,6 @@ namespace CosmosManager
             var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
             var result = _formManager.ShowModalForm<ActionLogForm>(form =>
            {
-
                presenter.InitializePresenter(new
                {
                    ActionLogForm = form,

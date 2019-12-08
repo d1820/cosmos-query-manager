@@ -12,7 +12,7 @@ namespace CosmosManager.Configurations
         {
             mpCommand.Description = "Execute commands for script management for CosmosDB";
             mpCommand.HelpOption("-?|-h|-H|--help");
-            mpCommand.Command("exec",  command2 => ExecConfiguration.Configure(command2, container));
+            mpCommand.Command("exec",  command2 => ExecConfiguration.ConfigureCommand(command2, container));
             mpCommand.ThrowOnUnexpectedArgument = false;
             mpCommand.OnExecute(() =>
             {

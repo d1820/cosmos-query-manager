@@ -6,6 +6,7 @@ namespace CosmosManager.Domain
     {
         public const string NEWLINE = "\n";
         public const char NEWLINE_CHAR = '\n';
+
         public static class EventId
         {
             public const int COSMOSDB = 99;
@@ -174,8 +175,6 @@ namespace CosmosManager.Domain
 
         public static List<string> IndentKeywords = new List<string>
         {
-
         };
-
     }
 }

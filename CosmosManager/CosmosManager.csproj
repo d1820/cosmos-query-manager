@@ -166,6 +166,8 @@
     <Compile Include="Managers\QueryManager.cs" />
     <Compile Include="Parsers\CommentTokenizer.cs" />
     <Compile Include="Interfaces\ICommandlinePresenter.cs" />
+    <Compile Include="Presenters\BaseQueryPresenter.cs" />
+    <Compile Include="Presenters\CommandlinePresenter.cs" />
     <Compile Include="Presenters\PreferencesFormPresenter.cs" />
     <Compile Include="Stylers\ActionLogFormStyler.cs" />
     <Compile Include="Stylers\PreferencesFormStyler.cs" />

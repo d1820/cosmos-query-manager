@@ -1,6 +1,5 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using CosmosManager.Utilities;
 
 namespace CosmosManager.Presenters
 {
