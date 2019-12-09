@@ -7,8 +7,10 @@ namespace CosmosManager.Interfaces
 {
     public interface ICommandlinePresenter: IPresenter, IDisplayPresenter, IConnectedPresenter, IDisposable
     {
-        Task<int> RunAsync(string query, CancellationToken cancelToken);
+        Task<int> RunAsync(string queryGroupName, string query, CancellationToken cancelToken);
 
-        Task WriteToOutput();
+        //Task WriteResults();
+
+        void WriteHeader(char outlineChar, int width, string message);
     }
 }

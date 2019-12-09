@@ -33,7 +33,6 @@ namespace CosmosManager.Stylers
         protected static Color IntToColor(int rgb)
         {
             var c = Color.FromArgb(255, (byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb);
-            Console.WriteLine($"Color {rgb}  {c.R} {c.G} {c.B}");
             return c;
         }
 

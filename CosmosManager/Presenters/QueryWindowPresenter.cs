@@ -92,7 +92,7 @@ namespace CosmosManager.Presenters
             _view.ResetQueryOutput();
         }
 
-        public override void AddToQueryOutput(string message)
+        public override void AddToQueryOutput(string message, bool includeTrailingLine = true)
         {
             _view.AppendToQueryOutput(message + Environment.NewLine);
         }
@@ -182,7 +182,7 @@ namespace CosmosManager.Presenters
                         else if (response.results != null)
                         {
                             //add a header row if more then 1 query needs to be ran
-                            RenderResults(response.results, queryParts.CollectionName, queryParts, queries.Length > 1, i + 1);
+                            await RenderResults(response.results, queryParts.CollectionName, queryParts, queries.Length > 1, i + 1);
                             hasResults = true;
                         }
                     }
@@ -298,9 +298,10 @@ namespace CosmosManager.Presenters
             _view.SetStatusBarMessage($"{fileName} Exported");
         }
 
-        public override void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex)
+        public override Task RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex)
         {
             _view.RenderResults(results, collectionName, query, appendResults, queryStatementIndex);
+            return Task.CompletedTask;
         }
 
         public void ShowOutputTab()

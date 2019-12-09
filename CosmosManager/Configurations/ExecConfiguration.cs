@@ -59,7 +59,6 @@ namespace CosmosManager.Configurations
             deployCommand.Options.Add(ignorePromptsOption);
             deployCommand.Options.Add(includeDocumentInOutput);
 
-            //deployCommand.OnExecuteAsync(async (cancelToken) =>
             deployCommand.OnExecuteAsync(async (cancelToken) =>
            {
                var presenter = container.GetInstance<ICommandlinePresenter>();
@@ -98,16 +97,20 @@ namespace CosmosManager.Configurations
                    {
                        foreach (var fi in scriptsToRun)
                        {
+                           presenter.WriteHeader('*', 300, $"{fi.FullName}");
                            var query = File.ReadAllText(fi.FullName);
-                           var result = await presenter.RunAsync(query, cancelToken);
+                           var result = await presenter.RunAsync(fi.Name, query, cancelToken);
+                           //await presenter.WriteResults();
                            if (result != 0 && !continueOnErrorOption.HasValue())
                            {
-                               await presenter.WriteToOutput();
                                return result;
                            }
                        }
                    }
-                   await presenter.WriteToOutput();
+                   else
+                   {
+                       presenter.AddToQueryOutput("No scripts found to execute.");
+                   }
                    return 0;
                }
                finally

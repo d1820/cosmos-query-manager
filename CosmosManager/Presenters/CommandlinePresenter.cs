@@ -3,6 +3,7 @@ using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using CosmosManager.Managers;
+using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
@@ -22,49 +23,38 @@ namespace CosmosManager.Presenters
         private CommandlineOptions _options;
         private StreamWriter _sw;
         private readonly IEnumerable<IQueryRunner> _queryRunners = new List<IQueryRunner>();
+        private int _groupCount;
+        private OutputTraceInformation _outputTraceInformation;
+        private readonly IConsoleLogger _console;
 
         public CommandlinePresenter(IClientConnectionManager clientConnectionManager,
                                     IQueryStatementParser queryStatementParser,
                                     IQueryPresenterLogger logger,
                                     IEnumerable<IQueryRunner> queryRunners,
-                                    IQueryManager queryManager) : base(queryStatementParser)
+                                    IQueryManager queryManager,
+                                    IConsoleLogger console) : base(queryStatementParser)
         {
             _logger = logger;
             _logger.SetPresenter(this);
             _queryRunners = queryRunners;
             _clientConnectionManager = clientConnectionManager;
             _queryManager = queryManager;
+            _console = console;
         }
 
-        public override void AddToQueryOutput(string message)
+        public override void AddToQueryOutput(string message, bool includeTrailingLine = true)
         {
-            Console.WriteLine(message);
-            AddToOutputStream(message);
-        }
-
-        private void AddToOutputStream(string message)
-        {
-            if (_sw != null)
+            _console.WriteLine(message);
+            if (includeTrailingLine)
             {
-                _sw.Write(message);
+                _console.WriteLine("");
             }
+            AddToOutputStream(message, includeTrailingLine);
         }
-
-        private int _totalDocumentCount;
-        private int _groupCount;
-        private ConsoleTable _table;
-        private ConsoleTable _summaryTable;
-        private Dictionary<string, List<string>> _documentsByGroup;
 
         public override void InitializePresenter(dynamic context)
         {
-            _totalDocumentCount = 0;
             _groupCount = 0;
-            _table = new ConsoleTable();
-            _summaryTable = new ConsoleTable();
-            _summaryTable.AddColumn(new string[] { "Query Id", "Result Count", "Collection", "Query" });
-            _documentsByGroup = new Dictionary<string, List<string>>();
-
             _options = context.Options;
             if (_options.WriteToOutput)
             {
@@ -72,21 +62,21 @@ namespace CosmosManager.Presenters
             }
         }
 
-        public override async void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex)
+        public override async Task RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex)
         {
-            if (!appendResults)
-            {
-                _totalDocumentCount = 0;
-            }
             var textPartitionKeyPath = await LookupPartitionKeyPath(query.CollectionName);
             var column1Header = "";
             var column2Header = "";
-            var groupHeader = "";
+            var queryHeader = "";
 
-            //table.AddRow(1, 2, 3)
-            //     .AddRow("this line should be longer", "yes it is", "oh");
-            _summaryTable.AddRow(queryStatementIndex, results.Count, collectionName, query.ToRawQuery());
-            groupHeader = $"Query {queryStatementIndex} ({results.Count} Documents)";
+            _outputTraceInformation.OutputSummaryRecords.Add(new OutputSummaryRecord
+            {
+                CollectionName = collectionName,
+                Query = query.ToRawQuery(),
+                QueryStatementIndex = queryStatementIndex,
+                ResultCount = results.Count
+            });
+            queryHeader = $"Query {queryStatementIndex} ({results.Count} Documents)";
             var headers = LookupResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
             if (appendResults)
             {
@@ -114,26 +104,12 @@ namespace CosmosManager.Presenters
                 column1Header = headers.header1;
                 column2Header = headers.header2;
             }
-            if (_table.Columns.Count != 2)
-            {
-                _table.AddColumn(new List<string> { column1Header, column2Header });
-            }
-            else
-            {
-                //reset headers
-                _table.Columns[0] = column1Header;
-                _table.Columns[1] = column2Header;
-            }
-            if (!string.IsNullOrEmpty(groupHeader))
-            {
-                _table.AddRow(groupHeader, "");
-            }
-            if (!_documentsByGroup.ContainsKey(groupHeader))
-            {
-                _documentsByGroup.Add(groupHeader, new List<string>());
-            }
 
-            var validResultCount = 0;
+            _outputTraceInformation.OutputColumn1 = column1Header;
+            _outputTraceInformation.OutputColumn2 = column2Header;
+            var outputDetailRecord = new OutputDetailRecord { QueryHeader = queryHeader };
+            _outputTraceInformation.OutputDetailRecords.Add(outputDetailRecord);
+
             foreach (var item in results)
             {
                 var fromObject = JObject.FromObject(item);
@@ -141,9 +117,10 @@ namespace CosmosManager.Presenters
                 {
                     continue;
                 }
-                _documentsByGroup[groupHeader].Add(fromObject.ToString());
+                var documentDetail = new DocumentDetail { Document = fromObject.ToString() };
 
-                validResultCount++;
+                outputDetailRecord.Records.Add(documentDetail);
+
                 JProperty col1Prop = null;
                 JToken col1Token = null;
                 var resultProps = fromObject.Properties();
@@ -184,13 +161,23 @@ namespace CosmosManager.Presenters
                         col2RowText = col2Token.Type.IsPrimitiveType() ? col2Token?.ToStringValue() : col2Token?.GetObjectValue("");
                     }
                 }
-                _table.AddRow(new string[] { col1RowText, col2RowText });
+                documentDetail.DisplayField1 = col1RowText;
+                documentDetail.DisplayField2 = col2RowText;
             }
-            _totalDocumentCount += validResultCount;
         }
 
-        public async Task<int> RunAsync(string query, CancellationToken cancelToken)
+        public void WriteHeader(char outlineChar, int width, string message)
         {
+            AddToQueryOutput(new string(outlineChar, width), false);
+            var cap = new string(outlineChar, 2);
+            AddToQueryOutput($"{cap} {message.PadRight(width - 5, ' ')}{cap}", false);
+            AddToQueryOutput(new string(outlineChar, width));
+        }
+
+        public async Task<int> RunAsync(string queryGroupName, string query, CancellationToken cancelToken)
+        {
+            _outputTraceInformation = new OutputTraceInformation();
+
             //execute th interpretor and run against cosmos and connection
             if (SelectedConnection is Connection && SelectedConnection != null)
             {
@@ -204,8 +191,8 @@ namespace CosmosManager.Presenters
                 //check all the queries for deletes without transactions
                 if (hasNonTransactionDelete && !_options.IgnorePrompts)
                 {
-                    Console.WriteLine("Are you sure you want to delete documents without a transaction. This can not be undone? (Y/N): ");
-                    if (Console.ReadLine() == "N")
+                    _console.WriteLine("Are you sure you want to delete documents without a transaction. This can not be undone? (Y/N): ");
+                    if (_console.ReadLine() == "N")
                     {
                         return -99;
                     }
@@ -220,11 +207,10 @@ namespace CosmosManager.Presenters
                     var runner = _queryRunners.FirstOrDefault(f => f.CanRun(queryParts));
                     if (runner != null)
                     {
+                        var queryIndex = i + 1;
                         if (queries.Length > 1)
                         {
-                            AddToQueryOutput(new string('-', 300));
-                            AddToQueryOutput($"Query statement {i + 1}");
-                            AddToQueryOutput(new string('-', 300));
+                            WriteHeader('/', 250, $"{queryGroupName} - Query statement {queryIndex}");
                         }
 
                         var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts, true, _logger, cancelToken, _variables);
@@ -240,7 +226,7 @@ namespace CosmosManager.Presenters
                         else if (response.results != null)
                         {
                             //add a header row if more then 1 query needs to be ran
-                            RenderResults(response.results, queryParts.CollectionName, queryParts, queries.Length > 1, i + 1);
+                            await RenderResults(response.results, queryParts.CollectionName, queryParts, queries.Length > 1, queryIndex);
                             hasResults = true;
                         }
                     }
@@ -259,6 +245,9 @@ namespace CosmosManager.Presenters
                         }
                     }
                 }
+
+                await WriteResults();
+
                 if (hasError && !_options.ContinueOnError)
                 {
                     //make sure process exits with non zero
@@ -282,47 +271,6 @@ namespace CosmosManager.Presenters
             }
         }
 
-        public async Task WriteToOutput()
-        {
-            try
-            {
-                //output to console and file
-                AddToQueryOutput("==========================================================");
-                AddToQueryOutput("Execution Summary");
-                AddToQueryOutput("==========================================================");
-                _summaryTable.Write();
-                AddToOutputStream(_summaryTable.ToString());
-                AddToQueryOutput("");
-
-                AddToQueryOutput("==========================================================");
-                AddToQueryOutput("Results");
-                AddToQueryOutput("==========================================================");
-                _table.Write();
-                AddToOutputStream(_table.ToString());
-                AddToQueryOutput("");
-
-                if (_options.IncludeDocumentInOutput)
-                {
-                    foreach (var item in _documentsByGroup)
-                    {
-                        AddToQueryOutput("==========================================================");
-                        AddToQueryOutput($"Documents for Query {item.Key}");
-                        AddToQueryOutput("==========================================================");
-                        foreach (var str in item.Value)
-                        {
-                            AddToQueryOutput(str);
-                        }
-                        AddToQueryOutput("");
-                    }
-                }
-            }
-            finally
-            {
-                await _sw.FlushAsync();
-                _sw.Close();
-            }
-        }
-
         public void Dispose()
         {
             if (_sw != null && _sw.BaseStream != null)
@@ -331,5 +279,58 @@ namespace CosmosManager.Presenters
                 _sw.Close();
             }
         }
+
+        private async Task WriteResults()
+        {
+            try
+            {
+                var summaryTable = new ConsoleTable(new ConsoleTableOptions { EnableCount = false });
+                summaryTable.AddColumn(new string[] { "Query Id", "Result Count", "Collection", "Query" });
+                _outputTraceInformation.OutputSummaryRecords.ForEach(f => summaryTable.AddRow(f.QueryStatementIndex, f.ResultCount, f.CollectionName, f.Query));
+
+
+                //output to console and file
+                WriteHeader('=', 200, "Execution Summary");
+                summaryTable.Write();
+                AddToOutputStream(summaryTable.ToString());
+                AddToQueryOutput($"Total Records Returned: {_outputTraceInformation.OutputSummaryRecords.Sum(s => s.ResultCount)}");
+
+                var table = new ConsoleTable(new ConsoleTableOptions { EnableCount = false });
+                table.AddColumn(new List<string> { _outputTraceInformation.OutputColumn1, _outputTraceInformation.OutputColumn2 });
+
+                WriteHeader('=', 200, "Execution Results");
+                foreach (var detailRecord in _outputTraceInformation.OutputDetailRecords)
+                {
+                    table.AddRow(detailRecord.QueryHeader, "");
+                    detailRecord.Records.ForEach(rec => table.AddRow(rec.DisplayField1, rec.DisplayField2));
+                }
+                table.Write();
+                AddToOutputStream(table.ToString());
+                if (_options.IncludeDocumentInOutput)
+                {
+                    foreach (var detailRecord in _outputTraceInformation.OutputDetailRecords)
+                    {
+                        WriteHeader('=', 200, $"Documents for Query {detailRecord.QueryHeader}");
+                        detailRecord.Records.ForEach(rec => AddToQueryOutput(rec.Document));
+                        AddToQueryOutput("");
+                    }
+                }
+
+            }
+            finally
+            {
+                await _sw.FlushAsync();
+                _sw.Close();
+            }
+        }
+
+        private void AddToOutputStream(string message, bool includeTrailingLine = true)
+        {
+            if (_sw != null)
+            {
+                _sw.WriteLine(message + (includeTrailingLine ? Environment.NewLine : string.Empty));
+            }
+        }
+
     }
 }

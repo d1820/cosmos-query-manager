@@ -8,14 +8,12 @@ using CosmosManager.Stylers;
 using CosmosManager.Tasks;
 using CosmosManager.Utilities;
 using CosmosManager.Views;
-using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using SimpleInjector;
 using SimpleInjector.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Windows.Forms;
 
 namespace CosmosManager
@@ -23,24 +21,6 @@ namespace CosmosManager
     internal static class Program
     {
         private static Container container;
-
-        private static string GetParent(string path, int levelsUp)
-        {
-            for (var i = 0; i <= levelsUp; i++)
-            {
-                var di = Directory.GetParent(path);
-                if (di != null)
-                {
-                    path = di.ToString();
-                }
-                else
-                {
-                    return path;
-                }
-            }
-            return path;
-        }
-
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -57,26 +37,21 @@ namespace CosmosManager
                     "--script",
                     @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\FindMyUserId.csql",
                     "--output",
-                    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\output.cresult" };
+                    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\output.cresult",
+                   // "--includeDocumentInOutput"
+                    };
             }
 
             if (args != null && args.Length > 0)
             {
-                AllocConsole();
+                ConsoleHelper.Alloc(Debugger.IsAttached);
                 Bootstrap(true);
-                var runDir = AppDomain.CurrentDomain.BaseDirectory;
-                var rootDir = GetParent(runDir, 6);
-
-                var app = new CommandLineApplication { Name = "cosmgr" };
-                app.Description = "Execute commands for script management for CosmosDB";
-                app.HelpOption("-?|-h|-H|--help");
-                app.Command("exec", command => ExecConfiguration.ConfigureCommand(command, container));
-                app.ThrowOnUnexpectedArgument = true;
-                var intResult = app.Execute(args);
+                var intResult = CosmosManagerConfiguration.Create(args, container);
 
                 //used to hold the process open while debugging locally.
                 if (Debugger.IsAttached)
                 {
+                    Console.WriteLine("Press (q) to quit debugging.");
                     while (Console.ReadLine() != "q")
                     {
                     }
@@ -93,9 +68,6 @@ namespace CosmosManager
             }
         }
 
-        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
-        private static extern bool AllocConsole();
-
         private static void Bootstrap(bool bootCommandLine = false)
         {
             // Create the container as usual.
@@ -110,6 +82,8 @@ namespace CosmosManager
             container.RegisterSingleton<IQueryManager, QueryManager>();
             container.RegisterSingleton<IQueryParser, StringQueryParser>();
             container.RegisterSingleton<IHashProvider, Crc32HashProvider>();
+            container.RegisterSingleton<IConsoleLogger>(() => new ConsoleLogger());
+
 
             RegisterRunners(container);
 
@@ -186,4 +160,5 @@ namespace CosmosManager
             }
         }
     }
+
 }

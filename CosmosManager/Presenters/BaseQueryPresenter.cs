@@ -131,11 +131,11 @@ namespace CosmosManager.Presenters
             return documentStore.LookupPartitionKeyPath(SelectedConnection.Database, collectionName);
         }
 
-        public abstract void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex);
+        public abstract Task RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex);
 
         public abstract void SetConnections(List<Connection> connections);
 
-        public abstract void AddToQueryOutput(string message);
+        public abstract void AddToQueryOutput(string message, bool includeTrailingLine = true);
 
         public abstract void InitializePresenter(dynamic context);
     }

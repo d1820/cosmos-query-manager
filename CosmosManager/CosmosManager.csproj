@@ -109,6 +109,9 @@
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -130,8 +133,12 @@
     <Compile Include="Domain\CommandlineOptions.cs" />
     <Compile Include="Domain\Connection.cs" />
     <Compile Include="Domain\Constants.cs" />
+    <Compile Include="Domain\DocumentDetail.cs" />
     <Compile Include="Domain\DocumentQueryParameter.cs" />
     <Compile Include="Domain\DocumentResult.cs" />
+    <Compile Include="Domain\OutputDetailRecord.cs" />
+    <Compile Include="Domain\OutputSummaryRecord.cs" />
+    <Compile Include="Domain\OutputTraceInformation.cs" />
     <Compile Include="Domain\PubSubEventArgs.cs" />
     <Compile Include="Domain\QueryOptions.cs" />
     <Compile Include="Domain\RequestOptions.cs" />
@@ -147,7 +154,10 @@
     <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Extensions\OptionExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Interfaces\IConnectedPresenter.cs" />
+    <Compile Include="Interfaces\IConsoleLogger.cs" />
     <Compile Include="Interfaces\ICosmosDocument.cs" />
+    <Compile Include="Interfaces\IDisplayPresenter.cs" />
     <Compile Include="Interfaces\IFormOpener.cs" />
     <Compile Include="Interfaces\IMainForm.cs" />
     <Compile Include="Interfaces\IPreferencesForm.cs" />
@@ -171,6 +181,7 @@
     <Compile Include="Presenters\PreferencesFormPresenter.cs" />
     <Compile Include="Stylers\ActionLogFormStyler.cs" />
     <Compile Include="Stylers\PreferencesFormStyler.cs" />
+    <Compile Include="Utilities\ConsoleHelper.cs" />
     <Compile Include="Utilities\FixedLimitDictionary.cs" />
     <Compile Include="Parsers\JsonTokenizer.cs" />
     <Compile Include="Parsers\StringQueryParser.cs" />
