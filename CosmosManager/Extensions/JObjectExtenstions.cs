@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace CosmosManager.Extensions
 {
-    public static class JObjectExtenstions
+    public static class JObjectExtensions
     {
         public static bool HasEmptyJArray(this JObject parent)
         {

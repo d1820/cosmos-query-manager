@@ -222,51 +222,22 @@ namespace CosmosManager
                 listItem.Tag = new DocumentResult { Document = fromObject, CollectionName = collectionName, Query = query, GroupName = groupName };
                 JProperty col1Prop = null;
                 JToken col1Token = null;
+
+                var columnText = fromObject.Properties().ParseColumnText(textPartitionKeyPath);
+
                 var resultProps = fromObject.Properties();
                 var subItem = new ListViewSubItem
                 {
-                    Text = string.Empty
+                    Text = columnText.col1RowText
                 };
-
-                if (resultProps.Count() > 0)
-                {
-                    col1Prop = resultProps.FirstOrDefault(f => f.Name == Constants.DocumentFields.ID);
-                    if (col1Prop == null)
-                    {
-                        col1Prop = resultProps.FirstOrDefault();
-                    }
-                    col1Token = col1Prop?.Value;
-                    if (col1Token != null)
-                    {
-                        subItem.Text = col1Token.Type.IsPrimitiveType() ? col1Token?.ToStringValue() : col1Token?.GetObjectValue(Constants.DocumentFields.ID);
-                    }
-                }
                 listItem.SubItems.Add(subItem);
 
                 if (resultProps.Count() > 1)
                 {
                     subItem = new ListViewSubItem
                     {
-                        Text = string.Empty
+                        Text = columnText.col2RowText
                     };
-                    JProperty col2Prop = null;
-                    JToken col2Token = null;
-
-                    col2Prop = resultProps.FirstOrDefault(f => f.Name == textPartitionKeyPath);
-                    if (col2Prop == null)
-                    {
-                        var prop = resultProps.FirstOrDefault(f => f != col1Prop);
-                        if (prop != null)
-                        {
-                            col2Prop = prop;
-                        }
-                    }
-                    col2Token = col2Prop?.Value;
-                    if (col2Token != null)
-                    {
-                        subItem.Text = col2Token.Type.IsPrimitiveType() ? col2Token?.ToStringValue() : col2Token?.GetObjectValue("");
-                    }
-
                     if (!string.IsNullOrEmpty(subItem.Text))
                     {
                         listItem.SubItems.Add(subItem);

@@ -29,17 +29,17 @@ namespace CosmosManager
         {
             if (Debugger.IsAttached)
             {
-                args = new[] {  "exec",
-                    "--connections",
-                    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\connections.json",
-                    "--connectTo",
-                    "Local Cosmos",
-                    "--script",
-                    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\FindMyUserId.csql",
-                    "--output",
-                    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\output.cresult",
-                   // "--includeDocumentInOutput"
-                    };
+                //args = new[] {  "exec",
+                //    "--connections",
+                //    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\connections.json",
+                //    "--connectTo",
+                //    "Local Cosmos",
+                //    "--script",
+                //    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\FindMyUserId.csql",
+                //    "--output",
+                //    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\output.cresult",
+                //   // "--includeDocumentInOutput"
+                //    };
             }
 
             if (args != null && args.Length > 0)

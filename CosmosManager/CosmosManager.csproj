@@ -150,6 +150,7 @@
     <Compile Include="Extensions\DocumentDBExtensions.cs" />
     <Compile Include="Extensions\DocumentExtensions.cs" />
     <Compile Include="Extensions\JObjectExtenstions.cs" />
+    <Compile Include="Extensions\JPropertyExtensions.cs" />
     <Compile Include="Extensions\JTokenExtensions.cs" />
     <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Extensions\OptionExtensions.cs" />
