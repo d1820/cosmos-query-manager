@@ -32,14 +32,14 @@ namespace CosmosManager.Presenters
         private IPubSub _pubsub;
 
         private CancellationTokenSource _source;
-        private readonly ITextWriter _textWriter;
+        private readonly ITextWriterFactory _textWriter;
 
         public QueryWindowPresenter(IClientConnectionManager clientConnectionManager,
                                     IQueryStatementParser queryStatementParser,
                                     IQueryPresenterLogger logger,
                                     IEnumerable<IQueryRunner> queryRunners,
                                     IQueryManager queryManager,
-                                    ITextWriter textWriter) : base(queryStatementParser)
+                                    ITextWriterFactory textWriter) : base(queryStatementParser)
         {
             _logger = logger;
             _logger.SetPresenter(this);
@@ -260,7 +260,7 @@ namespace CosmosManager.Presenters
 
         public async Task SaveQueryAsync()
         {
-            using (var writer = _textWriter.Open(CurrentFileInfo.FullName))
+            using (var writer = _textWriter.Create(CurrentFileInfo.FullName))
             {
                 await writer.WriteAsync(_view.Query);
             }
@@ -269,7 +269,7 @@ namespace CosmosManager.Presenters
 
         public async Task SaveTempQueryAsync(string fileName)
         {
-            using (var writer = _textWriter.Open(fileName))
+            using (var writer = _textWriter.Create(fileName))
             {
                 await writer.WriteAsync(_view.Query);
             }
@@ -279,7 +279,7 @@ namespace CosmosManager.Presenters
         public async Task ExportDocumentAsync(string fileName)
         {
             _view.SetStatusBarMessage("Exporting Document...");
-            using (var writer = _textWriter.Open(fileName))
+            using (var writer = _textWriter.Create(fileName))
             {
                 await writer.WriteAsync(_view.DocumentText);
             }
@@ -290,7 +290,7 @@ namespace CosmosManager.Presenters
         {
             _view.SetStatusBarMessage("Exporting documents...");
 
-            using (var writer = _textWriter.Open(fileName))
+            using (var writer = _textWriter.Create(fileName))
             {
                 await writer.WriteAsync(JsonConvert.SerializeObject(documents, Formatting.Indented));
             }

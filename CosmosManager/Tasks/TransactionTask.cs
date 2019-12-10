@@ -13,9 +13,9 @@ namespace CosmosManager.Tasks
 {
     public class TransactionTask : ITransactionTask
     {
-        private readonly ITextWriter _textWriter;
+        private readonly ITextWriterFactory _textWriter;
 
-        public TransactionTask(ITextWriter textWriter)
+        public TransactionTask(ITextWriterFactory textWriter)
         {
             _textWriter = textWriter;
         }
@@ -24,7 +24,7 @@ namespace CosmosManager.Tasks
             var formattedConnectionName = Regex.Replace(connectionName, @"(\s)", "_", RegexOptions.Compiled);
             var cacheFileName = new FileInfo($"{AppReferences.TransactionCacheDataFolder}/{formattedConnectionName}/{databaseName}/{collectionName}/{transactionId}/query.csql");
             Directory.CreateDirectory(cacheFileName.Directory.FullName);
-            using (var writer = _textWriter.Open(cacheFileName.FullName))
+            using (var writer = _textWriter.Create(cacheFileName.FullName))
             {
                 await writer.WriteAsync(query);
             }
@@ -75,7 +75,7 @@ namespace CosmosManager.Tasks
                     }
                 }
                 Directory.CreateDirectory(cacheFileName.Directory.FullName);
-                using (var writer = _textWriter.Open(cacheFileName.FullName))
+                using (var writer = _textWriter.Create(cacheFileName.FullName))
                 {
                     await writer.WriteAsync(JsonConvert.SerializeObject(cosmosDocument));
                 }

@@ -561,7 +561,7 @@ namespace CosmosManager.Parsers
                 }
                 var aStringBuilder = new StringBuilder(newQuery);
                 aStringBuilder.Remove(match.Index, match.Length);
-                aStringBuilder.Insert(match.Index, $"{field} >= '{dateOut.ToUniversalTime().ToString("s", System.Globalization.CultureInfo.InvariantCulture)}' AND {field} < '{dateOut.AddSeconds(1).ToUniversalTime().ToString("s", System.Globalization.CultureInfo.InvariantCulture)}' ");
+                aStringBuilder.Insert(match.Index, $"{field} >= '{dateOut.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}' AND {field} < '{dateOut.AddSeconds(1).ToString("s", System.Globalization.CultureInfo.InvariantCulture)}' ");
                 newQuery = aStringBuilder.ToString();
                 matches = rgx.Matches(newQuery);
             }

@@ -99,7 +99,7 @@ namespace CosmosManager
             container.RegisterSingleton<IQueryParser, StringQueryParser>();
             container.RegisterSingleton<IHashProvider, Crc32HashProvider>();
             container.RegisterSingleton<IConsoleLogger>(() => new ConsoleLogger());
-
+            container.RegisterSingleton<ITextWriterFactory, TextWriterFactory>();
 
             RegisterRunners(container);
 
@@ -107,7 +107,6 @@ namespace CosmosManager
             container.Register<IJsonStyler, JsonDocumentStyler>(Lifestyle.Transient);
             container.Register<ITransactionTask, TransactionTask>();
             container.Register<IVariableInjectionTask, VariableInjectionTask>();
-            container.Register<ITextWriter, TextWriter>();
 
             container.RegisterSingleton<IClientConnectionManager, ClientConnectionManager>();
 
@@ -158,10 +157,7 @@ namespace CosmosManager
 
 
             }
-
-            SuppressRegistrations(new List<Type> {
-                typeof(TextWriter)
-                }, container, "Transients Managed");
+            
 
             // Optionally verify the container.
             if (Debugger.IsAttached)

@@ -5,9 +5,21 @@ using System.Threading.Tasks;
 
 namespace CosmosManager.Utilities
 {
+    public class TextWriterFactory : ITextWriterFactory
+    {
+        public ITextWriter Create(string path, bool append = false)
+        {
+            return new TextWriter(path, append);
+        }
+    }
     public class TextWriter : ITextWriter
     {
         private StreamWriter _sw;
+
+        public TextWriter(string path, bool append = false)
+        {
+            _sw = new StreamWriter(path, append);
+        }
 
         public async Task WriteAsync(string value)
         {
@@ -27,16 +39,6 @@ namespace CosmosManager.Utilities
                 return;
             }
             throw new NullReferenceException("TextWriter not open");
-        }
-
-        public ITextWriter Open(string path, bool append = false)
-        {
-            if(_sw != null)
-            {
-                return this;
-            }
-            _sw =  new StreamWriter(path, append);
-            return this;
         }
 
         public void Close()

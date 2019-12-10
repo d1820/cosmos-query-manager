@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +25,7 @@ namespace CosmosManager.Presenters
         private int _groupCount;
         private OutputTraceInformation _outputTraceInformation;
         private readonly IConsoleLogger _console;
-        private readonly ITextWriter _textWriter;
+        private readonly ITextWriterFactory _textWriter;
 
         public CommandlinePresenter(IClientConnectionManager clientConnectionManager,
                                     IQueryStatementParser queryStatementParser,
@@ -34,7 +33,7 @@ namespace CosmosManager.Presenters
                                     IEnumerable<IQueryRunner> queryRunners,
                                     IQueryManager queryManager,
                                     IConsoleLogger console,
-                                    ITextWriter textWriter) : base(queryStatementParser)
+                                    ITextWriterFactory textWriter) : base(queryStatementParser)
         {
             _logger = logger;
             _logger.SetPresenter(this);
@@ -61,7 +60,7 @@ namespace CosmosManager.Presenters
             _options = context.Options;
             if (_options.WriteToOutput)
             {
-                _textWriter.Open(_options.OutputPath, true);
+                _sw = _textWriter.Create(_options.OutputPath, true);
             }
         }
 
@@ -240,7 +239,7 @@ namespace CosmosManager.Presenters
 
         public void Dispose()
         {
-            _textWriter.Close();
+            _sw?.Close();
         }
 
         private Task WriteResults()
@@ -285,10 +284,7 @@ namespace CosmosManager.Presenters
 
         private void AddToOutputStream(string message, bool includeTrailingLine = true)
         {
-            if (_textWriter != null)
-            {
-                _textWriter.WriteLine(message + (includeTrailingLine ? Environment.NewLine : string.Empty));
-            }
+            _sw?.WriteLine(message + (includeTrailingLine ? Environment.NewLine : string.Empty));
         }
 
     }

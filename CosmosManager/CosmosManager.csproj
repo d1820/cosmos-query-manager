@@ -185,6 +185,7 @@
     <Compile Include="Stylers\ActionLogFormStyler.cs" />
     <Compile Include="Stylers\PreferencesFormStyler.cs" />
     <Compile Include="Interfaces\ITextWriter.cs" />
+    <Compile Include="Interfaces\ITextWriterFactory.cs" />
     <Compile Include="Utilities\TextWriter.cs" />
     <Compile Include="Utilities\ConsoleHelper.cs" />
     <Compile Include="Utilities\FixedLimitDictionary.cs" />
