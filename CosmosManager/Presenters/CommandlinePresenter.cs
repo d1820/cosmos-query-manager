@@ -69,13 +69,7 @@ namespace CosmosManager.Presenters
             var column2Header = "";
             var queryHeader = "";
 
-            _outputTraceInformation.OutputSummaryRecords.Add(new OutputSummaryRecord
-            {
-                CollectionName = collectionName,
-                Query = query.ToRawQuery(),
-                QueryStatementIndex = queryStatementIndex,
-                ResultCount = results.Count
-            });
+
             queryHeader = $"Query {queryStatementIndex} ({results.Count} Documents)";
             var headers = LookupResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
             if (appendResults)
@@ -175,10 +169,18 @@ namespace CosmosManager.Presenters
                         }
 
                         var response = await runner.RunAsync(documentStore, SelectedConnection, queryParts, true, _logger, cancelToken, _variables);
+
+                        var querySummaryRecord = new OutputSummaryRecord
+                        {
+                            CollectionName = queryParts.CollectionName,
+                            Query = queryParts.ToRawQuery(),
+                            QueryStatementIndex = queryIndex
+                        };
+                        _outputTraceInformation.OutputSummaryRecords.Add(querySummaryRecord);
                         if (!response.success)
                         {
                             //on error stop loop and return
-                            hasError = true;
+                            querySummaryRecord.HasError = hasError = true;
                             if (!_options.ContinueOnError)
                             {
                                 break;
@@ -186,6 +188,7 @@ namespace CosmosManager.Presenters
                         }
                         else if (response.results != null)
                         {
+                            querySummaryRecord.ResultCount = response.results.Count;
                             //add a header row if more then 1 query needs to be ran
                             await RenderResults(response.results, queryParts.CollectionName, queryParts, queries.Length > 1, queryIndex);
                             hasResults = true;
@@ -241,24 +244,25 @@ namespace CosmosManager.Presenters
             }
         }
 
-        private async Task WriteResults()
+        private Task WriteResults()
         {
-            try
+            //if we get an error from a script and have no results then dont render all the headers and sections, cause an error will be displayed
+            if (_outputTraceInformation.OutputSummaryRecords.Any())
             {
                 var summaryTable = new ConsoleTable(new ConsoleTableOptions { EnableCount = false });
-                summaryTable.AddColumn(new string[] { "Query Id", "Result Count", "Collection", "Query" });
-                _outputTraceInformation.OutputSummaryRecords.ForEach(f => summaryTable.AddRow(f.QueryStatementIndex, f.ResultCount, f.CollectionName, f.Query));
-
-
+                summaryTable.AddColumn(new string[] { "Query Id", "Result Count", "Collection", "Query", "HasError" });
+                _outputTraceInformation.OutputSummaryRecords.ForEach(f => summaryTable.AddRow(f.QueryStatementIndex, f.ResultCount, f.CollectionName, f.Query, f.HasError ? "Y" : ""));
                 //output to console and file
                 WriteHeader('=', 200, "Execution Summary");
                 summaryTable.Write();
                 AddToOutputStream(summaryTable.ToString());
                 AddToQueryOutput($"Total Records Returned: {_outputTraceInformation.OutputSummaryRecords.Sum(s => s.ResultCount)}");
+            }
 
+            if (_outputTraceInformation.OutputDetailRecords.Any())
+            {
                 var table = new ConsoleTable(new ConsoleTableOptions { EnableCount = false });
                 table.AddColumn(new List<string> { _outputTraceInformation.OutputColumn1, _outputTraceInformation.OutputColumn2 });
-
                 WriteHeader('=', 200, "Execution Results");
                 foreach (var detailRecord in _outputTraceInformation.OutputDetailRecords)
                 {
@@ -276,13 +280,8 @@ namespace CosmosManager.Presenters
                         AddToQueryOutput("");
                     }
                 }
-
             }
-            finally
-            {
-                await _sw.FlushAsync();
-                _sw.Close();
-            }
+            return Task.CompletedTask;
         }
 
         private void AddToOutputStream(string message, bool includeTrailingLine = true)

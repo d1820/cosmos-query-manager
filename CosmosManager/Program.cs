@@ -29,16 +29,31 @@ namespace CosmosManager
         {
             if (Debugger.IsAttached)
             {
+                ////Test single script
                 //args = new[] {  "exec",
                 //    "--connections",
                 //    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\connections.json",
                 //    "--connectTo",
                 //    "Local Cosmos",
                 //    "--script",
-                //    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\FindMyUserId.csql",
+                //    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\AddDynamicFieldsLocalizations.csql",
                 //    "--output",
                 //    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\output.cresult",
                 //   // "--includeDocumentInOutput"
+                //    };
+
+                ////Test batch scripts
+                //args = new[] {  "exec",
+                //    "--connections",
+                //    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\connections.json",
+                //    "--connectTo",
+                //    "Local Cosmos",
+                //    "--folder",
+                //    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\batch",
+                //    "--output",
+                //    @"C:\\Users\\Administrator.WIN-JLVDOKCVKPQ\\Desktop\\TestScripts\\output.cresult",
+                //    // "--includeDocumentInOutput",
+                //    "--continueOnError"
                 //    };
             }
 

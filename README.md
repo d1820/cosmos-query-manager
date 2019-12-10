@@ -10,7 +10,14 @@ Cosmos Query Manager is a Windows based query manager for Azure DocumentDb/Cosmo
 
 # Install
 
-If you want to install the application please grab the exe installer file from the releases folder in the project source
+If you want to install the application please grab the "latest" .EXE installer file from the releases folder in the project source
+
+## Version 2.0 release
+This version has some breaking changes that will need to be addressed. 
+Due to the relationship between the DocumentDB SDK nuget package (2.9.2) and the Cosmos Emulator the emulator will need to be updated. 
+This version of Cosmos Manager works with Cosmos Emulator version 2.7.1.0 or later. When upgrading emulators you will need to reseed the data. 
+To do this first export all existing collection data and then re-import it using the dt.exe tool. 
+This is needed due to the changes Cosmos Emulator has made to no longer support non-partitioned collections.
 
 # Code base
 
@@ -22,14 +29,13 @@ This is a C# application, requiring VS2017+
 ## Create a new Query Tab
 There are 3 ways to create a new query tab
 - From File select
+<img src="Content/CMNewQueryFile.png" >
 
-![](/Content/CMNewQueryFile.png)
 - From the File List View
+<img src="Content/CMNewQueryFileList.png" >
 
-![](/Content/CMNewQueryFileList.png)
 - From double clicking in the tabs bar
-
-![](/Content/CMNewQueryDoubleClickTabs.png)
+<img src="Content/CMNewQueryDoubleClickTabs.png" >
 
 
 ## Working with existing query files
@@ -84,3 +90,47 @@ In the output tab we can see all information related to the executed query. On s
 ## Transaction Cache
 The transaction cache is the storage location where rollback files are stored. The application never deletes from this folder so there is always a rollback 
 history available as a data safety precaution. As this folder grows with backup data for transactions it may need to be cleaned out or have the files archived somewhere.
+
+# Commandline Support (v2.0)
+Cosmos Manager now provides commandline support. This can be used to automate CosmosDB updates as part of a release or deployment cycle.
+One of the challenges with using Cosmos is the lack of automation and transaction ability when changing data within CosmosDB. By using this through the commandline you now have that control.
+
+### Options
+| Options| Description |
+| -----
+| --connections | The JSON file that contains all the CosmosDB connections information. |
+| --connectTo | he name of the connection to use to connect to CosmosDB. |
+| --script | The .CSQL script to execute. |
+| --folder | The folder that contains the .CSQL scripts to execute. |
+| --output | The .CResult file the query output is written to. |
+| --continueOnError | Flag to indicate whether to continue script executions on error.|
+| --ignorePrompts | Flag to indicate whether to continue without accepting user input on prompts. Used for executing data altering scripts without transactions. |
+| --includeDocumentInOutput | Flag to indicate whether to write the document results to the console and output file. |
+
+### Examples
+
+#### Get Help
+```CMD
+CosmosManager2019.exe exec --help
+```
+
+#### Run a single script
+```CMD
+CosmosManager2019.exe exec --connections "C:\TestScripts\connections.json" --connectTo "Local Cosmos" --script "C:\TestScripts\FindMyUserId.csql" --output "C:\TestScripts\output.cresult"
+```
+
+#### Run all scripts in a folder
+```CMD
+CosmosManager2019.exe exec --connections "C:\TestScripts\connections.json" --connectTo "Local Cosmos" --folder "C:\TestScripts\" --includeDocumentInOutput --output "C:\TestScripts\output.cresult"
+```
+
+### Output
+Currently text display output is the only option. It provides all the CossmmosDB metrics and execution summaries and results.
+
+#### Sample Execution Summary
+
+ <img src="Content/executionSummary.png" >
+
+#### Sample Execution Result
+
+ <img src="Content/executionResults.png" >

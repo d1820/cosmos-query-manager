@@ -8,7 +8,7 @@ namespace CosmosManager.Configurations
         public static int Create(string[] args,
                                      Container container)
         {
-            var app = new CommandLineApplication { Name = "cosmgr" };
+            var app = new CommandLineApplication { Name = "CosmosManager2019" };
             app.Description = "Execute commands for script management for CosmosDB";
             app.HelpOption("-?|-h|-H|--help");
             app.Command("exec", command => ExecConfiguration.ConfigureCommand(command, container));

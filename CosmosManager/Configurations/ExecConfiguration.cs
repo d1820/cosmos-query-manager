@@ -61,8 +61,7 @@ namespace CosmosManager.Configurations
 
             deployCommand.OnExecuteAsync(async (cancelToken) =>
            {
-               var presenter = container.GetInstance<ICommandlinePresenter>();
-               try
+               using (var presenter = container.GetInstance<ICommandlinePresenter>())
                {
                    //setup all the code here
                    var jsonString = File.ReadAllText(connectionsOption.Value());
@@ -112,10 +111,6 @@ namespace CosmosManager.Configurations
                        presenter.AddToQueryOutput("No scripts found to execute.");
                    }
                    return 0;
-               }
-               finally
-               {
-                   presenter.Dispose();
                }
            });
         }
