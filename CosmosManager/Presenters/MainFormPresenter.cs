@@ -1,6 +1,5 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using CosmosManager.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -18,7 +17,6 @@ namespace CosmosManager.Presenters
         private IMainForm _view;
         private string _rootDir;
 
-
         private List<Color> _colors = new List<Color>{
             Color.PaleGreen,
             Color.PaleTurquoise,
@@ -35,14 +33,16 @@ namespace CosmosManager.Presenters
         private Dictionary<string, Color> _tabColors = new Dictionary<string, Color>();
         private dynamic _context;
         private IPubSub _pubsub;
+        private readonly IPropertiesRepository _propertiesRepository;
 
         public List<Connection> Connections { get; private set; }
 
-        public MainFormPresenter()
+        public MainFormPresenter(IPropertiesRepository propertiesRepository)
         {
             statusTimer = new System.Timers.Timer();
             statusTimer.Elapsed += StatusTimer_Elapsed;
             statusTimer.Interval = 5000;
+            _propertiesRepository = propertiesRepository;
         }
 
         public void InitializePresenter(dynamic context)
@@ -165,6 +165,40 @@ namespace CosmosManager.Presenters
             Process.Start(AppReferences.TransactionCacheDataFolder);
         }
 
+        public void OpenApplicationPrompt()
+        {
+            var path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            var startInfo = new ProcessStartInfo
+            {
+                Arguments = $"cd {path}",
+                FileName = "cmd.exe"
+            };
+            Process.Start(startInfo);
+        }
+
+        public void RegisterApplicationWithEnvironment()
+        {
+            var path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            var pathvalue = Environment.GetEnvironmentVariable("path", EnvironmentVariableTarget.Machine);
+            // If necessary, create it.
+            if (pathvalue == null)
+            {
+                Environment.SetEnvironmentVariable("path", path, EnvironmentVariableTarget.Machine);
+                var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
+                presenter.AddToActionList("Application Path registered in Environment Variables");
+            }
+            else
+            {
+                if (!pathvalue.Contains(path))
+                {
+                    Environment.SetEnvironmentVariable("path", $"{pathvalue};{path}", EnvironmentVariableTarget.Machine);
+                    var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
+                    presenter.AddToActionList("Application Path registered in Environment Variables");
+                }
+            }
+            _view.SetStatusBarMessage("Application Path registered with command prompt");
+        }
+
         public void OpenInFileExporer(string path)
         {
             if (!string.IsNullOrEmpty(path))
@@ -206,7 +240,6 @@ namespace CosmosManager.Presenters
                 if (subSubDirs.Length != 0)
                 {
                     GetDirectories(subSubDirs, aNode);
-
                 }
                 var hasFiles = subDir.GetFiles("*.csql", SearchOption.TopDirectoryOnly).Any();
                 if (hasFiles)
@@ -251,9 +284,9 @@ namespace CosmosManager.Presenters
             Directory.CreateDirectory(AppReferences.AppDataFolder);
 
             var appPath = Path.Combine(folder, "CosmosManager/TransactionCache");
-            if (!string.IsNullOrEmpty(Properties.Settings.Default.TransactionCachePath))
+            if (!string.IsNullOrEmpty(_propertiesRepository.GetValue<string>(Constants.AppProperties.TransactionCachePath)))
             {
-                appPath = Properties.Settings.Default.TransactionCachePath;
+                appPath = _propertiesRepository.GetValue<string>(Constants.AppProperties.TransactionCachePath);
             }
             AppReferences.TransactionCacheDataFolder = appPath;
             Directory.CreateDirectory(AppReferences.TransactionCacheDataFolder);

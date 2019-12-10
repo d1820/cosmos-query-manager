@@ -1,6 +1,5 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using CosmosManager.Utilities;
 
 namespace CosmosManager.Presenters
 {
@@ -10,6 +9,12 @@ namespace CosmosManager.Presenters
         private IMainFormPresenter _mainFormPresenter;
         private dynamic _context;
         private IPubSub _pubsub;
+        private readonly IPropertiesRepository _propertiesRepository;
+
+        public PreferencesFormPresenter(IPropertiesRepository propertiesRepository)
+        {
+            _propertiesRepository = propertiesRepository;
+        }
 
         public void InitializePresenter(dynamic context)
         {
@@ -22,17 +27,17 @@ namespace CosmosManager.Presenters
 
         public void SavePreferences(AppPreferences preferences)
         {
-            if (!Properties.Settings.Default.TransactionCachePath.Equals(preferences.TransactionCacheLocation, System.StringComparison.InvariantCultureIgnoreCase))
+            if (!_propertiesRepository.GetValue<string>(Constants.AppProperties.TransactionCachePath).Equals(preferences.TransactionCacheLocation, System.StringComparison.InvariantCultureIgnoreCase))
             {
-                Properties.Settings.Default.TransactionCachePath = preferences.TransactionCacheLocation;
-                Properties.Settings.Default.Save();
+                _propertiesRepository.SetValue(Constants.AppProperties.TransactionCachePath, preferences.TransactionCacheLocation);
+                _propertiesRepository.Save();
                 _mainFormPresenter.InitializeTransactionCache();
             }
 
-            if (Properties.Settings.Default.UseDarkTheme != preferences.UseDarkTheme)
+            if (_propertiesRepository.GetValue<bool>(Constants.AppProperties.UseDarkTheme) != preferences.UseDarkTheme)
             {
-                Properties.Settings.Default.UseDarkTheme = preferences.UseDarkTheme;
-                Properties.Settings.Default.Save();
+                _propertiesRepository.SetValue(Constants.AppProperties.UseDarkTheme, preferences.UseDarkTheme);
+                _propertiesRepository.Save();
                 _pubsub.Publish(this, new PubSubEventArgs { Data = preferences.UseDarkTheme }, Constants.SubscriptionTypes.THEME_CHANGE);
                 _view.RenderTheme();
             }

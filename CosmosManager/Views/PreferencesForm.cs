@@ -10,7 +10,6 @@ namespace CosmosManager.Views
 {
     public partial class PreferencesForm : Form, IPreferencesForm
     {
-
         public IPreferencesFormPresenter Presenter { private get; set; }
         private System.Timers.Timer statusTimer;
         private PreferencesFormStyler _preferencesFormStyler;
@@ -23,7 +22,6 @@ namespace CosmosManager.Views
             statusTimer.Interval = 5000;
             _preferencesFormStyler = preferencesFormStyler;
             RenderTheme();
-
         }
 
         public void RenderTheme()

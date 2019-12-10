@@ -3,7 +3,6 @@ using CosmosManager.Domain;
 using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
 using CosmosManager.Stylers;
-using CosmosManager.Utilities;
 using CosmosManager.Views;
 using System;
 using System.Drawing;
@@ -19,21 +18,22 @@ namespace CosmosManager
         private MainFormStyler _mainFormStyler;
         private readonly IFormOpener _formManager;
         private readonly IPubSub _pubsub;
+        private readonly IPropertiesRepository _propertiesRepository;
 
         public IMainFormPresenter Presenter { private get; set; }
 
-        public MainForm(IFormOpener formManager, IMainFormPresenter presenter, MainFormStyler mainFormStyler, IPubSub pubsub)
+        public MainForm(IFormOpener formManager, IMainFormPresenter presenter, MainFormStyler mainFormStyler, IPubSub pubsub, IPropertiesRepository propertiesRepository)
         {
             InitializeComponent();
 
             _mainFormStyler = mainFormStyler;
             _pubsub = pubsub;
             RenderTheme();
-            if (Properties.Settings.Default.UpdateSettings)
+            if (propertiesRepository.GetValue<bool>(Constants.AppProperties.UpdateSettings))
             {
-                Properties.Settings.Default.Upgrade();
-                Properties.Settings.Default.UpdateSettings = false;
-                Properties.Settings.Default.Save();
+                propertiesRepository.Upgrade();
+                propertiesRepository.SetValue(Constants.AppProperties.UpdateSettings, false);
+                propertiesRepository.Save();
             }
 
             _formManager = formManager;
@@ -43,11 +43,13 @@ namespace CosmosManager
                 PubSub = _pubsub
             });
 
-            if (!string.IsNullOrEmpty(Properties.Settings.Default.SelectedPath))
+            var selectedPath = propertiesRepository.GetValue<string>(Constants.AppProperties.SelectedPath);
+            if (!string.IsNullOrEmpty(selectedPath))
             {
-                Presenter.PopulateTreeView(Properties.Settings.Default.SelectedPath);
+                Presenter.PopulateTreeView(selectedPath);
             }
 
+            _propertiesRepository = propertiesRepository;
 
         }
 
@@ -103,7 +105,6 @@ namespace CosmosManager
             {
                 //NO-OP
             }
-
         }
 
         public void UpdateNewQueryTabName(string newTabName)
@@ -149,8 +150,8 @@ namespace CosmosManager
             {
                 queryTabControl.TabPages.Clear();
                 Presenter.PopulateTreeView(folderBrowserDialog1.SelectedPath);
-                Properties.Settings.Default.SelectedPath = folderBrowserDialog1.SelectedPath;
-                Properties.Settings.Default.Save();
+                _propertiesRepository.SetValue(Constants.AppProperties.SelectedPath, folderBrowserDialog1.SelectedPath);
+                _propertiesRepository.Save();
             }
         }
 
@@ -411,7 +412,6 @@ namespace CosmosManager
             var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
             var result = _formManager.ShowModalForm<ActionLogForm>(form =>
            {
-
                presenter.InitializePresenter(new
                {
                    ActionLogForm = form,
@@ -449,6 +449,16 @@ namespace CosmosManager
                 });
                 presenter.InitializeForm();
             });
+        }
+
+        private void openCommandPromptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Presenter.OpenApplicationPrompt();
+        }
+
+        private void addToCommandWindowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Presenter.RegisterApplicationWithEnvironment();
         }
     }
 }

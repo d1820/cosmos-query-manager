@@ -8,8 +8,10 @@ namespace CosmosManager.Utilities
     public interface IHashProvider
     {
         uint Create(string data);
+
         uint Create<T>(IEnumerable<T> byteStream);
     }
+
     //https://stackoverflow.com/questions/8128/how-do-i-calculate-crc32-of-a-string
     public class Crc32HashProvider : IHashProvider
     {
@@ -47,6 +49,7 @@ namespace CosmosManager.Utilities
             var bytes = Encoding.ASCII.GetBytes(data);
             return Create(bytes);
         }
+
         /// <summary>
         /// Calculates the checksum of the byte stream.
         /// </summary>

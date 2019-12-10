@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace CosmosManager.Utilities
 {
-
     public sealed class PubSub : IPubSub
     {
         private readonly Dictionary<int, List<IReceiver>> messageIdToReceiver;
@@ -72,6 +71,4 @@ namespace CosmosManager.Utilities
             messageIdToReceiver.Clear();
         }
     }
-
-
 }

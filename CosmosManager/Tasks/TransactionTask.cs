@@ -13,15 +13,20 @@ namespace CosmosManager.Tasks
 {
     public class TransactionTask : ITransactionTask
     {
+        private readonly ITextWriterFactory _textWriter;
 
+        public TransactionTask(ITextWriterFactory textWriter)
+        {
+            _textWriter = textWriter;
+        }
         public async Task<bool> BackuQueryAsync(string connectionName, string databaseName, string collectionName, string transactionId, string query)
         {
             var formattedConnectionName = Regex.Replace(connectionName, @"(\s)", "_", RegexOptions.Compiled);
             var cacheFileName = new FileInfo($"{AppReferences.TransactionCacheDataFolder}/{formattedConnectionName}/{databaseName}/{collectionName}/{transactionId}/query.csql");
             Directory.CreateDirectory(cacheFileName.Directory.FullName);
-            using (var sw = new StreamWriter(cacheFileName.FullName))
+            using (var writer = _textWriter.Create(cacheFileName.FullName))
             {
-                await sw.WriteAsync(query);
+                await writer.WriteAsync(query);
             }
             return true;
         }
@@ -70,9 +75,9 @@ namespace CosmosManager.Tasks
                     }
                 }
                 Directory.CreateDirectory(cacheFileName.Directory.FullName);
-                using (var sw = new StreamWriter(cacheFileName.FullName))
+                using (var writer = _textWriter.Create(cacheFileName.FullName))
                 {
-                    await sw.WriteAsync(JsonConvert.SerializeObject(cosmosDocument));
+                    await writer.WriteAsync(JsonConvert.SerializeObject(cosmosDocument));
                 }
                 return (true, cosmosDocument);
             }

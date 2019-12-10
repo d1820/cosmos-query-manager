@@ -21,6 +21,7 @@ namespace CosmosManager.Parsers
             CurrentMatchCount = CurrentMatches.Count;
             return jsonRegex.Replace(tokenQuery, TOKEN);
         }
+
         public string DetokenizeComments(string query)
         {
             var tokenQuery = query;

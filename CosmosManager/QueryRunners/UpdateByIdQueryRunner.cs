@@ -188,7 +188,5 @@ namespace CosmosManager.QueryRunners
                 return (false, null);
             }
         }
-
-
     }
 }

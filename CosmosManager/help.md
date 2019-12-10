@@ -341,4 +341,4 @@ AND (li.EffectiveDate >= '2019-07-01T00:00:00' AND li.EffectiveDate < '2019-07-0
 
 ## Supported Applications
 
-Cosmos Emulator Min Required Version 2.1.2. This requirement is due to the coupling of DocumentDB Nuget packages to the emulator installed locally. If you do not use the emulator this is not a requirement of using the application.
+Cosmos Emulator Min Required Version 2.7.1.0. This requirement is due to the coupling of DocumentDB Nuget packages to the emulator installed locally. If you do not use the emulator this is not a requirement of using the application.

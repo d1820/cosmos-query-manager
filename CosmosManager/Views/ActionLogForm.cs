@@ -35,7 +35,5 @@ namespace CosmosManager.Views
         {
             Close();
         }
-
-
     }
 }

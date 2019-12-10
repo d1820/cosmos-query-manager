@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace CosmosManager.Domain
 {
@@ -181,7 +180,5 @@ namespace CosmosManager.Domain
 
             return baseString.Replace(Constants.NEWLINE, " ");
         }
-
-
     }
 }

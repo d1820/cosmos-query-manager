@@ -23,8 +23,8 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>26</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <ApplicationRevision>5</ApplicationRevision>
+    <ApplicationVersion>2.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -109,6 +109,9 @@
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -123,28 +126,39 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configurations\CosmosManagerConfiguration.cs" />
     <Compile Include="Decorators\QueryResultMetricDecorator.cs" />
     <Compile Include="Decorators\QueryResultTotalCostDecorator.cs" />
     <Compile Include="Domain\AppPreferences.cs" />
+    <Compile Include="Domain\CommandlineOptions.cs" />
     <Compile Include="Domain\Connection.cs" />
     <Compile Include="Domain\Constants.cs" />
+    <Compile Include="Domain\DocumentDetail.cs" />
     <Compile Include="Domain\DocumentQueryParameter.cs" />
     <Compile Include="Domain\DocumentResult.cs" />
+    <Compile Include="Domain\OutputDetailRecord.cs" />
+    <Compile Include="Domain\OutputSummaryRecord.cs" />
+    <Compile Include="Domain\OutputTraceInformation.cs" />
     <Compile Include="Domain\PubSubEventArgs.cs" />
     <Compile Include="Domain\QueryOptions.cs" />
     <Compile Include="Domain\RequestOptions.cs" />
     <Compile Include="Domain\QueryOuputLogger.cs" />
     <Compile Include="Exceptions\DataStoreException.cs" />
     <Compile Include="Exceptions\DocumentUpdateException.cs" />
+    <Compile Include="Configurations\ExecConfiguration.cs" />
     <Compile Include="Extensions\ControlExtensions.cs" />
     <Compile Include="Extensions\DocumentDBExtensions.cs" />
     <Compile Include="Extensions\DocumentExtensions.cs" />
     <Compile Include="Extensions\JObjectExtenstions.cs" />
+    <Compile Include="Extensions\JPropertyExtensions.cs" />
     <Compile Include="Extensions\JTokenExtensions.cs" />
     <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Extensions\OptionExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Interfaces\IConnectedPresenter.cs" />
+    <Compile Include="Interfaces\IConsoleLogger.cs" />
     <Compile Include="Interfaces\ICosmosDocument.cs" />
+    <Compile Include="Interfaces\IDisplayPresenter.cs" />
     <Compile Include="Interfaces\IFormOpener.cs" />
     <Compile Include="Interfaces\IMainForm.cs" />
     <Compile Include="Interfaces\IPreferencesForm.cs" />
@@ -154,15 +168,26 @@
     <Compile Include="Domain\AppReferences.cs" />
     <Compile Include="Interfaces\IQueryParser.cs" />
     <Compile Include="Interfaces\IQueryStatementParser.cs" />
-    <Compile Include="Interfaces\IQueryWindowPresenterLogger.cs" />
+    <Compile Include="Interfaces\IQueryPresenterLogger.cs" />
     <Compile Include="Managers\ClientConnectionManager.cs" />
     <Compile Include="Managers\FormManager.cs" />
     <Compile Include="Interfaces\IClientConnectionManager.cs" />
     <Compile Include="Builders\RegExBuilder.cs" />
+    <Compile Include="Managers\IQueryManager.cs" />
+    <Compile Include="Managers\QueryManager.cs" />
     <Compile Include="Parsers\CommentTokenizer.cs" />
+    <Compile Include="Interfaces\ICommandlinePresenter.cs" />
+    <Compile Include="Presenters\BaseQueryPresenter.cs" />
+    <Compile Include="Presenters\CommandlinePresenter.cs" />
     <Compile Include="Presenters\PreferencesFormPresenter.cs" />
+    <Compile Include="Interfaces\IPropertiesRepository.cs" />
+    <Compile Include="Repositories\PropertiesRepository.cs" />
     <Compile Include="Stylers\ActionLogFormStyler.cs" />
     <Compile Include="Stylers\PreferencesFormStyler.cs" />
+    <Compile Include="Interfaces\ITextWriter.cs" />
+    <Compile Include="Interfaces\ITextWriterFactory.cs" />
+    <Compile Include="Utilities\TextWriter.cs" />
+    <Compile Include="Utilities\ConsoleHelper.cs" />
     <Compile Include="Utilities\FixedLimitDictionary.cs" />
     <Compile Include="Parsers\JsonTokenizer.cs" />
     <Compile Include="Parsers\StringQueryParser.cs" />
@@ -324,16 +349,22 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autoupdater.NET.Official">
-      <Version>1.5.3</Version>
+      <Version>1.5.8</Version>
+    </PackageReference>
+    <PackageReference Include="ConsoleTables">
+      <Version>2.3.0</Version>
     </PackageReference>
     <PackageReference Include="jacobslusser.ScintillaNET">
       <Version>3.6.3</Version>
     </PackageReference>
     <PackageReference Include="Markdig">
-      <Version>0.17.1</Version>
+      <Version>0.18.0</Version>
+    </PackageReference>
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils">
+      <Version>2.4.4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Azure.DocumentDB">
-      <Version>2.2.0</Version>
+      <Version>2.9.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions">
       <Version>2.2.0</Version>
@@ -361,84 +392,74 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <PublishFile Include="Microsoft.Azure.Documents.Client">
-      <Visible>False</Visible>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
-      <Group>
-      </Group>
-      <TargetPath>
-      </TargetPath>
-      <FileType>Assembly</FileType>
-    </PublishFile>
     <PublishFile Include="Microsoft.Win32.Primitives">
       <Visible>False</Visible>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
     <PublishFile Include="netfx.force.conflicts">
       <Visible>False</Visible>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
     <PublishFile Include="netstandard">
       <Visible>False</Visible>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
     <PublishFile Include="Newtonsoft.Json">
       <Visible>False</Visible>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
     <PublishFile Include="System.Net.Http">
       <Visible>False</Visible>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
     <PublishFile Include="System.Threading.Tasks.Dataflow">
       <Visible>False</Visible>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
     <PublishFile Include="System.Threading.Tasks.Parallel">
       <Visible>False</Visible>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
   </ItemGroup>

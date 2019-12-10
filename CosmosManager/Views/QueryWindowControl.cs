@@ -36,7 +36,6 @@ namespace CosmosManager
 
             //look for a connections string file
             selectConnections.Items.Add("Load Connection File");
-
         }
 
         public void RenderTheme()
@@ -172,6 +171,7 @@ namespace CosmosManager
             }
             var textPartitionKeyPath = await Presenter.LookupPartitionKeyPath(query.CollectionName);
             var groupName = "Query 1";
+            var headers = Presenter.LookupResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
             if (appendResults)
             {
                 resultListView.Groups.Add(new ListViewGroup
@@ -184,13 +184,11 @@ namespace CosmosManager
                 if (resultListView.Groups.Count == 1)
                 {
                     //first group set headers
-                    var headers = SetResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
                     resultListView.Columns[1].Text = headers.header1;
                     resultListView.Columns[2].Text = headers.header2;
                 }
                 else
                 {
-                    var headers = SetResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
                     //if the next query has a different select, then clear column headers
                     if (resultListView.Columns[1].Text != headers.header1)
                     {
@@ -204,7 +202,6 @@ namespace CosmosManager
             }
             else
             {
-                var headers = SetResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
                 resultListView.Columns[1].Text = headers.header1;
                 resultListView.Columns[2].Text = headers.header2;
             }
@@ -225,52 +222,22 @@ namespace CosmosManager
                 listItem.Tag = new DocumentResult { Document = fromObject, CollectionName = collectionName, Query = query, GroupName = groupName };
                 JProperty col1Prop = null;
                 JToken col1Token = null;
+
+                var columnText = fromObject.Properties().ParseColumnText(textPartitionKeyPath);
+
                 var resultProps = fromObject.Properties();
                 var subItem = new ListViewSubItem
                 {
-                    Text = string.Empty
+                    Text = columnText.col1RowText
                 };
-
-                if (resultProps.Count() > 0)
-                {
-                    col1Prop = resultProps.FirstOrDefault(f => f.Name == Constants.DocumentFields.ID);
-                    if (col1Prop == null)
-                    {
-                        col1Prop = resultProps.FirstOrDefault();
-                    }
-                    col1Token = col1Prop?.Value;
-                    if (col1Token != null)
-                    {
-                        subItem.Text = col1Token.Type.IsPrimitiveType() ? col1Token?.ToStringValue() : col1Token?.GetObjectValue(Constants.DocumentFields.ID);
-                    }
-                }
                 listItem.SubItems.Add(subItem);
 
                 if (resultProps.Count() > 1)
                 {
                     subItem = new ListViewSubItem
                     {
-                        Text = string.Empty
+                        Text = columnText.col2RowText
                     };
-                    JProperty col2Prop = null;
-                    JToken col2Token = null;
-
-                    col2Prop = resultProps.FirstOrDefault(f => f.Name == textPartitionKeyPath);
-                    if (col2Prop == null)
-                    {
-                        var prop = resultProps.FirstOrDefault(f => f != col1Prop);
-                        if (prop != null)
-                        {
-                            col2Prop = prop;
-
-                        }
-                    }
-                    col2Token = col2Prop?.Value;
-                    if (col2Token != null)
-                    {
-                        subItem.Text = col2Token.Type.IsPrimitiveType() ? col2Token?.ToStringValue() : col2Token?.GetObjectValue("");
-                    }
-
                     if (!string.IsNullOrEmpty(subItem.Text))
                     {
                         listItem.SubItems.Add(subItem);
@@ -286,41 +253,6 @@ namespace CosmosManager
         private void SetResultCountLabel()
         {
             resultCountTextbox.Text = $"{_totalDocumentCount} Documents";
-        }
-
-        private (string header1, string header2) SetResultListViewHeaders(object item, string textPartitionKeyPath)
-        {
-            if (item == null)
-            {
-                return (null, null);
-            }
-            var fromObject = JObject.FromObject(item);
-
-            JProperty col1Prop = null;
-            var resultProps = fromObject.Properties();
-            col1Prop = resultProps.FirstOrDefault(f => f.Name == Constants.DocumentFields.ID);
-            if (col1Prop == null)
-            {
-                col1Prop = resultProps.FirstOrDefault();
-            }
-
-            JProperty col2Prop = null;
-            if (resultProps.Count() > 1)
-            {
-
-                col2Prop = resultProps.FirstOrDefault(f => f.Name == textPartitionKeyPath);
-                if (col2Prop == null)
-                {
-                    var prop = resultProps.FirstOrDefault(f => f != col1Prop);
-                    if (prop != null)
-                    {
-                        col2Prop = prop;
-
-                    }
-                }
-
-            }
-            return (col1Prop?.Name, col2Prop?.Name);
         }
 
         private async void exportRecordToolStripMenuItem_Click(object sender, EventArgs e)
@@ -398,7 +330,6 @@ namespace CosmosManager
             {
                 ShowMessage($"The id column must be part of the select output in {string.Join(", ", groupNamesNotSupported)} to use this feature.", "Action Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
-
         }
 
         private async void saveQueryButton_Click(object sender, EventArgs e)
@@ -499,7 +430,6 @@ namespace CosmosManager
         {
             if (e.ColumnIndex == 0)
             {
-
                 var cck = new CheckBox();
                 // With...
                 Text = "";
@@ -627,7 +557,6 @@ namespace CosmosManager
             SendKeys.Send(keys);
             //HotKeyManager.Enable = true;
         }
-
 
         private void lowercaseTextButton_Click(object sender, EventArgs e)
         {

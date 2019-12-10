@@ -12,6 +12,7 @@ namespace CosmosManager.Stylers
             {
                 case ThemeType.Dark:
                     return new SolidBrush(Color.FromArgb(51, 51, 51));
+
                 case ThemeType.Light:
                     return new SolidBrush(Color.FromArgb(236, 236, 236));
             }
@@ -39,7 +40,5 @@ namespace CosmosManager.Stylers
                     break;
             }
         }
-
-
     }
 }

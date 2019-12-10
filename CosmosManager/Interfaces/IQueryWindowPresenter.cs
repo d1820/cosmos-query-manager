@@ -1,5 +1,4 @@
 ﻿using CosmosManager.Domain;
-using CosmosManager.Utilities;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -7,19 +6,14 @@ using System.Threading.Tasks;
 
 namespace CosmosManager.Interfaces
 {
-
-    public interface IQueryWindowPresenter : IPresenter, IReceiver<PubSubEventArgs>
+    public interface IQueryWindowPresenter : IDisplayPresenter, IConnectedPresenter, IReceiver<PubSubEventArgs>
     {
         FileInfo CurrentFileInfo { get; }
         string CurrentTabQuery { get; }
-        Connection SelectedConnection { get; set; }
+
         int TabIndexReference { get; }
 
-        void AddToQueryOutput(string message);
-
-        string Beautify(string data);
-
-        string BeautifyQuery(string query);
+        Task RunAsync();
 
         Task<bool> DeleteDocumentAsync(DocumentResult documentResult);
 
@@ -27,13 +21,7 @@ namespace CosmosManager.Interfaces
 
         Task ExportDocumentAsync(string fileName);
 
-        Task<string> LookupPartitionKeyPath(string collectionName);
-
-        void RenderResults(IReadOnlyCollection<object> results, string collectionName, QueryParts query, bool appendResults, int queryStatementIndex);
-
         void ResetQueryOutput();
-
-        Task RunAsync();
 
         void StopQuery();
 
@@ -43,13 +31,10 @@ namespace CosmosManager.Interfaces
 
         Task SaveTempQueryAsync(string fileName);
 
-        void SetConnections(List<Connection> connections);
-
         void SetFile(FileInfo fileInfo);
 
         void SetTempQuery(string query);
 
         void ShowOutputTab();
-
     }
 }

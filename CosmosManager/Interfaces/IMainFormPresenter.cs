@@ -1,5 +1,4 @@
 ﻿using CosmosManager.Domain;
-using CosmosManager.Utilities;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -38,5 +37,9 @@ namespace CosmosManager.Interfaces
         void UpdateTransactionFolderSize();
 
         void InitializeTransactionCache();
+
+        void OpenApplicationPrompt();
+
+        void RegisterApplicationWithEnvironment();
     }
 }
