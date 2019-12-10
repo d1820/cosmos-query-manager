@@ -50,6 +50,7 @@ namespace CosmosManager
             }
 
             _propertiesRepository = propertiesRepository;
+
         }
 
         protected override void WndProc(ref Message m)
@@ -448,6 +449,16 @@ namespace CosmosManager
                 });
                 presenter.InitializeForm();
             });
+        }
+
+        private void openCommandPromptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Presenter.OpenApplicationPrompt();
+        }
+
+        private void addToCommandWindowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Presenter.RegisterApplicationWithEnvironment();
         }
     }
 }

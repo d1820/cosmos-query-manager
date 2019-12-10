@@ -43,6 +43,7 @@
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewTransactionCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewPreviousActionsLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openCommandPromptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -71,6 +72,7 @@
             this.duplicateTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.addToCommandWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -154,6 +156,8 @@
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.viewTransactionCacheToolStripMenuItem,
             this.viewPreviousActionsLogToolStripMenuItem,
+            this.addToCommandWindowToolStripMenuItem,
+            this.openCommandPromptToolStripMenuItem,
             this.toolStripSeparator1,
             this.preferencesToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
@@ -173,6 +177,13 @@
             this.viewPreviousActionsLogToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
             this.viewPreviousActionsLogToolStripMenuItem.Text = "View Previous Actions Log";
             this.viewPreviousActionsLogToolStripMenuItem.Click += new System.EventHandler(this.viewPreviousActionsLogToolStripMenuItem_Click);
+            // 
+            // openCommandPromptToolStripMenuItem
+            // 
+            this.openCommandPromptToolStripMenuItem.Name = "openCommandPromptToolStripMenuItem";
+            this.openCommandPromptToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.openCommandPromptToolStripMenuItem.Text = "Open Application Prompt";
+            this.openCommandPromptToolStripMenuItem.Click += new System.EventHandler(this.openCommandPromptToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
@@ -416,6 +427,13 @@
             this.fileSystemWatcher1.Created += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Created);
             this.fileSystemWatcher1.Deleted += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Deleted);
             // 
+            // addToCommandWindowToolStripMenuItem
+            // 
+            this.addToCommandWindowToolStripMenuItem.Name = "addToCommandWindowToolStripMenuItem";
+            this.addToCommandWindowToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
+            this.addToCommandWindowToolStripMenuItem.Text = "Add To Command Window";
+            this.addToCommandWindowToolStripMenuItem.Click += new System.EventHandler(this.addToCommandWindowToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -489,6 +507,8 @@
         private System.Windows.Forms.ToolStripStatusLabel lblCnnectionFile;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem checkForUpdatesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openCommandPromptToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addToCommandWindowToolStripMenuItem;
     }
 }
 

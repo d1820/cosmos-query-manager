@@ -165,6 +165,40 @@ namespace CosmosManager.Presenters
             Process.Start(AppReferences.TransactionCacheDataFolder);
         }
 
+        public void OpenApplicationPrompt()
+        {
+            var path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            var startInfo = new ProcessStartInfo
+            {
+                Arguments = $"cd {path}",
+                FileName = "cmd.exe"
+            };
+            Process.Start(startInfo);
+        }
+
+        public void RegisterApplicationWithEnvironment()
+        {
+            var path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            var pathvalue = Environment.GetEnvironmentVariable("path", EnvironmentVariableTarget.Machine);
+            // If necessary, create it.
+            if (pathvalue == null)
+            {
+                Environment.SetEnvironmentVariable("path", path, EnvironmentVariableTarget.Machine);
+                var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
+                presenter.AddToActionList("Application Path registered in Environment Variables");
+            }
+            else
+            {
+                if (!pathvalue.Contains(path))
+                {
+                    Environment.SetEnvironmentVariable("path", $"{pathvalue};{path}", EnvironmentVariableTarget.Machine);
+                    var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
+                    presenter.AddToActionList("Application Path registered in Environment Variables");
+                }
+            }
+            _view.SetStatusBarMessage("Application Path registered with command prompt");
+        }
+
         public void OpenInFileExporer(string path)
         {
             if (!string.IsNullOrEmpty(path))

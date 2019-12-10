@@ -37,5 +37,9 @@ namespace CosmosManager.Interfaces
         void UpdateTransactionFolderSize();
 
         void InitializeTransactionCache();
+
+        void OpenApplicationPrompt();
+
+        void RegisterApplicationWithEnvironment();
     }
 }
