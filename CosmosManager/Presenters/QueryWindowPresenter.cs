@@ -1,9 +1,7 @@
-﻿using ConsoleTables;
-using CosmosManager.Domain;
+﻿using CosmosManager.Domain;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
 using CosmosManager.Managers;
-using CosmosManager.Parsers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -11,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,18 +32,21 @@ namespace CosmosManager.Presenters
         private IPubSub _pubsub;
 
         private CancellationTokenSource _source;
+        private readonly ITextWriter _textWriter;
 
         public QueryWindowPresenter(IClientConnectionManager clientConnectionManager,
                                     IQueryStatementParser queryStatementParser,
                                     IQueryPresenterLogger logger,
                                     IEnumerable<IQueryRunner> queryRunners,
-                                    IQueryManager queryManager) : base(queryStatementParser)
+                                    IQueryManager queryManager,
+                                    ITextWriter textWriter) : base(queryStatementParser)
         {
             _logger = logger;
             _logger.SetPresenter(this);
             _queryRunners = queryRunners;
             _clientConnectionManager = clientConnectionManager;
             _queryManager = queryManager;
+            _textWriter = textWriter;
         }
 
         public override void InitializePresenter(dynamic context)
@@ -260,18 +260,18 @@ namespace CosmosManager.Presenters
 
         public async Task SaveQueryAsync()
         {
-            using (var sw = new StreamWriter(CurrentFileInfo.FullName))
+            using (var writer = _textWriter.Open(CurrentFileInfo.FullName))
             {
-                await sw.WriteAsync(_view.Query);
+                await writer.WriteAsync(_view.Query);
             }
             _view.SetStatusBarMessage($"{CurrentFileInfo.Name} Saved");
         }
 
         public async Task SaveTempQueryAsync(string fileName)
         {
-            using (var sw = new StreamWriter(fileName))
+            using (var writer = _textWriter.Open(fileName))
             {
-                await sw.WriteAsync(_view.Query);
+                await writer.WriteAsync(_view.Query);
             }
             _view.SetStatusBarMessage($"{fileName} Saved");
         }
@@ -279,9 +279,9 @@ namespace CosmosManager.Presenters
         public async Task ExportDocumentAsync(string fileName)
         {
             _view.SetStatusBarMessage("Exporting Document...");
-            using (var sw = new StreamWriter(fileName))
+            using (var writer = _textWriter.Open(fileName))
             {
-                await sw.WriteAsync(_view.DocumentText);
+                await writer.WriteAsync(_view.DocumentText);
             }
             _view.SetStatusBarMessage($"{fileName} Exported");
         }
@@ -290,9 +290,9 @@ namespace CosmosManager.Presenters
         {
             _view.SetStatusBarMessage("Exporting documents...");
 
-            using (var sw = new StreamWriter(fileName))
+            using (var writer = _textWriter.Open(fileName))
             {
-                await sw.WriteAsync(JsonConvert.SerializeObject(documents, Formatting.Indented));
+                await writer.WriteAsync(JsonConvert.SerializeObject(documents, Formatting.Indented));
             }
 
             _view.SetStatusBarMessage($"{fileName} Exported");

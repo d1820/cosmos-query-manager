@@ -1,4 +1,5 @@
-﻿using SimpleInjector;
+﻿using CosmosManager.Interfaces;
+using SimpleInjector;
 
 namespace CosmosManager.Domain
 {
@@ -12,7 +13,8 @@ namespace CosmosManager.Domain
         {
             get
             {
-                return Properties.Settings.Default.UseDarkTheme ? ThemeType.Dark : ThemeType.Light;
+                var repo = Container.GetInstance<IPropertiesRepository>();
+                return repo.GetValue<bool>(Constants.AppProperties.UseDarkTheme) ? ThemeType.Dark : ThemeType.Light;
             }
         }
     }

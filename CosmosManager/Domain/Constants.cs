@@ -7,6 +7,14 @@ namespace CosmosManager.Domain
         public const string NEWLINE = "\n";
         public const char NEWLINE_CHAR = '\n';
 
+        public static class AppProperties
+        {
+            public const string TransactionCachePath = "TransactionCachePath";
+            public const string UseDarkTheme = "UseDarkTheme";
+            public const string UpdateSettings = "UpdateSettings";
+            public const string SelectedPath = "SelectedPath";
+        }
+
         public static class EventId
         {
             public const int COSMOSDB = 99;

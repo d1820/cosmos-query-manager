@@ -18,6 +18,6 @@ rem xcopy /s /y ".\CosmosManager\bin\Release\app.publish\*" ".\CosmosManager\pub
 rem del /f ".\CosmosManager\publish\CosmosManager2019.exe"
 
 echo Creating Installer
-"C:\Program Files\7-Zip\7z.exe" a -sfx7z.sfx ".\Releases\CosmosManagerInstaller-%version%.exe" ".\CosmosManager\publish\*"
+"C:\Program Files\7-Zip\7z.exe" a -sfx7z.sfx ".\Releases\v2.0\CosmosManagerInstaller-%version%.exe" ".\CosmosManager\publish\*"
 
 

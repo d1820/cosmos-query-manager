@@ -4,6 +4,7 @@ using CosmosManager.Interfaces;
 using CosmosManager.Managers;
 using CosmosManager.Parsers;
 using CosmosManager.Presenters;
+using CosmosManager.Repositories;
 using CosmosManager.Stylers;
 using CosmosManager.Tasks;
 using CosmosManager.Utilities;
@@ -106,8 +107,11 @@ namespace CosmosManager
             container.Register<IJsonStyler, JsonDocumentStyler>(Lifestyle.Transient);
             container.Register<ITransactionTask, TransactionTask>();
             container.Register<IVariableInjectionTask, VariableInjectionTask>();
+            container.Register<ITextWriter, TextWriter>();
 
             container.RegisterSingleton<IClientConnectionManager, ClientConnectionManager>();
+
+
 
             if (bootCommandLine)
             {
@@ -118,6 +122,7 @@ namespace CosmosManager
             }
             else
             {
+                container.RegisterSingleton<IPropertiesRepository, PropertiesRepository>();
                 container.RegisterSingleton<IPubSub, PubSub>();
                 container.Register<IQueryWindowPresenter, QueryWindowPresenter>();
                 container.RegisterSingleton<IMainFormPresenter, MainFormPresenter>();
@@ -150,7 +155,13 @@ namespace CosmosManager
                 typeof(AboutCosmosManager),
                 typeof(NewFileForm)
                 }, container, "Forms Controlled By Manager");
+
+
             }
+
+            SuppressRegistrations(new List<Type> {
+                typeof(TextWriter)
+                }, container, "Transients Managed");
 
             // Optionally verify the container.
             if (Debugger.IsAttached)

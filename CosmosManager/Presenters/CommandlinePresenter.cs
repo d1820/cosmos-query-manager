@@ -21,18 +21,20 @@ namespace CosmosManager.Presenters
         private List<Connection> _currentConnections;
         private IQueryPresenterLogger _logger;
         private CommandlineOptions _options;
-        private StreamWriter _sw;
+        private ITextWriter _sw;
         private readonly IEnumerable<IQueryRunner> _queryRunners = new List<IQueryRunner>();
         private int _groupCount;
         private OutputTraceInformation _outputTraceInformation;
         private readonly IConsoleLogger _console;
+        private readonly ITextWriter _textWriter;
 
         public CommandlinePresenter(IClientConnectionManager clientConnectionManager,
                                     IQueryStatementParser queryStatementParser,
                                     IQueryPresenterLogger logger,
                                     IEnumerable<IQueryRunner> queryRunners,
                                     IQueryManager queryManager,
-                                    IConsoleLogger console) : base(queryStatementParser)
+                                    IConsoleLogger console,
+                                    ITextWriter textWriter) : base(queryStatementParser)
         {
             _logger = logger;
             _logger.SetPresenter(this);
@@ -40,6 +42,7 @@ namespace CosmosManager.Presenters
             _clientConnectionManager = clientConnectionManager;
             _queryManager = queryManager;
             _console = console;
+            _textWriter = textWriter;
         }
 
         public override void AddToQueryOutput(string message, bool includeTrailingLine = true)
@@ -58,7 +61,7 @@ namespace CosmosManager.Presenters
             _options = context.Options;
             if (_options.WriteToOutput)
             {
-                _sw = new StreamWriter(_options.OutputPath, true);
+                _textWriter.Open(_options.OutputPath, true);
             }
         }
 
@@ -237,11 +240,7 @@ namespace CosmosManager.Presenters
 
         public void Dispose()
         {
-            if (_sw != null && _sw.BaseStream != null)
-            {
-                _sw.Flush();
-                _sw.Close();
-            }
+            _textWriter.Close();
         }
 
         private Task WriteResults()
@@ -286,9 +285,9 @@ namespace CosmosManager.Presenters
 
         private void AddToOutputStream(string message, bool includeTrailingLine = true)
         {
-            if (_sw != null)
+            if (_textWriter != null)
             {
-                _sw.WriteLine(message + (includeTrailingLine ? Environment.NewLine : string.Empty));
+                _textWriter.WriteLine(message + (includeTrailingLine ? Environment.NewLine : string.Empty));
             }
         }
 

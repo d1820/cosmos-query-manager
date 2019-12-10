@@ -33,14 +33,16 @@ namespace CosmosManager.Presenters
         private Dictionary<string, Color> _tabColors = new Dictionary<string, Color>();
         private dynamic _context;
         private IPubSub _pubsub;
+        private readonly IPropertiesRepository _propertiesRepository;
 
         public List<Connection> Connections { get; private set; }
 
-        public MainFormPresenter()
+        public MainFormPresenter(IPropertiesRepository propertiesRepository)
         {
             statusTimer = new System.Timers.Timer();
             statusTimer.Elapsed += StatusTimer_Elapsed;
             statusTimer.Interval = 5000;
+            _propertiesRepository = propertiesRepository;
         }
 
         public void InitializePresenter(dynamic context)
@@ -248,9 +250,9 @@ namespace CosmosManager.Presenters
             Directory.CreateDirectory(AppReferences.AppDataFolder);
 
             var appPath = Path.Combine(folder, "CosmosManager/TransactionCache");
-            if (!string.IsNullOrEmpty(Properties.Settings.Default.TransactionCachePath))
+            if (!string.IsNullOrEmpty(_propertiesRepository.GetValue<string>(Constants.AppProperties.TransactionCachePath)))
             {
-                appPath = Properties.Settings.Default.TransactionCachePath;
+                appPath = _propertiesRepository.GetValue<string>(Constants.AppProperties.TransactionCachePath);
             }
             AppReferences.TransactionCacheDataFolder = appPath;
             Directory.CreateDirectory(AppReferences.TransactionCacheDataFolder);

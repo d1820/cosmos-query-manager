@@ -23,7 +23,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>26</ApplicationRevision>
+    <ApplicationRevision>27</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -180,8 +180,12 @@
     <Compile Include="Presenters\BaseQueryPresenter.cs" />
     <Compile Include="Presenters\CommandlinePresenter.cs" />
     <Compile Include="Presenters\PreferencesFormPresenter.cs" />
+    <Compile Include="Interfaces\IPropertiesRepository.cs" />
+    <Compile Include="Repositories\PropertiesRepository.cs" />
     <Compile Include="Stylers\ActionLogFormStyler.cs" />
     <Compile Include="Stylers\PreferencesFormStyler.cs" />
+    <Compile Include="Interfaces\ITextWriter.cs" />
+    <Compile Include="Utilities\TextWriter.cs" />
     <Compile Include="Utilities\ConsoleHelper.cs" />
     <Compile Include="Utilities\FixedLimitDictionary.cs" />
     <Compile Include="Parsers\JsonTokenizer.cs" />
