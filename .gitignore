@@ -253,3 +253,7 @@ paket-files/
 ./publish
 /Releases/test
 /Releases/v2.0/test
+/CosmosManager/log.txt
+/CosmosManager.backup
+/CosmosManager.Tests.Unit.backup
+/CosmosManager.Tests.Unit/log.txt

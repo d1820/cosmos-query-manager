@@ -1,16 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9F9A2550-C280-49E1-B953-53AAA624FED6}</ProjectGuid>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>CosmosManager</RootNamespace>
     <AssemblyName>CosmosManager2019</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -28,68 +20,29 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>CosmosQueryEditorNew.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NET47</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>FC4EC936457DDEB4AFA0A2D639F0D80ADFE226BB</ManifestCertificateThumbprint>
@@ -113,271 +66,51 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Configurations\CosmosManagerConfiguration.cs" />
-    <Compile Include="Decorators\QueryResultMetricDecorator.cs" />
-    <Compile Include="Decorators\QueryResultTotalCostDecorator.cs" />
-    <Compile Include="Domain\AppPreferences.cs" />
-    <Compile Include="Domain\CommandlineOptions.cs" />
-    <Compile Include="Domain\Connection.cs" />
-    <Compile Include="Domain\Constants.cs" />
-    <Compile Include="Domain\DocumentDetail.cs" />
-    <Compile Include="Domain\DocumentQueryParameter.cs" />
-    <Compile Include="Domain\DocumentResult.cs" />
-    <Compile Include="Domain\OutputDetailRecord.cs" />
-    <Compile Include="Domain\OutputSummaryRecord.cs" />
-    <Compile Include="Domain\OutputTraceInformation.cs" />
-    <Compile Include="Domain\PubSubEventArgs.cs" />
-    <Compile Include="Domain\QueryOptions.cs" />
-    <Compile Include="Domain\RequestOptions.cs" />
-    <Compile Include="Domain\QueryOuputLogger.cs" />
-    <Compile Include="Exceptions\DataStoreException.cs" />
-    <Compile Include="Exceptions\DocumentUpdateException.cs" />
-    <Compile Include="Configurations\ExecConfiguration.cs" />
-    <Compile Include="Extensions\ControlExtensions.cs" />
-    <Compile Include="Extensions\DocumentDBExtensions.cs" />
-    <Compile Include="Extensions\DocumentExtensions.cs" />
-    <Compile Include="Extensions\JObjectExtenstions.cs" />
-    <Compile Include="Extensions\JPropertyExtensions.cs" />
-    <Compile Include="Extensions\JTokenExtensions.cs" />
-    <Compile Include="Extensions\LoggerExtensions.cs" />
-    <Compile Include="Extensions\OptionExtensions.cs" />
-    <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Interfaces\IConnectedPresenter.cs" />
-    <Compile Include="Interfaces\IConsoleLogger.cs" />
-    <Compile Include="Interfaces\ICosmosDocument.cs" />
-    <Compile Include="Interfaces\IDisplayPresenter.cs" />
-    <Compile Include="Interfaces\IFormOpener.cs" />
-    <Compile Include="Interfaces\IMainForm.cs" />
-    <Compile Include="Interfaces\IPreferencesForm.cs" />
-    <Compile Include="Interfaces\IPreferencesFormPresenter.cs" />
-    <Compile Include="Interfaces\IPresenter.cs" />
-    <Compile Include="Interfaces\IQueryWindowPresenter.cs" />
-    <Compile Include="Domain\AppReferences.cs" />
-    <Compile Include="Interfaces\IQueryParser.cs" />
-    <Compile Include="Interfaces\IQueryStatementParser.cs" />
-    <Compile Include="Interfaces\IQueryPresenterLogger.cs" />
-    <Compile Include="Managers\ClientConnectionManager.cs" />
-    <Compile Include="Managers\FormManager.cs" />
-    <Compile Include="Interfaces\IClientConnectionManager.cs" />
-    <Compile Include="Builders\RegExBuilder.cs" />
-    <Compile Include="Managers\IQueryManager.cs" />
-    <Compile Include="Managers\QueryManager.cs" />
-    <Compile Include="Parsers\CommentTokenizer.cs" />
-    <Compile Include="Interfaces\ICommandlinePresenter.cs" />
-    <Compile Include="Presenters\BaseQueryPresenter.cs" />
-    <Compile Include="Presenters\CommandlinePresenter.cs" />
-    <Compile Include="Presenters\PreferencesFormPresenter.cs" />
-    <Compile Include="Interfaces\IPropertiesRepository.cs" />
-    <Compile Include="Repositories\PropertiesRepository.cs" />
-    <Compile Include="Stylers\ActionLogFormStyler.cs" />
-    <Compile Include="Stylers\PreferencesFormStyler.cs" />
-    <Compile Include="Interfaces\ITextWriter.cs" />
-    <Compile Include="Interfaces\ITextWriterFactory.cs" />
-    <Compile Include="Utilities\TextWriter.cs" />
-    <Compile Include="Utilities\ConsoleHelper.cs" />
-    <Compile Include="Utilities\FixedLimitDictionary.cs" />
-    <Compile Include="Parsers\JsonTokenizer.cs" />
-    <Compile Include="Parsers\StringQueryParser.cs" />
-    <Compile Include="Interfaces\IMainFormPresenter.cs" />
-    <Compile Include="Utilities\Crc32HashProvider.cs" />
-    <Compile Include="Presenters\MainFormPresenter.cs" />
-    <Compile Include="Presenters\QueryWindowPresenter.cs" />
-    <Compile Include="Interfaces\IQueryRunner.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Interfaces\IVariableInjectionTask.cs" />
-    <Compile Include="QueryRunners\UpdateByWhereQueryRunner.cs" />
-    <Compile Include="QueryRunners\UpdateByIdQueryRunner.cs" />
-    <Compile Include="QueryRunners\InsertQueryRunner.cs" />
-    <Compile Include="QueryRunners\RollbackQueryRunner.cs" />
-    <Compile Include="QueryRunners\DeleteByIdQueryRunner.cs" />
-    <Compile Include="Domain\QueryParts.cs" />
-    <Compile Include="Parsers\QueryStatementParser.cs" />
-    <Compile Include="QueryRunners\DeleteByWhereQueryRunner.cs" />
-    <Compile Include="Interfaces\ITransactionTask.cs" />
-    <Compile Include="Tasks\VariableInjectionTask.cs" />
-    <Compile Include="Stylers\BaseStyler.cs" />
-    <Compile Include="Stylers\JsonDocumentStyler.cs" />
-    <Compile Include="Stylers\QueryWindowStyler.cs" />
-    <Compile Include="Tasks\TransactionTask.cs" />
-    <Compile Include="Interfaces\IPubSub.cs" />
-    <Compile Include="Interfaces\IReceiver.cs" />
-    <Compile Include="Utilities\PubSub.cs" />
-    <Compile Include="Views\AboutCosmosManager.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\AboutCosmosManager.Designer.cs">
-      <DependentUpon>AboutCosmosManager.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PreferencesForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\PreferencesForm.Designer.cs">
-      <DependentUpon>PreferencesForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ActionLogForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\ActionLogForm.Designer.cs">
-      <DependentUpon>ActionLogForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Presenters\ActionLogFormPresenter.cs" />
-    <Compile Include="Views\HelpForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\HelpForm.Designer.cs">
-      <DependentUpon>HelpForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Interfaces\IDocumentExecuteContext.cs" />
-    <Compile Include="Interfaces\IDocumentStore.cs" />
-    <Compile Include="Interfaces\IQueryResultDecorator.cs" />
-    <Compile Include="Interfaces\IStoredProcedureExecuteContext.cs" />
-    <Compile Include="Interfaces\IQueryWindowControl.cs" />
-    <Compile Include="Interfaces\IActionLogForm.cs" />
-    <Compile Include="Interfaces\IActionLogFormPresenter.cs" />
-    <Compile Include="Interfaces\ITextStyler.cs" />
-    <Compile Include="Views\MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryRunners\SelectQueryRunner.cs" />
-    <Compile Include="Stylers\MainFormStyler.cs" />
-    <Compile Include="Views\NewFileForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\NewFileForm.Designer.cs">
-      <DependentUpon>NewFileForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Domain\QueryTextLine.cs" />
-    <Compile Include="Stylers\QueryTextStyler.cs" />
-    <Compile Include="Views\QueryWindowControl.cs">
+    <Compile Update="Views\QueryWindowControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\QueryWindowControl.Designer.cs">
-      <DependentUpon>QueryWindowControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Stores\CosmosDocumentStore.cs" />
-    <Compile Include="Stores\DocumentExecuteContext.cs" />
-    <Compile Include="Stores\StoredProcedureExecuteContext.cs" />
-    <Compile Include="Domain\ThemeType.cs" />
     <None Include="CosmosManager_1_TemporaryKey.pfx" />
-    <None Include="Resources\Stop-red-icon.png" />
-    <None Include="Resources\format_font_size_more.png" />
-    <None Include="Resources\format_font_size_less.png" />
-    <None Include="Resources\text_indent.png" />
-    <None Include="Resources\text_indent_remove.png" />
-    <None Include="Resources\text_uppercase.png" />
-    <None Include="Resources\text_lowercase.png" />
-    <None Include="Resources\Files-Download-File-icon.png" />
-    <None Include="Resources\Downloads-icon.png" />
-    <None Include="Resources\export-icon.png" />
-    <None Include="Resources\Start-icon.png" />
-    <None Include="Resources\3floppy-mount-icon.png" />
-    <None Include="Resources\3floppy-unmount-icon.png" />
-    <None Include="Resources\json.png" />
-    <EmbeddedResource Include="Views\AboutCosmosManager.resx">
-      <DependentUpon>AboutCosmosManager.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\PreferencesForm.resx">
-      <DependentUpon>PreferencesForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\ActionLogForm.resx">
-      <DependentUpon>ActionLogForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\HelpForm.resx">
-      <DependentUpon>HelpForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <SubType>Designer</SubType>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\NewFileForm.resx">
-      <DependentUpon>NewFileForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\QueryWindowControl.resx">
-      <DependentUpon>QueryWindowControl.cs</DependentUpon>
-    </EmbeddedResource>
     <Content Include="help.md">
       <SubType>Form</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="Properties\app.manifest" />
-    <None Include="Properties\DataSources\CosmosManager.Domain.Connection.datasource" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="CosmosQueryEditorNew.ico" />
-    <None Include="Resources\app-json-icon.png" />
-    <None Include="Resources\documents_delete.png" />
-    <None Include="Resources\arrow_undo.png" />
-    <None Include="Resources\closeIcon.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autoupdater.NET.Official">
-      <Version>1.5.8</Version>
+      <Version>1.6.4</Version>
     </PackageReference>
     <PackageReference Include="ConsoleTables">
-      <Version>2.3.0</Version>
+      <Version>2.4.2</Version>
     </PackageReference>
-    <PackageReference Include="jacobslusser.ScintillaNET">
-      <Version>3.6.3</Version>
-    </PackageReference>
+    <PackageReference Include="fernandreu.ScintillaNET" Version="4.0.4" />
     <PackageReference Include="Markdig">
-      <Version>0.18.0</Version>
+      <Version>0.24.0</Version>
     </PackageReference>
     <PackageReference Include="McMaster.Extensions.CommandLineUtils">
-      <Version>2.4.4</Version>
+      <Version>3.1.0</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Azure.DocumentDB">
-      <Version>2.9.2</Version>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.14.1" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions">
-      <Version>2.2.0</Version>
+      <Version>5.0.0</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.12.3" />
     <PackageReference Include="Newtonsoft.Json">
-      <Version>11.0.2</Version>
+      <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="SimpleInjector">
-      <Version>4.6.0</Version>
+      <Version>5.3.0</Version>
     </PackageReference>
+    <PackageReference Include="SimpleInjector.Integration.ServiceCollection" Version="5.3.0" />
     <PackageReference Include="System.Threading.Tasks.Dataflow">
-      <Version>4.9.0</Version>
+      <Version>5.0.0</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="5.0.2" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7">
@@ -432,16 +165,6 @@
       <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
-    <PublishFile Include="System.Net.Http">
-      <Visible>False</Visible>
-      <Group>
-      </Group>
-      <TargetPath>
-      </TargetPath>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
-      <FileType>Assembly</FileType>
-    </PublishFile>
     <PublishFile Include="System.Threading.Tasks.Dataflow">
       <Visible>False</Visible>
       <Group>
@@ -463,5 +186,4 @@
       <FileType>Assembly</FileType>
     </PublishFile>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,4 +1,4 @@
-﻿using CosmosManager.Presenters;
+using CosmosManager.Presenters;
 using Microsoft.Extensions.Logging;
 
 namespace CosmosManager.Interfaces

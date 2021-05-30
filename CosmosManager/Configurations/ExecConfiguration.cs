@@ -1,4 +1,4 @@
-﻿using CosmosManager.Domain;
+using CosmosManager.Domain;
 using CosmosManager.Interfaces;
 using McMaster.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
@@ -13,7 +13,7 @@ namespace CosmosManager.Configurations
     {
         public static void ConfigureCommand(CommandLineApplication deployCommand, Container container)
         {
-            deployCommand.ThrowOnUnexpectedArgument = false;
+            deployCommand.UnrecognizedArgumentHandling = UnrecognizedArgumentHandling.Throw;
             deployCommand.Description = "Run scripts through Cosmos Manager to invoke against CosmosDB";
             deployCommand.HelpOption("-?|-h|-H|--help");
             var connectionsOption = new CommandOption("--connections", CommandOptionType.SingleValue)
