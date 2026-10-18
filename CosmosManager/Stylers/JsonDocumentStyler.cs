@@ -38,7 +38,7 @@ namespace CosmosManager.Stylers
             }
             _textbox.Styles[Style.Json.Operator].ForeColor = Color.FromArgb(224, 224, 224);
 
-            _textbox.Lexer = Lexer.Json;
+            _textbox.LexerName = "json";
         }
     }
 }

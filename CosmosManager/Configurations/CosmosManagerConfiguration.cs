@@ -12,7 +12,7 @@ namespace CosmosManager.Configurations
             app.Description = "Execute commands for script management for CosmosDB";
             app.HelpOption("-?|-h|-H|--help");
             app.Command("exec", command => ExecConfiguration.ConfigureCommand(command, container));
-            app.ThrowOnUnexpectedArgument = true;
+            app.UnrecognizedArgumentHandling = UnrecognizedArgumentHandling.Throw;
             return app.Execute(args);
         }
     }

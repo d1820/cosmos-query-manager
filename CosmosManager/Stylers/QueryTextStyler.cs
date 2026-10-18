@@ -51,7 +51,7 @@ namespace CosmosManager.Stylers
                     break;
             }
 
-            _textbox.Lexer = Lexer.Sql;
+            _textbox.LexerName = "sql";
             _textbox.SetKeywords(0, string.Join(" ", Constants.KeyWordList.Select(s => s.ToLowerInvariant()).Concat(Constants.KeyWordList.Select(s => s.ToUpperInvariant()))));
             _textbox.SetKeywords(1, string.Join(" ", Constants.BuiltInKeyWordList.Select(s => s.ToUpperInvariant()).Concat(Constants.BuiltInKeyWordList.Select(s => s.ToLowerInvariant()))));
         }

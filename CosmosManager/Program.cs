@@ -15,6 +15,7 @@ using SimpleInjector.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace CosmosManager
@@ -79,12 +80,12 @@ namespace CosmosManager
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Bootstrap();
-                Application.Run(container.GetInstance<MainForm>());
+                Application.Run((Form)container.GetInstance<IMainForm>());
                 return 0;
             }
         }
 
-        private static void Bootstrap(bool bootCommandLine = false)
+        internal static Container Bootstrap(bool bootCommandLine = false)
         {
             // Create the container as usual.
             container = new Container();
@@ -164,6 +165,8 @@ namespace CosmosManager
             {
                 container.Verify();
             }
+
+            return container;
         }
 
         private static void RegisterRunners(Container container)
@@ -176,9 +179,10 @@ namespace CosmosManager
         {
             foreach (var type in types)
             {
-                var registration = container.GetRegistration(type).Registration;
+                var producer = container.GetCurrentRegistrations()
+                    .FirstOrDefault(p => p.Registration.ImplementationType == type);
 
-                registration.SuppressDiagnosticWarning(DiagnosticType.DisposableTransientComponent, reason);
+                producer?.Registration.SuppressDiagnosticWarning(DiagnosticType.DisposableTransientComponent, reason);
             }
         }
     }
