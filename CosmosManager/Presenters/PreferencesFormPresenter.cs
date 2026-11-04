@@ -33,22 +33,13 @@ namespace CosmosManager.Presenters
                 _propertiesRepository.Save();
                 _mainFormPresenter.InitializeTransactionCache();
             }
-
-            if (_propertiesRepository.GetValue<bool>(Constants.AppProperties.UseDarkTheme) != preferences.UseDarkTheme)
-            {
-                _propertiesRepository.SetValue(Constants.AppProperties.UseDarkTheme, preferences.UseDarkTheme);
-                _propertiesRepository.Save();
-                _pubsub.Publish(this, new PubSubEventArgs { Data = preferences.UseDarkTheme }, Constants.SubscriptionTypes.THEME_CHANGE);
-                _view.RenderTheme();
-            }
         }
 
         public void InitializeForm()
         {
             _view.InitializeForm(new AppPreferences
             {
-                TransactionCacheLocation = AppReferences.TransactionCacheDataFolder,
-                UseDarkTheme = AppReferences.CurrentTheme == ThemeType.Dark
+                TransactionCacheLocation = AppReferences.TransactionCacheDataFolder
             });
         }
     }

@@ -79,6 +79,9 @@ namespace CosmosManager
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
+#pragma warning disable WFO5001 // SetColorMode is an evaluation (experimental) API in .NET 10.
+                Application.SetColorMode(SystemColorMode.Dark);
+#pragma warning restore WFO5001
                 Bootstrap();
                 Application.Run((Form)container.GetInstance<IMainForm>());
                 return 0;
@@ -140,6 +143,7 @@ namespace CosmosManager
                 container.Register<NewFileForm>();
                 container.Register<AboutCosmosManager>();
                 container.Register<ActionLogForm>();
+                container.Register<PreferencesForm>();
 
                 SuppressRegistrations(new List<Type> {
                 typeof(QueryWindowControl)
@@ -153,7 +157,8 @@ namespace CosmosManager
                 typeof(HelpForm),
                 typeof(ActionLogForm),
                 typeof(AboutCosmosManager),
-                typeof(NewFileForm)
+                typeof(NewFileForm),
+                typeof(PreferencesForm)
                 }, container, "Forms Controlled By Manager");
 
 

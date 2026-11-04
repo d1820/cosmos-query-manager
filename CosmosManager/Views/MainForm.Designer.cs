@@ -431,7 +431,7 @@
             // 
             this.addToCommandWindowToolStripMenuItem.Name = "addToCommandWindowToolStripMenuItem";
             this.addToCommandWindowToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.addToCommandWindowToolStripMenuItem.Text = "Add To Command Window";
+            this.addToCommandWindowToolStripMenuItem.Text = "Set Path For Terminal";
             this.addToCommandWindowToolStripMenuItem.Click += new System.EventHandler(this.addToCommandWindowToolStripMenuItem_Click);
             // 
             // MainForm

@@ -1,0 +1,15 @@
+/* WHERE operators and built-in Cosmos functions. */
+
+SELECT * FROM Items WHERE Items.category = 'books';
+
+SELECT * FROM Items WHERE Items.price BETWEEN 20 AND 100;
+
+SELECT * FROM Items WHERE Items.category IN ('electronics', 'office');
+
+SELECT * FROM Items WHERE Items.active = true AND Items.qty > 10;
+
+SELECT * FROM Items WHERE CONTAINS(Items.name, 'Desk') OR STARTSWITH(Items.name, 'A');
+
+SELECT * FROM Items WHERE ARRAY_CONTAINS(Items.tags, 'sale');
+
+SELECT Items.category, COUNT(1) AS count, AVG(Items.price) AS avgPrice FROM Items GROUP BY Items.category

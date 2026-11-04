@@ -17,16 +17,17 @@ namespace CosmosManager.Presenters
         private IMainForm _view;
         private string _rootDir;
 
+        // Muted, dark-theme-friendly accents used to tint tabs per connection (light tab text reads on these).
         private List<Color> _colors = new List<Color>{
-            Color.PaleGreen,
-            Color.PaleTurquoise,
-            Color.Plum,
-            Color.WhiteSmoke,
-            Color.Moccasin,
-            Color.PapayaWhip,
-            Color.LightSalmon,
-            Color.MediumAquamarine,
-            Color.PaleGoldenrod,
+            Color.FromArgb(45, 90, 90),
+            Color.FromArgb(70, 70, 110),
+            Color.FromArgb(90, 60, 90),
+            Color.FromArgb(90, 80, 45),
+            Color.FromArgb(50, 80, 55),
+            Color.FromArgb(90, 55, 55),
+            Color.FromArgb(55, 75, 95),
+            Color.FromArgb(80, 65, 50),
+            Color.FromArgb(60, 85, 85),
         };
 
         private System.Timers.Timer statusTimer;
@@ -162,7 +163,7 @@ namespace CosmosManager.Presenters
 
         public void OpenTransactionCacheFolder()
         {
-            Process.Start(AppReferences.TransactionCacheDataFolder);
+            Process.Start(new ProcessStartInfo { FileName = AppReferences.TransactionCacheDataFolder, UseShellExecute = true });
         }
 
         public void OpenApplicationPrompt()
@@ -179,11 +180,11 @@ namespace CosmosManager.Presenters
         public void RegisterApplicationWithEnvironment()
         {
             var path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-            var pathvalue = Environment.GetEnvironmentVariable("path", EnvironmentVariableTarget.Machine);
+            var pathvalue = Environment.GetEnvironmentVariable("path", EnvironmentVariableTarget.User);
             // If necessary, create it.
             if (pathvalue == null)
             {
-                Environment.SetEnvironmentVariable("path", path, EnvironmentVariableTarget.Machine);
+                Environment.SetEnvironmentVariable("path", path, EnvironmentVariableTarget.User);
                 var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
                 presenter.AddToActionList("Application Path registered in Environment Variables");
             }
@@ -191,7 +192,7 @@ namespace CosmosManager.Presenters
             {
                 if (!pathvalue.Contains(path))
                 {
-                    Environment.SetEnvironmentVariable("path", $"{pathvalue};{path}", EnvironmentVariableTarget.Machine);
+                    Environment.SetEnvironmentVariable("path", $"{pathvalue};{path}", EnvironmentVariableTarget.User);
                     var presenter = AppReferences.Container.GetInstance<IActionLogFormPresenter>();
                     presenter.AddToActionList("Application Path registered in Environment Variables");
                 }
@@ -203,7 +204,7 @@ namespace CosmosManager.Presenters
         {
             if (!string.IsNullOrEmpty(path))
             {
-                Process.Start(path);
+                Process.Start(new ProcessStartInfo { FileName = path, UseShellExecute = true });
             }
         }
 

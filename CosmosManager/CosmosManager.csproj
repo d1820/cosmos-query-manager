@@ -8,15 +8,21 @@
     <Nullable>disable</Nullable>
     <RootNamespace>CosmosManager</RootNamespace>
     <AssemblyName>CosmosManager2019</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <ApplicationIcon>CosmosQueryEditorNew.ico</ApplicationIcon>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+    <!-- Assembly metadata (SDK-generated so CI can stamp the version from the release tag via -p:Version). -->
+    <AssemblyTitle>Cosmos Manager</AssemblyTitle>
+    <Product>CosmosManager</Product>
+    <Company>Just In Time Coders</Company>
+    <Authors>Just In Time Coders</Authors>
+    <Description>Cosmos Query Manager is a Windows based query manager for Azure DocumentDb/CosmosDB. It provides the ability to Insert, Update, Delete documents across multiple databases.</Description>
+    <Copyright>Copyright ©  2018</Copyright>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="help.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <!-- Embedded so the published single-file exe is fully standalone (HelpForm reads it from resources). -->
+    <EmbeddedResource Include="help.md" />
   </ItemGroup>
 
   <ItemGroup>

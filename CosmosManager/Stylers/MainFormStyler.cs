@@ -23,7 +23,7 @@ namespace CosmosManager.Stylers
             switch (themeType)
             {
                 case ThemeType.Dark:
-                    return Color.FromArgb(240, 240, 240);
+                    return Color.FromArgb(45, 45, 45);
 
                 case ThemeType.Light:
                     return Color.FromArgb(236, 236, 236);
@@ -41,11 +41,13 @@ namespace CosmosManager.Stylers
                     form.BackColor = Color.FromArgb(60, 60, 60);
                     form.menuStrip1.BackColor = Color.FromArgb(60, 60, 60);
                     ApplyDarkMenuItemTheme(form.menuStrip1.Items);
-                    form.statusStrip1.BackColor = Color.FromArgb(0, 122, 204);
+                    form.statusStrip1.BackColor = Color.FromArgb(37, 37, 38);
+                    form.statusStrip1.ForeColor = Color.FromArgb(200, 200, 200);
                     form.splitContainer1.BackColor = Color.FromArgb(38, 38, 38);
                     form.splitContainer1.Panel1.BackColor = Color.FromArgb(38, 38, 38);
                     form.splitContainer1.Panel2.BackColor = Color.FromArgb(38, 38, 38);
                     form.tabBackgroundPanel.BackColor = Color.FromArgb(30, 30, 30);
+                    form.queryTabControl.BackColor = Color.FromArgb(30, 30, 30);
                     break;
 
                 case ThemeType.Light:

@@ -209,7 +209,7 @@ namespace CosmosManager
                 var closeImage = Properties.Resources.closeIcon;
                 e.Graphics.DrawImage(closeImage, (tabRect.Right - 10), tabRect.Top + (tabRect.Height - closeImage.Height) / 2, 10, 10);
 
-                TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font, tabRect, Color.Black, TextFormatFlags.Left);
+                TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font, tabRect, Color.FromArgb(230, 230, 230), TextFormatFlags.Left);
             }
             queryTabControl.ResumeLayout();
         }
@@ -353,7 +353,7 @@ namespace CosmosManager
 
         private void reportABugToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(@"https://github.com/d1820/cosmos-query-manager/issues");
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = "https://github.com/d1820/cosmos-query-manager/issues", UseShellExecute = true });
         }
 
         private void fileSystemWatcher1_Created(object sender, FileSystemEventArgs e)

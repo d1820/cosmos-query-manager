@@ -1,0 +1,32 @@
+# Starts the Azure Cosmos DB (vnext Linux) emulator used for integration tests and
+# local CLI/app runs.
+#
+# Data persists in the named volume 'cosmos-emulator-data', mounted at the emulator's
+# DATA_PATH (/data), so it survives container stop/start, `docker compose down`, and
+# container removal/recreation. The volume is only removed if you run
+# `docker compose down -v`.
+#
+# Usage:
+#   docker compose up -d        # start (named container: cosmos-emulator)
+#   docker compose down         # stop + remove container, KEEP data volume
+#   docker compose down -v      # stop + remove container AND wipe data
+#
+# Gateway: http://localhost:8081   Data Explorer: http://localhost:1234
+services:
+  cosmos-emulator:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-latest
+    container_name: cosmos-emulator
+    ports:
+      - "8081:8081"   # gateway (http)
+      - "8080:8080"   # health
+      - "1234:1234"   # data explorer
+    environment:
+      - PROTOCOL=http
+      - ENABLE_EXPLORER=true
+      - DATA_PATH=/data
+    volumes:
+      - cosmos-emulator-data:/data
+    restart: unless-stopped
+
+volumes:
+  cosmos-emulator-data:

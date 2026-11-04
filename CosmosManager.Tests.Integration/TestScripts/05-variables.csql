@@ -1,0 +1,6 @@
+/* Variables: assign a SELECT result to @books, then reuse its ids in an IN clause.
+   The second statement is rewritten to IN ('p-3','p-4') before being sent to Cosmos. */
+
+@books = SELECT Items.id FROM Items WHERE Items.category = 'books';
+
+SELECT * FROM Items WHERE Items.id IN (@books.id)

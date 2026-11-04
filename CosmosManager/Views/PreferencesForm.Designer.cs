@@ -37,7 +37,6 @@
             this.btnOpenFolderPicker = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.chkUseDarkTheme = new System.Windows.Forms.CheckBox();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -110,25 +109,13 @@
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
-            // 
-            // chkUseDarkTheme
-            // 
-            this.chkUseDarkTheme.AutoSize = true;
-            this.chkUseDarkTheme.Location = new System.Drawing.Point(16, 117);
-            this.chkUseDarkTheme.Name = "chkUseDarkTheme";
-            this.chkUseDarkTheme.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.chkUseDarkTheme.Size = new System.Drawing.Size(124, 20);
-            this.chkUseDarkTheme.TabIndex = 8;
-            this.chkUseDarkTheme.Text = "Use Dark Theme";
-            this.chkUseDarkTheme.UseVisualStyleBackColor = true;
-            // 
+            //
             // PreferencesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(442, 210);
             this.ControlBox = false;
-            this.Controls.Add(this.chkUseDarkTheme);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btnOpenFolderPicker);
             this.Controls.Add(this.btnSave);
@@ -163,6 +150,5 @@
         private System.Windows.Forms.Button btnOpenFolderPicker;
         public System.Windows.Forms.StatusStrip statusStrip1;
         public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        public System.Windows.Forms.CheckBox chkUseDarkTheme;
     }
 }

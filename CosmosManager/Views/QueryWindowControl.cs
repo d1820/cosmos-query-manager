@@ -22,6 +22,8 @@ namespace CosmosManager
         private CheckState _headerCheckState;
         private readonly IQueryStyler _queryTextStyler;
         private readonly IJsonStyler _jsonStyler;
+        private const string GroupHeaderName = "__grpheader__";
+        private int _appendedQueryCount;
 
         public QueryWindowControl(IQueryStyler queryTextStyler, IJsonStyler jsonStyler)
         {
@@ -100,6 +102,7 @@ namespace CosmosManager
         public void ResetResultsView()
         {
             resultListView.Items.Clear();
+            _appendedQueryCount = 0;
             textDocument.Clear();
             tabControlQueryOutput.SelectedIndex = 0;
         }
@@ -119,6 +122,7 @@ namespace CosmosManager
                 SetResultCountLabel();
                 resultListView.Groups.Clear();
                 resultListView.Items.Clear();
+                _appendedQueryCount = 0;
                 Application.DoEvents();
                 await Presenter.RunAsync();
             }
@@ -168,22 +172,24 @@ namespace CosmosManager
                 resultListView.Groups.Clear();
                 resultListView.Items.Clear();
                 _totalDocumentCount = 0;
+                _appendedQueryCount = 0;
             }
             var textPartitionKeyPath = await Presenter.LookupPartitionKeyPath(query.CollectionName);
             var groupName = "Query 1";
             var headers = Presenter.LookupResultListViewHeaders(results.FirstOrDefault(), textPartitionKeyPath);
             if (appendResults)
             {
-                resultListView.Groups.Add(new ListViewGroup
+                _appendedQueryCount++;
+                // Themed native group headers can't be recolored for dark mode, so the query
+                // separator is an owner-drawn header row instead (see resultListView_DrawItem).
+                resultListView.Items.Add(new ListViewItem($"Query {queryStatementIndex} ({results.Count} Documents)")
                 {
-                    Header = $"Query {queryStatementIndex} ({results.Count} Documents)",
-                    Name = $"Query{resultListView.Groups.Count}",
-                    HeaderAlignment = HorizontalAlignment.Center
+                    Name = GroupHeaderName
                 });
                 groupName = $"Query {queryStatementIndex}";
-                if (resultListView.Groups.Count == 1)
+                if (_appendedQueryCount == 1)
                 {
-                    //first group set headers
+                    //first query set headers
                     resultListView.Columns[1].Text = headers.header1;
                     resultListView.Columns[2].Text = headers.header2;
                 }
@@ -215,10 +221,6 @@ namespace CosmosManager
                 }
                 validResultCount++;
                 var listItem = new ListViewItem();
-                if (appendResults && resultListView.Groups.Count > 0)
-                {
-                    listItem.Group = resultListView.Groups[resultListView.Groups.Count - 1];
-                }
                 listItem.Tag = new DocumentResult { Document = fromObject, CollectionName = collectionName, Query = query, GroupName = groupName };
                 JProperty col1Prop = null;
                 JToken col1Token = null;
@@ -270,7 +272,10 @@ namespace CosmosManager
                 var objects = new List<JObject>();
                 foreach (ListViewItem item in resultListView.Items)
                 {
-                    var result = (DocumentResult)item.Tag;
+                    if (item.Tag is not DocumentResult result)
+                    {
+                        continue;
+                    }
                     objects.Add(result.Document);
                 }
                 await Presenter.ExportAllToDocumentAsync(objects, saveJsonDialog.FileName);
@@ -428,16 +433,20 @@ namespace CosmosManager
 
         private void resultListView_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
+            var headerBack = Color.FromArgb(45, 45, 45);
+            using (var brush = new SolidBrush(headerBack))
+            {
+                e.Graphics.FillRectangle(brush, e.Bounds);
+            }
+
             if (e.ColumnIndex == 0)
             {
                 var cck = new CheckBox();
-                // With...
                 Text = "";
                 Visible = true;
                 resultListView.SuspendLayout();
-                e.DrawBackground();
-                cck.BackColor = e.BackColor;
-                cck.UseVisualStyleBackColor = true;
+                cck.BackColor = headerBack;
+                cck.UseVisualStyleBackColor = false;
 
                 cck.SetBounds(e.Bounds.X, e.Bounds.Y, cck.GetPreferredSize(new Size(e.Bounds.Width, e.Bounds.Height)).Width, cck.GetPreferredSize(new Size(e.Bounds.Width, e.Bounds.Height)).Width);
                 cck.Size = new Size((cck.GetPreferredSize(new Size((e.Bounds.Width - 1), e.Bounds.Height)).Width + 1), e.Bounds.Height);
@@ -446,13 +455,12 @@ namespace CosmosManager
                 resultListView.Controls.Add(cck);
                 cck.Show();
                 cck.BringToFront();
-                e.DrawText((TextFormatFlags.VerticalCenter | TextFormatFlags.Left));
                 cck.Click += resultListViewheaderCheckAll;
                 resultListView.ResumeLayout(true);
             }
             else
             {
-                e.DrawDefault = true;
+                TextRenderer.DrawText(e.Graphics, e.Header.Text, e.Font, e.Bounds, Color.FromArgb(220, 220, 220), TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
             }
         }
 
@@ -468,11 +476,25 @@ namespace CosmosManager
 
         private void resultListView_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
+            if (e.Item.Name == GroupHeaderName)
+            {
+                using (var brush = new SolidBrush(Color.FromArgb(45, 45, 45)))
+                {
+                    e.Graphics.FillRectangle(brush, e.Bounds);
+                }
+                TextRenderer.DrawText(e.Graphics, e.Item.Text, e.Item.Font, e.Bounds, Color.FromArgb(220, 220, 220), TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+                return;
+            }
             e.DrawDefault = true;
         }
 
         private void resultListView_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
+            if (e.Item.Name == GroupHeaderName)
+            {
+                // The header row is fully drawn in resultListView_DrawItem.
+                return;
+            }
             e.DrawDefault = true;
         }
 

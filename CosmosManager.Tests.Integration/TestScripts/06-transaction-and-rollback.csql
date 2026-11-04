@@ -1,0 +1,10 @@
+/* Transaction-backed update. ASTRANSACTION writes a rollback file before changing data,
+   and the output pane prints a transaction id you can replay to undo the change. */
+
+UPDATE * FROM Items WHERE Items.category = 'electronics' SET {"discounted": true}
+ASTRANSACTION;
+
+/* To undo, copy the transaction id from the output and run it on its own, e.g.:
+
+   ROLLBACK Items_20261103_120000_00000000-0000-0000-0000-000000000000
+*/

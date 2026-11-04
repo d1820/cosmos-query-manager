@@ -1,0 +1,8 @@
+/* Seed sample documents into the Items collection (SampleDb).
+   Run this first so the other scripts have data to work against. */
+
+insert {"id":"p-1","pk":"electronics","name":"Wireless Mouse","category":"electronics","price":24.99,"qty":120,"active":true,"tags":["accessory","sale"]} into Items;
+insert {"id":"p-2","pk":"electronics","name":"Mechanical Keyboard","category":"electronics","price":89.50,"qty":40,"active":true,"tags":["accessory"]} into Items;
+insert {"id":"p-3","pk":"books","name":"Cosmos SQL Guide","category":"books","price":15.00,"qty":0,"active":false,"tags":["reference"]} into Items;
+insert {"id":"p-4","pk":"books","name":"Azure Deep Dive","category":"books","price":39.95,"qty":12,"active":true,"tags":["reference","sale"]} into Items;
+insert {"id":"p-5","pk":"office","name":"Standing Desk","category":"office","price":299.00,"qty":5,"active":true,"tags":["furniture"]} into Items

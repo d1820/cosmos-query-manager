@@ -51,10 +51,7 @@ namespace CosmosManager.Views
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            var newAppPrefs = new Domain.AppPreferences
-            {
-                UseDarkTheme = chkUseDarkTheme.Checked
-            };
+            var newAppPrefs = new Domain.AppPreferences();
             if (!string.IsNullOrWhiteSpace(txtTransactionCacheLocation.Text))
             {
                 if (Directory.Exists(txtTransactionCacheLocation.Text))
@@ -74,7 +71,6 @@ namespace CosmosManager.Views
         public void InitializeForm(AppPreferences preferences)
         {
             txtTransactionCacheLocation.Text = preferences.TransactionCacheLocation;
-            chkUseDarkTheme.Checked = preferences.UseDarkTheme;
         }
     }
 }
