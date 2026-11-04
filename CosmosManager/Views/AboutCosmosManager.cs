@@ -32,7 +32,7 @@ namespace CosmosManager.Views
                         return titleAttribute.Title;
                     }
                 }
-                return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+                return System.IO.Path.GetFileNameWithoutExtension(System.Environment.ProcessPath);
             }
         }
 

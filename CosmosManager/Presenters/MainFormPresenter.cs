@@ -168,7 +168,7 @@ namespace CosmosManager.Presenters
 
         public void OpenApplicationPrompt()
         {
-            var path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            var path = AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar);
             var startInfo = new ProcessStartInfo
             {
                 Arguments = $"cd {path}",
@@ -179,7 +179,7 @@ namespace CosmosManager.Presenters
 
         public void RegisterApplicationWithEnvironment()
         {
-            var path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            var path = AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar);
             var pathvalue = Environment.GetEnvironmentVariable("path", EnvironmentVariableTarget.User);
             // If necessary, create it.
             if (pathvalue == null)
