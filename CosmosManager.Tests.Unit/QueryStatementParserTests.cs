@@ -140,6 +140,33 @@ namespace CosmosManager.Tests.Unit
             rawQuery.Contains("ROLLBACK").Should().BeTrue();
 
         }
+
+        [Fact]
+        public void CleanQuery_UppercasesNewerCosmosSystemFunctions()
+        {
+            var query = "select * from Market where datetimeadd('mm', 1, Market.CreatedOn) > vectordistance(Market.v1, Market.v2) and regexmatch(Market.Name, 'abc')";
+            var rawQuery = _parser.CleanAndFormatQueryText(query);
+
+            rawQuery.Contains("DATETIMEADD(").Should().BeTrue();
+            rawQuery.Contains("VECTORDISTANCE(").Should().BeTrue();
+            rawQuery.Contains("REGEXMATCH(").Should().BeTrue();
+            rawQuery.Contains("datetimeadd(").Should().BeFalse();
+        }
+
+        [Fact]
+        public void CleanQuery_UppercasesNewerCosmosKeywords()
+        {
+            var query = "select distinct top 5 c.id as ident from c where c.name like 'a%'";
+            var rawQuery = _parser.CleanAndFormatQueryText(query);
+
+            rawQuery.Contains("DISTINCT").Should().BeTrue();
+            rawQuery.Contains("TOP").Should().BeTrue();
+            rawQuery.Contains(" AS ").Should().BeTrue();
+            rawQuery.Contains("LIKE").Should().BeTrue();
+            rawQuery.Contains("distinct").Should().BeFalse();
+            // value inside quotes is left untouched
+            rawQuery.Contains("'a%'").Should().BeTrue();
+        }
         #endregion
 
         #region Parse

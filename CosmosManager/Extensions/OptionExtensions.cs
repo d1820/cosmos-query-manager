@@ -1,45 +1,45 @@
 ﻿using CosmosManager.Domain;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Cosmos;
 
 namespace CosmosManager.Extensions
 {
     public static class OptionExtensions
     {
-        public static FeedOptions ToFeedOptions(this QueryOptions options)
+        public static QueryRequestOptions ToQueryRequestOptions(this QueryOptions options)
         {
             if (options == null)
             { return null; }
-            var fo = new FeedOptions
+            var qro = new QueryRequestOptions
             {
                 MaxItemCount = options.MaxItemCount,
-                RequestContinuation = options.RequestContinuation,
-                EnableCrossPartitionQuery = options.EnableCrossPartitionQuery,
-                MaxDegreeOfParallelism = options.MaxDegreeOfParallelism,
-                MaxBufferedItemCount = options.MaxBufferedItemCount,
-                PopulateQueryMetrics = options.PopulateQueryMetrics
+                MaxConcurrency = options.MaxDegreeOfParallelism,
+                MaxBufferedItemCount = options.MaxBufferedItemCount
             };
             if (!string.IsNullOrWhiteSpace(options.PartitionKey))
             {
-                fo.PartitionKey = new PartitionKey(options.PartitionKey);
+                qro.PartitionKey = new PartitionKey(options.PartitionKey);
             }
-            return fo;
+            return qro;
         }
 
-        public static Microsoft.Azure.Documents.Client.RequestOptions ToRequestOptions(this Domain.RequestOptions options)
+        public static ItemRequestOptions ToItemRequestOptions(this Domain.RequestOptions options)
         {
             if (options == null)
             { return null; }
-            var ro = new Microsoft.Azure.Documents.Client.RequestOptions
+            return new ItemRequestOptions
             {
-                PreTriggerInclude = options.PreTriggerInclude,
-                PostTriggerInclude = options.PostTriggerInclude
+                PreTriggers = options.PreTriggerInclude,
+                PostTriggers = options.PostTriggerInclude
             };
-            if (!string.IsNullOrWhiteSpace(options.PartitionKey))
+        }
+
+        public static PartitionKey? ToPartitionKey(this Domain.RequestOptions options)
+        {
+            if (options == null || string.IsNullOrWhiteSpace(options.PartitionKey))
             {
-                ro.PartitionKey = new PartitionKey(options.PartitionKey);
+                return null;
             }
-            return ro;
+            return new PartitionKey(options.PartitionKey);
         }
     }
 }

@@ -15,6 +15,7 @@ using SimpleInjector.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace CosmosManager
@@ -78,13 +79,16 @@ namespace CosmosManager
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
+#pragma warning disable WFO5001 // SetColorMode is an evaluation (experimental) API in .NET 10.
+                Application.SetColorMode(SystemColorMode.Dark);
+#pragma warning restore WFO5001
                 Bootstrap();
-                Application.Run(container.GetInstance<MainForm>());
+                Application.Run((Form)container.GetInstance<IMainForm>());
                 return 0;
             }
         }
 
-        private static void Bootstrap(bool bootCommandLine = false)
+        internal static Container Bootstrap(bool bootCommandLine = false)
         {
             // Create the container as usual.
             container = new Container();
@@ -139,6 +143,7 @@ namespace CosmosManager
                 container.Register<NewFileForm>();
                 container.Register<AboutCosmosManager>();
                 container.Register<ActionLogForm>();
+                container.Register<PreferencesForm>();
 
                 SuppressRegistrations(new List<Type> {
                 typeof(QueryWindowControl)
@@ -152,7 +157,8 @@ namespace CosmosManager
                 typeof(HelpForm),
                 typeof(ActionLogForm),
                 typeof(AboutCosmosManager),
-                typeof(NewFileForm)
+                typeof(NewFileForm),
+                typeof(PreferencesForm)
                 }, container, "Forms Controlled By Manager");
 
 
@@ -164,6 +170,8 @@ namespace CosmosManager
             {
                 container.Verify();
             }
+
+            return container;
         }
 
         private static void RegisterRunners(Container container)
@@ -176,9 +184,10 @@ namespace CosmosManager
         {
             foreach (var type in types)
             {
-                var registration = container.GetRegistration(type).Registration;
+                var producer = container.GetCurrentRegistrations()
+                    .FirstOrDefault(p => p.Registration.ImplementationType == type);
 
-                registration.SuppressDiagnosticWarning(DiagnosticType.DisposableTransientComponent, reason);
+                producer?.Registration.SuppressDiagnosticWarning(DiagnosticType.DisposableTransientComponent, reason);
             }
         }
     }

@@ -1,12 +1,11 @@
 ﻿using CosmosManager.Decorators;
 using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using Microsoft.Azure.Documents.Linq;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CosmosManager.Extensions
@@ -14,11 +13,17 @@ namespace CosmosManager.Extensions
     public static class DocumentDBExtensions
     {
         [ExcludeFromCodeCoverage]
-        public static async Task<IReadOnlyCollection<TSource>> ConvertAndLogRequestUnits<TSource>(this IQueryable<TSource> query, bool logRequest, ILogger logger, string traceId = null, List<IQueryResultDecorator> resultDecorators = null)
+        public static async Task<IReadOnlyCollection<TSource>> ConvertAndLogRequestUnits<TSource>(this FeedIterator<TSource> query, bool logRequest, ILogger logger, string traceId = null, List<IQueryResultDecorator> resultDecorators = null)
         {
             if (!logRequest || logger == null)
             {
-                return query.ToArray();
+                var items = new List<TSource>();
+                while (query.HasMoreResults)
+                {
+                    var response = await query.ReadNextAsync();
+                    items.AddRange(response);
+                }
+                return items;
             }
 
             var decorators = new List<IQueryResultDecorator>
@@ -38,7 +43,7 @@ namespace CosmosManager.Extensions
                 traceId = Guid.NewGuid().ToString();
             }
 
-            logger.LogInformation(new EventId(Constants.EventId.COSMOSDB, traceId), $"CosmosDBTrace: {traceId}. Query: {query}");
+            logger.LogInformation(new EventId(Constants.EventId.COSMOSDB, traceId), $"CosmosDBTrace: {traceId}.");
 
             foreach (var resultDecorator in decorators)
             {
@@ -49,18 +54,17 @@ namespace CosmosManager.Extensions
         }
 
         [ExcludeFromCodeCoverage]
-        public static async Task<IReadOnlyCollection<TSource>> CalculateRequestUsage<TSource>(this IQueryable<TSource> source, IList<IQueryResultDecorator> resultDecorators)
+        public static async Task<IReadOnlyCollection<TSource>> CalculateRequestUsage<TSource>(this FeedIterator<TSource> source, IList<IQueryResultDecorator> resultDecorators)
         {
             var items = new List<TSource>();
-            var query = source.AsDocumentQuery();
-            while (query.HasMoreResults)
+            while (source.HasMoreResults)
             {
-                var result = await query.ExecuteNextAsync<TSource>();
+                var result = await source.ReadNextAsync();
                 if (resultDecorators != null)
                 {
                     foreach (var resultDecorator in resultDecorators)
                     {
-                        resultDecorator.AppendResult(query, result);
+                        resultDecorator.AppendResult(source, result);
                     }
                 }
 

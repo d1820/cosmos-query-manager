@@ -1,0 +1,11 @@
+/* Writes: partial update (SET by WHERE), full replace (by document id), and delete.
+   The app translates these into Cosmos SDK operations (Cosmos SQL itself is read-only). */
+
+/* Partial update: merge fields into every matching document */
+UPDATE * FROM Items WHERE Items.category = 'books' SET {"onSale": true};
+
+/* Full-document replace must target a single document by id (body is the id, not *) */
+UPDATE p-5 FROM Items REPLACE {"id":"p-5","pk":"office","name":"Standing Desk (v2)","category":"office","price":319.00,"qty":5,"active":true,"tags":["furniture","new"]};
+
+/* Delete by WHERE. In the GUI you'll be prompted to confirm non-transaction deletes. */
+DELETE * FROM Items WHERE Items.id = 'p-3'

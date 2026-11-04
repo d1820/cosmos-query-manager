@@ -1,0 +1,21 @@
+root = true
+
+[*.cs]
+# This codebase (originally .NET Framework 4.7, no analyzers) uses classic guard
+# clauses such as `throw new ArgumentNullException(nameof(x))`. The ThrowIfNull
+# modernization analyzers were newly enabled by the SDK-style .NET 8 conversion and
+# are not enforced here, to keep the migration surgical rather than rewrite working
+# guard clauses throughout the project.
+dotnet_diagnostic.CA1510.severity = none
+dotnet_diagnostic.CA1511.severity = none
+dotnet_diagnostic.CA1512.severity = none
+dotnet_diagnostic.CA1513.severity = none
+
+# This is a Windows-only WinForms desktop app, so the platform compatibility
+# analyzer's "only supported on Windows" warnings are noise.
+dotnet_diagnostic.CA1416.severity = none
+
+# WFO1000 (net9/net10 WinForms analyzer) flags public control/form properties that
+# aren't designer-serializable. The Presenter/Query/etc. properties here are runtime
+# MVP wiring set in code, never by the designer, so this does not apply.
+dotnet_diagnostic.WFO1000.severity = none

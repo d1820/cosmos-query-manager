@@ -1,7 +1,6 @@
 ﻿using CosmosManager.Domain;
 using CosmosManager.Interfaces;
-using Microsoft.Azure.Documents.Client;
-using Microsoft.Azure.Documents.Linq;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 
 namespace CosmosManager.Decorators
@@ -11,7 +10,7 @@ namespace CosmosManager.Decorators
         private double _totalRuCost;
         private string _activityId = null;
 
-        public void AppendResult<TSource>(IDocumentQuery<TSource> source, FeedResponse<TSource> result)
+        public void AppendResult<TSource>(FeedIterator<TSource> source, FeedResponse<TSource> result)
         {
             if (result == null)
             {

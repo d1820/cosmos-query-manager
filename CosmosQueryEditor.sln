@@ -44,6 +44,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Content", "Content", "{DDBA
 		Content\text_uppercase.png = Content\text_uppercase.png
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosManager.Tests.Integration", "CosmosManager.Tests.Integration\CosmosManager.Tests.Integration.csproj", "{7ACE395A-20DE-4634-BC16-8387D1B8574C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,6 +80,18 @@ Global
 		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Release|x64.Build.0 = Release|Any CPU
 		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Release|x86.ActiveCfg = Release|Any CPU
 		{7D4898FF-56A3-42A8-BBC7-97D6A3606F21}.Release|x86.Build.0 = Release|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Debug|x64.Build.0 = Debug|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Debug|x86.Build.0 = Debug|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Release|x64.ActiveCfg = Release|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Release|x64.Build.0 = Release|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Release|x86.ActiveCfg = Release|Any CPU
+		{7ACE395A-20DE-4634-BC16-8387D1B8574C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

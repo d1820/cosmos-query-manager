@@ -91,6 +91,38 @@ In the output tab we can see all information related to the executed query. On s
 The transaction cache is the storage location where rollback files are stored. The application never deletes from this folder so there is always a rollback 
 history available as a data safety precaution. As this folder grows with backup data for transactions it may need to be cleaned out or have the files archived somewhere.
 
+# Testing with a Local Cosmos Emulator
+
+For local development and testing you can point Cosmos Query Manager at the Azure Cosmos DB emulator instead of a live Azure account. The app auto-detects a loopback endpoint (`localhost` / `127.0.0.1`) and connects in Gateway mode, accepting the emulator's self-signed certificate when the endpoint uses HTTPS. Production (Azure, HTTPS) connections are unaffected and continue to use the default connection mode.
+
+Create a connections file to describe the emulator. This repository ignores `connections.json` so your local endpoints, keys, and database names are never committed. The file must be a JSON **array** of connection objects:
+
+```json
+[
+  {
+    "Name": "Local Emulator",
+    "EndPointUrl": "http://localhost:8081",
+    "ConnectionKey": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+    "Database": "<yourDb>"
+  }
+]
+```
+
+| Field | Description |
+| ----- | ----------- |
+| `Name` | Friendly name shown in the connection dropdown and used by `--connectTo`. |
+| `EndPointUrl` | The emulator endpoint. The newer Linux (vnext) emulator serves over `http://localhost:8081`; the classic Windows emulator uses `https://localhost:8081`. |
+| `ConnectionKey` | The well-known public emulator key shown above (documented, not a secret). |
+| `Database` | The database id to run queries against. |
+
+The repository's integration tests (`CosmosManager.Tests.Unit`) self-provision a `SampleDb` database with an `Items` container (partition key `/pk`) in the emulator and leave it in place, so setting `Database` to `SampleDb` works out of the box after you run them (`dotnet test`). The tests automatically skip when the emulator is not running.
+
+Load it in the UI via the **Load Connection File** menu option, or pass it on the command line with `--connections`:
+
+```CMD
+CosmosManager2019.exe exec --connections "connections.json" --connectTo "Local Emulator" --script "myscript.csql"
+```
+
 # Commandline Support (v2.0)
 Cosmos Manager now provides commandline support. This can be used to automate CosmosDB updates as part of a release or deployment cycle.
 One of the challenges with using Cosmos is the lack of automation and transaction ability when changing data within CosmosDB. By using this through the commandline you now have that control.

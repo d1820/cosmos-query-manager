@@ -1,8 +1,7 @@
 ﻿using CosmosManager.Exceptions;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Cosmos;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -13,14 +12,14 @@ namespace CosmosManager.Stores
         private readonly string _databaseName;
         private readonly string _collectionName;
         private readonly string _storedProcedureName;
-        private readonly IDocumentClient _client;
+        private readonly Container _container;
 
-        public StoredProcedureExecuteContext(string databaseName, string collectionName, string storedProcedureName, IDocumentClient client)
+        public StoredProcedureExecuteContext(string databaseName, string collectionName, string storedProcedureName, Container container)
         {
             _databaseName = databaseName;
             _collectionName = collectionName;
             _storedProcedureName = storedProcedureName;
-            _client = client;
+            _container = container;
         }
 
         public async Task<TResult> ExecuteStoredProcedureAsync<TResult>(params dynamic[] procedureParams) where TResult : class
@@ -35,20 +34,17 @@ namespace CosmosManager.Stores
 
             try
             {
-                var response = await _client.ExecuteStoredProcedureAsync<TResult>(
-                    UriFactory.CreateStoredProcedureUri(_databaseName, _collectionName, _storedProcedureName),
-                    options.ToRequestOptions(), procedureParams);
-
-                //Console.WriteLine("RU Charge " + response.RequestCharge);
+                var partitionKey = options.ToPartitionKey() ?? PartitionKey.None;
+                var response = await _container.Scripts.ExecuteStoredProcedureAsync<TResult>(_storedProcedureName, partitionKey, procedureParams);
 
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     return null;
                 }
 
-                return response.Response;
+                return response.Resource;
             }
-            catch (DocumentClientException e)
+            catch (CosmosException e)
             {
                 if (e.StatusCode == HttpStatusCode.NotFound)
                 {

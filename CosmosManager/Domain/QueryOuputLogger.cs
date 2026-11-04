@@ -1,9 +1,9 @@
 ﻿using CosmosManager.Interfaces;
 using CosmosManager.Presenters;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace CosmosManager.Domain
 {
@@ -36,9 +36,18 @@ namespace CosmosManager.Domain
                 {
                     return;
                 }
-                foreach (var stat in state as FormattedLogValues)
+                if (state is IReadOnlyList<KeyValuePair<string, object>> values)
                 {
-                    var parts = stat.Value?.ToString().Split(new[] { ',' });
+                    foreach (var stat in values)
+                    {
+                        var parts = stat.Value?.ToString().Split(new[] { ',' });
+
+                        _presenter?.AddToQueryOutput(JsonConvert.SerializeObject(parts, Formatting.Indented));
+                    }
+                }
+                else
+                {
+                    var parts = state.ToString().Split(new[] { ',' });
 
                     _presenter?.AddToQueryOutput(JsonConvert.SerializeObject(parts, Formatting.Indented));
                 }

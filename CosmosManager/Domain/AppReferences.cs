@@ -1,5 +1,4 @@
-﻿using CosmosManager.Interfaces;
-using SimpleInjector;
+﻿using SimpleInjector;
 
 namespace CosmosManager.Domain
 {
@@ -9,13 +8,8 @@ namespace CosmosManager.Domain
         public static string TransactionCacheDataFolder { get; internal set; }
         public static Container Container { get; internal set; }
 
-        public static ThemeType CurrentTheme
-        {
-            get
-            {
-                var repo = Container.GetInstance<IPropertiesRepository>();
-                return repo.GetValue<bool>(Constants.AppProperties.UseDarkTheme) ? ThemeType.Dark : ThemeType.Light;
-            }
-        }
+        // The app is standardized on dark mode: .NET 10's Application.SetColorMode(Dark) themes the
+        // native WinForms chrome, and the Scintilla editors + custom stylers use the Dark palette.
+        public static ThemeType CurrentTheme => ThemeType.Dark;
     }
 }

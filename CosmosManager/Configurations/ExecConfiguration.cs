@@ -13,51 +13,17 @@ namespace CosmosManager.Configurations
     {
         public static void ConfigureCommand(CommandLineApplication deployCommand, Container container)
         {
-            deployCommand.ThrowOnUnexpectedArgument = false;
+            deployCommand.UnrecognizedArgumentHandling = UnrecognizedArgumentHandling.CollectAndContinue;
             deployCommand.Description = "Run scripts through Cosmos Manager to invoke against CosmosDB";
             deployCommand.HelpOption("-?|-h|-H|--help");
-            var connectionsOption = new CommandOption("--connections", CommandOptionType.SingleValue)
-            {
-                Description = "The JSON file that contains all the CosmosDB connections information."
-            };
-
-            var connectToOption = new CommandOption("--connectTo", CommandOptionType.SingleValue)
-            {
-                Description = "The name of the connection to use to connect to CosmosDB."
-            };
-            var scriptOption = new CommandOption("--script", CommandOptionType.SingleValue)
-            {
-                Description = "The .CSQL script to execute."
-            };
-            var outputOption = new CommandOption("--output", CommandOptionType.SingleValue)
-            {
-                Description = "The .CResult file the query output is written to."
-            };
-            var folderOption = new CommandOption("--folder", CommandOptionType.SingleValue)
-            {
-                Description = "The folder that contains the .CSQL scripts to execute."
-            };
-            var continueOnErrorOption = new CommandOption("--continueOnError", CommandOptionType.NoValue)
-            {
-                Description = "Flag to indicate whether to continue script executions on error."
-            };
-            var ignorePromptsOption = new CommandOption("--ignorePrompts", CommandOptionType.NoValue)
-            {
-                Description = "Flag to indicate whether to continue without accepting user input on prompts. Used for executing data altering scripts without transactions."
-            };
-            var includeDocumentInOutput = new CommandOption("--includeDocumentInOutput", CommandOptionType.NoValue)
-            {
-                Description = "Flag to indicate whether to write the document results to the console and output file."
-            };
-
-            deployCommand.Options.Add(connectToOption);
-            deployCommand.Options.Add(connectionsOption);
-            deployCommand.Options.Add(scriptOption);
-            deployCommand.Options.Add(outputOption);
-            deployCommand.Options.Add(folderOption);
-            deployCommand.Options.Add(continueOnErrorOption);
-            deployCommand.Options.Add(ignorePromptsOption);
-            deployCommand.Options.Add(includeDocumentInOutput);
+            var connectionsOption = deployCommand.Option("--connections", "The JSON file that contains all the CosmosDB connections information.", CommandOptionType.SingleValue);
+            var connectToOption = deployCommand.Option("--connectTo", "The name of the connection to use to connect to CosmosDB.", CommandOptionType.SingleValue);
+            var scriptOption = deployCommand.Option("--script", "The .CSQL script to execute.", CommandOptionType.SingleValue);
+            var outputOption = deployCommand.Option("--output", "The .CResult file the query output is written to.", CommandOptionType.SingleValue);
+            var folderOption = deployCommand.Option("--folder", "The folder that contains the .CSQL scripts to execute.", CommandOptionType.SingleValue);
+            var continueOnErrorOption = deployCommand.Option("--continueOnError", "Flag to indicate whether to continue script executions on error.", CommandOptionType.NoValue);
+            var ignorePromptsOption = deployCommand.Option("--ignorePrompts", "Flag to indicate whether to continue without accepting user input on prompts. Used for executing data altering scripts without transactions.", CommandOptionType.NoValue);
+            var includeDocumentInOutput = deployCommand.Option("--includeDocumentInOutput", "Flag to indicate whether to write the document results to the console and output file.", CommandOptionType.NoValue);
 
             deployCommand.OnExecuteAsync(async (cancelToken) =>
            {

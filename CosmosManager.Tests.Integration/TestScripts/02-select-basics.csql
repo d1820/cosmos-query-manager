@@ -1,0 +1,9 @@
+/* Basic SELECT patterns. Highlights projection keywords: DISTINCT, TOP, AS, ORDER BY. */
+
+SELECT * FROM Items;
+
+SELECT Items.id, Items.name, Items.price FROM Items;
+
+SELECT DISTINCT Items.category FROM Items;
+
+SELECT TOP 3 Items.name AS productName, Items.price AS cost FROM Items ORDER BY Items.price DESC

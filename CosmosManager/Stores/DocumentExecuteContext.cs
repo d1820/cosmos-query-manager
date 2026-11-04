@@ -2,8 +2,8 @@
 using CosmosManager.Exceptions;
 using CosmosManager.Extensions;
 using CosmosManager.Interfaces;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +17,14 @@ namespace CosmosManager.Stores
     {
         private readonly string _databaseName;
         private readonly string _collectionName;
-        private readonly IDocumentClient _client;
+        private readonly Container _container;
         private readonly CancellationToken _cancellationToken;
 
-        public DocumentExecuteContext(string databaseName, string collectionName, IDocumentClient client, CancellationToken cancellationToken)
+        public DocumentExecuteContext(string databaseName, string collectionName, Container container, CancellationToken cancellationToken)
         {
             _databaseName = databaseName;
             _collectionName = collectionName;
-            _client = client;
+            _container = container;
             _cancellationToken = cancellationToken;
         }
 
@@ -35,12 +35,13 @@ namespace CosmosManager.Stores
 
             try
             {
-                var response = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(_databaseName, _collectionName, id), options.ToRequestOptions(), _cancellationToken);
+                var partitionKey = options.ToPartitionKey() ?? PartitionKey.None;
+                var response = await _container.ReadItemAsync<TResult>(id, partitionKey, options.ToItemRequestOptions(), _cancellationToken);
                 if (response.StatusCode != HttpStatusCode.OK)
                 { return null; }
-                return (TResult)(dynamic)response.Resource;
+                return response.Resource;
             }
-            catch (DocumentClientException e)
+            catch (CosmosException e)
             {
                 if (e.StatusCode == HttpStatusCode.NotFound)
                 {
@@ -50,15 +51,15 @@ namespace CosmosManager.Stores
             }
         }
 
-        public IQueryable<TResult> Query<TResult>(Domain.QueryOptions options = null) where TResult : class
+        public FeedIterator<TResult> Query<TResult>(Domain.QueryOptions options = null) where TResult : class
         {
             if (_databaseName == null)
                 throw new DataStoreException("Connect must be called to query CosmosDB");
 
-            return _client.CreateDocumentQuery<TResult>(UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName), options.ToFeedOptions());
+            return _container.GetItemLinqQueryable<TResult>(requestOptions: options.ToQueryRequestOptions()).ToFeedIterator();
         }
 
-        public IQueryable<TResult> QueryAsSql<TResult>(string sqlStatement, IEnumerable<DocumentQueryParameter> sqlParameters, Domain.QueryOptions options = null) where TResult : class
+        public FeedIterator<TResult> QueryAsSql<TResult>(string sqlStatement, IEnumerable<DocumentQueryParameter> sqlParameters, Domain.QueryOptions options = null) where TResult : class
         {
             if (sqlParameters == null)
                 throw new ArgumentNullException(nameof(sqlParameters));
@@ -68,21 +69,21 @@ namespace CosmosManager.Stores
             }
             if (_databaseName == null)
                 throw new DataStoreException("Connect must be called to query CosmosDB");
-            var sqlParameterCollection =
-                new SqlParameterCollection(sqlParameters.Select(s =>
-                                                                {
-                                                                    var paramName = s.Name;
-                                                                    if (!paramName.StartsWith("@"))
-                                                                    {
-                                                                        paramName = $"@{paramName}";
-                                                                    }
-                                                                    return new SqlParameter(paramName, s.Value);
-                                                                }));
-            var querySpec = new SqlQuerySpec(sqlStatement, sqlParameterCollection);
-            return _client.CreateDocumentQuery<TResult>(UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName), querySpec, options.ToFeedOptions());
+
+            var queryDefinition = sqlParameters.Aggregate(new QueryDefinition(sqlStatement), (query, parameter) =>
+            {
+                var paramName = parameter.Name;
+                if (!paramName.StartsWith("@"))
+                {
+                    paramName = $"@{paramName}";
+                }
+                return query.WithParameter(paramName, parameter.Value);
+            });
+
+            return _container.GetItemQueryIterator<TResult>(queryDefinition, requestOptions: options.ToQueryRequestOptions());
         }
 
-        public IQueryable<TResult> QueryAsSql<TResult>(string sqlStatement, Domain.QueryOptions queryOptions = null) where TResult : class
+        public FeedIterator<TResult> QueryAsSql<TResult>(string sqlStatement, Domain.QueryOptions queryOptions = null) where TResult : class
         {
             if (string.IsNullOrWhiteSpace(sqlStatement))
             {
@@ -90,8 +91,8 @@ namespace CosmosManager.Stores
             }
             if (_databaseName == null)
                 throw new DataStoreException("Connect must be called to query CosmosDB");
-            var querySpec = new SqlQuerySpec(sqlStatement);
-            return _client.CreateDocumentQuery<TResult>(UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName), querySpec, queryOptions.ToFeedOptions());
+
+            return _container.GetItemQueryIterator<TResult>(new QueryDefinition(sqlStatement), requestOptions: queryOptions.ToQueryRequestOptions());
         }
 
         public async Task<bool> DeleteAsync(string id, Domain.RequestOptions options = null)
@@ -106,10 +107,11 @@ namespace CosmosManager.Stores
 
             try
             {
-                var response = await _client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(_databaseName, _collectionName, id), options.ToRequestOptions(), _cancellationToken);
+                var partitionKey = options.ToPartitionKey() ?? PartitionKey.None;
+                var response = await _container.DeleteItemAsync<object>(id, partitionKey, options.ToItemRequestOptions(), _cancellationToken);
                 return response.StatusCode == HttpStatusCode.NoContent;
             }
-            catch (DocumentClientException e)
+            catch (CosmosException e)
             {
                 if (e.StatusCode == HttpStatusCode.NotFound)
                 {
@@ -128,14 +130,14 @@ namespace CosmosManager.Stores
 
             try
             {
-                var response = await _client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName), entity, options.ToRequestOptions(), true, _cancellationToken);
+                var response = await _container.CreateItemAsync(entity, options.ToPartitionKey(), options.ToItemRequestOptions(), _cancellationToken);
                 if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
                 {
                     return entity;
                 }
                 throw new DocumentUpdateException("Unable to create product. Invalid status returned from CosmosDB.");
             }
-            catch (DocumentClientException e)
+            catch (CosmosException e)
             {
                 if (e.StatusCode == HttpStatusCode.NotFound)
                 {
@@ -154,14 +156,14 @@ namespace CosmosManager.Stores
 
             try
             {
-                var response = await _client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_databaseName, _collectionName), entity, options.ToRequestOptions(), true, _cancellationToken);
+                var response = await _container.UpsertItemAsync(entity, options.ToPartitionKey(), options.ToItemRequestOptions(), _cancellationToken);
                 if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
                 {
                     return entity;
                 }
                 throw new DocumentUpdateException("Unable to update product. Invalid status returned from CosmosDB.");
             }
-            catch (DocumentClientException e)
+            catch (CosmosException e)
             {
                 if (e.StatusCode == HttpStatusCode.NotFound)
                 {
