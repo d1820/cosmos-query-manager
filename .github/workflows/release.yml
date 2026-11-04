@@ -1,0 +1,112 @@
+name: Release
+
+# Builds a self-contained, single-file Windows exe and publishes it as a GitHub Release.
+# Trigger by pushing a tag:  v2.0.1  (real release)  or  v2.0.1-test  (draft/prerelease, safe to test).
+# A test tag (any tag containing '-') produces a DRAFT + PRERELEASE and does NOT touch master/version.xml,
+# so it never affects the AutoUpdater "latest" URL.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g. 2.0.1), no leading v'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Resolve version
+        id: ver
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF_TYPE -eq 'tag') {
+            $v = '${{ github.ref_name }}'.TrimStart('v')
+          } else {
+            $v = '${{ github.event.inputs.version }}'
+          }
+          $pre = if ($v -match '-') { 'true' } else { 'false' }
+          "version=$v"            >> $env:GITHUB_OUTPUT
+          "is_prerelease=$pre"    >> $env:GITHUB_OUTPUT
+          Write-Host "Resolved version: $v (prerelease=$pre)"
+
+      - name: Restore
+        run: dotnet restore CosmosQueryEditor.sln
+
+      - name: Build
+        run: dotnet build CosmosQueryEditor.sln -c Release --no-restore -p:Version=${{ steps.ver.outputs.version }}
+
+      - name: Unit tests
+        run: dotnet test CosmosManager.Tests.Unit/CosmosManager.Tests.Unit.csproj -c Release --no-build
+
+      - name: Publish single-file exe
+        run: >
+          dotnet publish CosmosManager/CosmosManager.csproj
+          -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:Version=${{ steps.ver.outputs.version }}
+          -o publish
+
+      - name: Package assets
+        shell: pwsh
+        run: |
+          $v = '${{ steps.ver.outputs.version }}'
+          $exe = 'publish/CosmosManager2019.exe'
+          if (-not (Test-Path $exe)) { throw "Published exe not found: $exe" }
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          # Versioned exe for humans; stable-named zip (contains the real exe name) for AutoUpdater.
+          Copy-Item $exe "dist/CosmosManager-$v.exe"
+          Compress-Archive -Path $exe -DestinationPath 'dist/CosmosManager.zip' -Force
+          Get-ChildItem dist | ForEach-Object { Write-Host "asset: $($_.Name)" }
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.ver.outputs.version) }}
+          name: Cosmos Manager ${{ steps.ver.outputs.version }}
+          draft: ${{ steps.ver.outputs.is_prerelease == 'true' }}
+          prerelease: ${{ steps.ver.outputs.is_prerelease == 'true' }}
+          files: |
+            dist/CosmosManager-${{ steps.ver.outputs.version }}.exe
+            dist/CosmosManager.zip
+
+      # Only for real releases (non-prerelease tags): point AutoUpdater's version.xml at the new release.
+      - name: Update version.xml on master
+        if: ${{ github.ref_type == 'tag' && steps.ver.outputs.is_prerelease != 'true' }}
+        shell: pwsh
+        run: |
+          $v = '${{ steps.ver.outputs.version }}'
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git fetch origin master
+          git checkout -B master origin/master
+          $url = 'https://github.com/d1820/cosmos-query-manager/releases/latest/download/CosmosManager.zip'
+          $lines = @(
+            '<?xml version="1.0" encoding="utf-8"?>',
+            '<item>',
+            "    <version>$v</version>",
+            "    <url>$url</url>",
+            '    <changelog>https://github.com/d1820/cosmos-query-manager/releases</changelog>',
+            '    <mandatory>false</mandatory>',
+            '</item>'
+          )
+          Set-Content -Path version.xml -Value $lines -Encoding UTF8
+          git add version.xml
+          git commit -m "ci: update version.xml to $v [skip ci]"
+          git push origin master
